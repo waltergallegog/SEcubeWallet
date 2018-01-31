@@ -4,18 +4,17 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+    ui(new Ui::MainWindow ){
     init();
-    ui->setupUi(this);
-    ui->AddEntry->setEnabled(false);
-    ui->CipherClose->setEnabled(false);
-
 }
 
 MainWindow::~MainWindow()
 {
     secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+
+    if(db.open()) // close anye existent database
+        db.close();
+
     if(s.logged_in)
         L1_logout(&s);
 
@@ -24,6 +23,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+
+    ui->setupUi(this);
+    ui->AddEntry->setEnabled(false);
+    ui->EditEntry->setEnabled(false);
+    ui->DeleteEntry->setEnabled(false);
+    ui->CipherClose->setEnabled(false);
+    ui->TableTitle->setVisible(false);
+    ui->WalletView->hide();
+    ui->WalletView->horizontalHeader()->setStretchLastSection(true);
+
+
     // Password login dialog
     LoginDialog* loginDialog = new LoginDialog( this );
     loginDialog->exec();
@@ -46,83 +56,121 @@ void MainWindow::init()
         /*After the board is connected and the user is correctly logged in, the secure_init() should be issued.
          * The parameter se3_session *s contains all the information that let the system acknowledge which board
          * is connected and if the user has successfully logged in. This function may set a default configuration
-         *  thanks to the L1 provided services: it will be used thefirst available key for encryption, and the
+         * thanks to the L1 provided services: it will be used thefirst available key for encryption, and the
          * first available algorithm that can manage to encrypt and authenticate data at the same time. Since
          * keys must not be shared outside the device, from the host side, the user may just request to use a
          * key represented by a unique ID(uint32_t keyID).*/
-
     }
-    //connect (ui->actionSetEnvironment, SIGNAL(triggered(bool))), this, SLOT(dialogSetEnvironment()));
+
 }
 
 
+// New wallet button clicked: promt secureFileDialog and create database.
 void MainWindow::on_NewWallet_clicked()
 {
-    SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 );
+    SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 ); //option 1 means we are creating new file
     fileDialog->exec();
     if(fileDialog->result()==QDialog::Rejected){
         return;
     }
     fileName = fileDialog->getChosenFile();
 
-    if(!fileName.isEmpty())
-        CreateTable();
-}
-
-void MainWindow::CreateTable(){
-
-    OpenDataBase();   // Creates a table if it doens't exist. Otherwise, it will use existing table.
-    model =  new QSqlTableModel;
-    model->setTable("wallet");
-    model->select();
-    ui->WalletView->setModel(model);
-    ui->WalletView->setColumnHidden(0, true); //Hide Identification
-
-    ui->AddEntry->setEnabled(true);
-    ui->CipherClose->setEnabled(true);
-
-    return;
+    if(!fileName.isEmpty()){
+        ui->TableTitle->setText(fileName);
+        ui->TableTitle->setVisible(true);
+        OpenDataBase(); //
+        CreateViewTable();
+    }
 }
 
 void MainWindow::OpenDataBase (){
+    qDebug() << "entered open data base";
 
-    bool success;
     const QString DRIVER("QSQLITE");
-    if(!(QSqlDatabase::isDriverAvailable(DRIVER))) {
+    if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
         exit (1);
     }
-    if (db.open())
+    if (db.open()){ //close any prev. opened database
+        model->clear();
         db.close();
+        QSqlDatabase::removeDatabase(DRIVER);
+        db = QSqlDatabase();
+    }
     db = QSqlDatabase::addDatabase(DRIVER);
 
     db.setDatabaseName(fileName);
-    if(!db.open()){
-      qWarning() << "ERROR: " << db.lastError();
-      exit (1);
-     }
+    if(!db.open()){ //Check if it was possible to open the database
+        qWarning() << "ERROR: " << db.lastError();
+        exit (1);
+    }
 
     QSqlQuery query;
     query.prepare("create table Wallet "
-              "(id integer primary key, "
-              "Username TEXT, "
-              "Password TEXT, "
-              "Domain TEXT )");
+                  "(id integer primary key, "
+                  "Username TEXT, "
+                  "Domain TEXT, "
+                  "Password TEXT )");
 
-    if (!query.exec()){
+    if (!query.exec())
         qDebug() << "Couldn't create the table 'wallet': one might already exist.";
-        qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
-        success = false;
-    }
 
     return;
 
 }
 
+void MainWindow::CreateViewTable(){
+    qDebug() << "entered CreateViewTable";
+    model = new QSqlTableModel;
+
+
+    model->setTable("Wallet");
+    model->select();
+
+    ui->WalletView->setModel(model);
+    //ui->WalletView->setColumnHidden(0, true); //Hide Identification
+    ui->WalletView->setColumnHidden(3, true);
+    ui->WalletView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->WalletView->setSelectionBehavior( QAbstractItemView::SelectItems );
+    ui->WalletView->setSelectionMode( QAbstractItemView::SingleSelection );
+
+
+
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    ui->WalletView->show();
+    ui->AddEntry->setEnabled(true);
+    ui->CipherClose->setEnabled(true);
+    ui->AddEntry->setEnabled(true);
+    ui->EditEntry->setEnabled(true);
+    ui->DeleteEntry->setEnabled(true);
+    ui->CipherClose->setEnabled(true);
+    ui->Showpass->setChecked(false);
+
+
+    return;
+}
+
+
+
 void MainWindow::on_AddEntry_clicked(){
-    int current = model->rowCount(QModelIndex());
-    model->insertRow(current);
-    model->setData(model->index(current, 0), current);
+
+    AddEntry *add = new AddEntry(this);
+    add->exec();
+    if(add->result()==QDialog::Rejected){
+        return;
+    }
+
+    QSqlRecord rec = model->record();
+    rec.setGenerated("id", false);
+    rec.setValue("Username", add->getUser());
+    rec.setValue("Password",add->getPassword());
+    rec.setValue("Domain",add->getDomain());
+
+    int newRecNo = model->rowCount();
+    if (model->insertRecord(newRecNo, rec))
+        model->submitAll();
+
 
 }
 
@@ -166,6 +214,15 @@ void MainWindow::on_CipherClose_clicked(){
     free(buffer);
     secure_close(&sefile_file);
     plain_file.close();
+
+    // clean
+    QFile::remove(fileName);
+    ui->WalletView->hide();
+    ui->AddEntry->setEnabled(false);
+    ui->EditEntry->setEnabled(false);
+    ui->DeleteEntry->setEnabled(false);
+    ui->CipherClose->setEnabled(false);
+    ui->TableTitle->setVisible(false);
     return; // todo error
 
 }
@@ -236,5 +293,70 @@ void MainWindow::on_OpenCyphered_clicked()
     plain_file.open(QIODevice::WriteOnly);
     plain_file.write(plain_buffer);
     plain_file.close();
-    CreateTable();
+    OpenDataBase();
+    CreateViewTable();
+}
+
+void MainWindow::on_DeleteEntry_clicked()
+{
+    QModelIndexList selection = ui->WalletView->selectionModel()->selectedIndexes();
+    model->submitAll();
+
+    // Multiple rows can be selected (not anymore, disabled to allow edit)
+    for(int i=0; i< selection.count(); i++){
+
+        DeleteConfirmation * conf = new DeleteConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected)
+            return;
+
+        QModelIndex index = selection.at(i);
+        qDebug() << index.row();
+        model->removeRows(index.row(),1);
+    }
+    if(!model->submitAll())
+        qDebug() << "Error: " << model->lastError();
+}
+
+void MainWindow::on_EnvironmentBut_clicked()
+{
+    EnvironmentDialog *envDialog = new EnvironmentDialog(this, &s);
+    envDialog->exec();
+
+}
+
+
+void MainWindow::on_EditEntry_clicked()
+{
+    QModelIndexList selection = ui->WalletView->selectionModel()->selectedIndexes();
+    model->submitAll();
+
+    // Multiple rows can be selected
+    for(int i=0; i< selection.count(); i++){
+        QModelIndex index = selection.at(i);
+        qDebug() << index.row();
+
+        QSqlRecord rec = model->record(index.row());
+
+        AddEntry *add = new AddEntry(this, rec.value("Username").toString(),rec.value("Password").toString(), rec.value("Domain").toString());
+        add->exec();
+
+        if(add->result()==QDialog::Rejected)
+            return;
+
+        rec.setGenerated("id", false);
+        rec.setValue("Username", add->getUser());
+        rec.setValue("Password",add->getPassword());
+        rec.setValue("Domain",add->getDomain());
+
+        if (model->setRecord(index.row(), rec));
+
+    }
+    if(!model->submitAll())
+        qDebug() << "Error: " << model->lastError();
+
+}
+
+void MainWindow::on_Showpass_toggled(bool checked){
+    ui->WalletView->setColumnHidden(3, !checked);
 }

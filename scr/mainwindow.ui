@@ -14,67 +14,123 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="NewWallet">
+   <widget class="QPushButton" name="EnvironmentBut">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Create New Wallet</string>
-    </property>
-   </widget>
-   <widget class="QTableView" name="WalletView">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>591</width>
-      <height>192</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="AddEntry">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>10</y>
+      <x>519</x>
+      <y>0</y>
       <width>111</width>
-      <height>23</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Add To Wallet</string>
+     <string>Set Environment</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="CipherClose">
+   <widget class="QCheckBox" name="Showpass">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>10</y>
+      <x>490</x>
+      <y>160</y>
       <width>121</width>
-      <height>23</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Cipher and Close</string>
+     <string>Show Passwords</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="OpenCyphered">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>10</y>
-      <width>111</width>
-      <height>23</height>
+      <x>490</x>
+      <y>60</y>
+      <width>94</width>
+      <height>83</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Open Cyphered</string>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="AddEntry">
+       <property name="text">
+        <string>Add To Wallet</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="EditEntry">
+       <property name="text">
+        <string>Edit Entry</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="DeleteEntry">
+       <property name="text">
+        <string>Delete entry</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>429</width>
+      <height>25</height>
+     </rect>
     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="NewWallet">
+       <property name="text">
+        <string>Create New Wallet</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignTop">
+      <widget class="QPushButton" name="CipherClose">
+       <property name="text">
+        <string>Cipher and Close</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="OpenCyphered">
+       <property name="text">
+        <string>Open Cyphered</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>50</y>
+      <width>431</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QTableView" name="WalletView">
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
+      <widget class="QLabel" name="TableTitle">
+       <property name="text">
+        <string>Title</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

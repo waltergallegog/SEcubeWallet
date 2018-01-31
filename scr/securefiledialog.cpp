@@ -103,20 +103,26 @@ void SecureFileDialog::slotAcceptFile(){
             reject();
             return;
         }
-//        chosenFile = listFiles->at(chooseFile->currentIndex().row());
+        //        chosenFile = listFiles->at(chooseFile->currentIndex().row());
         if(choosePath->text().indexOf("/") != -1)
             chosenFile = choosePath->text() +"/" + listFiles->at(chooseFile->currentIndex().row());
         else if (choosePath->text().indexOf("\\") != -1)
             chosenFile = choosePath->text() +"\\" + listFiles->at(chooseFile->currentIndex().row());
         else
             chosenFile = listFiles->at(chooseFile->currentIndex().row());
-    }else{
-        if (chooseNewFile->text().endsWith(QString(".sqlite")))
-            chosenFile = chooseNewFile->text();
-        else
-            chosenFile = chooseNewFile->text().append(".sqlite");
+        accept();
     }
-    accept();
+    else{
+        if (! chooseNewFile->text().isEmpty()){
+            if (chooseNewFile->text().endsWith(QString(".sqlite")))
+                chosenFile = chooseNewFile->text();
+            else
+                chosenFile = chooseNewFile->text().append(".sqlite");
+            accept();
+        }
+
+    }
+
 }
 
 QString SecureFileDialog::getChosenFile(){

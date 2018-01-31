@@ -29,15 +29,21 @@ SOURCES += main.cpp\
     environmentdialog.cpp \
     logindialog.cpp \
     securefiledialog.cpp \
-    dbmanager.cpp
+    dbmanager.cpp \
+    addentry.cpp \
+    deleteconfirmation.cpp
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
     logindialog.h \
     securefiledialog.h \
-    dbmanager.h
+    dbmanager.h \
+    addentry.h \
+    deleteconfirmation.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    addentry.ui \
+    deleteconfirmation.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

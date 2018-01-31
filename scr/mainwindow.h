@@ -7,6 +7,9 @@
 //other windows, dialogs
 #include "logindialog.h"
 #include "securefiledialog.h"
+#include "addentry.h"
+#include "environmentdialog.h"
+#include "deleteconfirmation.h"
 
 //SEcure related
 #include "SEfile.h"
@@ -23,6 +26,7 @@
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QFile>
+#include <QSqlRecord>
 
 
 
@@ -42,12 +46,13 @@ public:
 private slots:
 
     void on_NewWallet_clicked();
-
     void on_AddEntry_clicked();
-
     void on_CipherClose_clicked();
-
     void on_OpenCyphered_clicked();
+    void on_DeleteEntry_clicked();
+    void on_EnvironmentBut_clicked();
+    void on_EditEntry_clicked();
+    void on_Showpass_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
@@ -65,7 +70,7 @@ private:
 
     //Methods
      void init(); //initialization. Call LoginDialog
-     void CreateTable();
+     void CreateViewTable();
      void OpenDataBase();
 
 };
