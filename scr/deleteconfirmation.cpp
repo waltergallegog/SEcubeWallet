@@ -1,6 +1,7 @@
 #include "deleteconfirmation.h"
 #include "ui_deleteconfirmation.h"
 
+//Nothing to see here, just a simple dialog, configuration is done in the UI editor.
 DeleteConfirmation::DeleteConfirmation(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DeleteConfirmation)
@@ -11,7 +12,6 @@ DeleteConfirmation::DeleteConfirmation(QWidget *parent) :
     setModal( true );
 }
 
-DeleteConfirmation::~DeleteConfirmation()
-{
+DeleteConfirmation::~DeleteConfirmation(){
     delete ui;
 }

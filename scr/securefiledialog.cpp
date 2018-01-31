@@ -6,7 +6,11 @@ SecureFileDialog::SecureFileDialog(QWidget *parent, int newFile) : QDialog(paren
     currentPath = QDir::currentPath();
     this->newFile=newFile;
     setUpGUI();
-    setWindowTitle( tr("Choose Wallet to open") );
+    if (!newFile)
+        setWindowTitle( tr("Choose Wallet to open") );
+    else
+        setWindowTitle( tr("Create New Wallet") );
+
     setModal( true );
 }
 SecureFileDialog::~SecureFileDialog()
@@ -168,5 +172,3 @@ void SecureFileDialog::refreshFileView(){
 void SecureFileDialog::slotAbortFile(){
     reject();
 }
-
-

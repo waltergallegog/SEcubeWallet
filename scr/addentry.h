@@ -15,10 +15,15 @@ class AddEntry : public QDialog
     Q_OBJECT
 
 public:
+     // Constructor when calling from add
     explicit AddEntry(QWidget *parent = 0);
-    explicit AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn);
-    ~AddEntry();
 
+    //Constructor when calling from edit.
+    explicit AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn);
+
+    ~AddEntry();//Destructor
+
+    //Methods to access data from main.
     QString getUser();
     QString getDomain();
     QString getPassword();
@@ -30,7 +35,6 @@ private slots:
     void on_InPass_textChanged(const QString &arg1);
     void on_InPass2_textChanged(const QString &arg1);
     void on_buttonBox_clicked(QAbstractButton *button);
-
     void on_ShowPass_toggled(bool checked);
 
 private:

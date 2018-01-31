@@ -29,7 +29,6 @@ SOURCES += main.cpp\
     environmentdialog.cpp \
     logindialog.cpp \
     securefiledialog.cpp \
-    dbmanager.cpp \
     addentry.cpp \
     deleteconfirmation.cpp
 
@@ -37,7 +36,6 @@ HEADERS  += mainwindow.h \
     environmentdialog.h \
     logindialog.h \
     securefiledialog.h \
-    dbmanager.h \
     addentry.h \
     deleteconfirmation.h
 

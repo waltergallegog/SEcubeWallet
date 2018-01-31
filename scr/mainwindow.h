@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
 #include <QMainWindow>
-#include <QDebug>
 
 //other windows, dialogs
 #include "logindialog.h"
@@ -16,19 +16,17 @@
 #include "se3/L1.h"
 
 //Sqlite related
-//#include "dbmanager.h"
-
-#include <QTableView>
-
-#include <QObject>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlTableModel>
-#include <QFile>
 #include <QSqlRecord>
 
-
+//Miscellaneous
+#include <QTableView>
+#include <QObject>
+#include <QFile>
+#include <QDebug>
 
 
 namespace Ui {
@@ -57,22 +55,20 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    QString path, fileName;
-    se3_session s; // session variable
-    QSqlTableModel *model;
+    // SeCube related
+    se3_session s;              // session variable
+    SEFILE_FHANDLE sefile_file; // Encrypted file
 
-    SEFILE_FHANDLE sefile_file;
-    se3_key *keyTable;
-    se3_algo *algTable;
-
-    QSqlDatabase db;
+    // Database related
+    QSqlDatabase db;        // The database
+    QSqlTableModel *model;  // Model to handle tables in the database easily
+    QString path, fileName; // To store database filename
 
 
     //Methods
-     void init(); //initialization. Call LoginDialog
-     void CreateViewTable();
-     void OpenDataBase();
-
+     void init();           //initialization. Call LoginDialog and configure UI
+     bool OpenDataBase();   //Create/Open Data base and create table, connections
+     void CreateViewTable();//Create the table model and display the data in the UI.
 };
 
 #endif // MAINWINDOW_H
