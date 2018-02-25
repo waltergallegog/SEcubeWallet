@@ -41,6 +41,7 @@ void MainWindow::init()
     ui->AddEntry->setEnabled(false);
     ui->EditEntry->setEnabled(false);
     ui->DeleteEntry->setEnabled(false);
+    ui->LaunchEntry->setEnabled(false);
     ui->CipherClose->setEnabled(false);
     ui->TableTitle->setVisible(false);
     ui->WalletView->hide();
@@ -155,6 +156,7 @@ void MainWindow::CreateViewTable(){
     ui->AddEntry->setEnabled(true);
     ui->EditEntry->setEnabled(true);
     ui->DeleteEntry->setEnabled(true);
+    ui->LaunchEntry->setEnabled(true);
     ui->Showpass->setChecked(false);
     ui->CipherClose->setEnabled(true);
 
