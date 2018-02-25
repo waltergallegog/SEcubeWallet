@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>295</height>
+    <width>646</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,9 +30,9 @@
    <widget class="QCheckBox" name="Showpass">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>160</y>
-      <width>121</width>
+      <x>480</x>
+      <y>200</y>
+      <width>141</width>
       <height>21</height>
      </rect>
     </property>
@@ -45,8 +45,8 @@
      <rect>
       <x>490</x>
       <y>60</y>
-      <width>94</width>
-      <height>83</height>
+      <width>106</width>
+      <height>132</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -71,6 +71,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="LaunchEntry">
+       <property name="text">
+        <string>Launch Entry</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="layoutWidget">
@@ -79,7 +86,7 @@
       <x>40</x>
       <y>10</y>
       <width>429</width>
-      <height>25</height>
+      <height>30</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -106,7 +113,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -138,8 +145,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>631</width>
-     <height>20</height>
+     <width>646</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
