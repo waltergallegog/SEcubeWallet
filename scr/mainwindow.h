@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QFile>
 #include <QDebug>
+#include <QModelIndex>
 
 
 namespace Ui {
@@ -48,9 +49,11 @@ private slots:
     void on_CipherClose_clicked();
     void on_OpenCyphered_clicked();
     void on_DeleteEntry_clicked();
+    void on_LaunchEntry_clicked();
     void on_EnvironmentBut_clicked();
     void on_EditEntry_clicked();
     void on_Showpass_toggled(bool checked);
+    //void onTableClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;

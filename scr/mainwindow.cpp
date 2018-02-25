@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDesktopServices>
+#include <QUrl>
+#include <QModelIndex>
+#include <QItemSelectionModel>
+#include <QDebug>
+
 #define IDENT_COL 0
 #define PASS_COL  3
 
@@ -140,7 +146,7 @@ void MainWindow::CreateViewTable(){
     //Configure the table
     ui->WalletView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
     //ui->WalletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
-    ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
+    ui->WalletView->setColumnHidden(PASS_COL, false);//Initially hide passwords column
     ui->WalletView->setSelectionBehavior( QAbstractItemView::SelectItems ); //To allow only one row selection...
     ui->WalletView->setSelectionMode( QAbstractItemView::SingleSelection ); //So we can edit one entry per time
     ui->WalletView->show();// show table, initially hidden
@@ -232,6 +238,22 @@ void MainWindow::on_DeleteEntry_clicked()
     return;
 }
 
+void MainWindow::on_LaunchEntry_clicked(){
+
+    QModelIndexList selection = ui->WalletView->selectionModel()->selectedIndexes();//Get Items selected in table
+    model->submitAll();//Submit any pending changes before continue. (cannot be done before select bcs it deletes it)
+
+    // If Multiple rows can be selected (Disabled for edit. Could be good for delete)
+    for(int i=0; i< selection.count(); i++){
+        QModelIndex index = selection.at(i);
+        QSqlRecord rec = model->record(index.row());//Get the entry in the row selected by user
+
+        QString aux = "https://" + rec.value("Domain").toString();
+        //qDebug() << aux;
+
+        QDesktopServices::openUrl(QUrl(aux));
+    }
+}
 
 //When user wants, make passwords visible
 void MainWindow::on_Showpass_toggled(bool checked){
