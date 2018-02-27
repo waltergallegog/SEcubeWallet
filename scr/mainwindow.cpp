@@ -20,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()//Destructor
 {
-    on_CipherClose_clicked(); //Call cipher before closing
+    if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
+        on_CipherClose_clicked(); //Call cipher before closing
     secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
 
     if(db.open()){ // close anye existent connections and database
