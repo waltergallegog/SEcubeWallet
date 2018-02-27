@@ -30,14 +30,17 @@ SOURCES += main.cpp\
     logindialog.cpp \
     securefiledialog.cpp \
     addentry.cpp \
-    deleteconfirmation.cpp
+    deleteconfirmation.cpp \
+    zxcvbn.cpp
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
     logindialog.h \
     securefiledialog.h \
     addentry.h \
-    deleteconfirmation.h
+    deleteconfirmation.h \
+    dict-src.h \
+    zxcvbn.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
