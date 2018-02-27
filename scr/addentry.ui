@@ -19,7 +19,7 @@
      <x>40</x>
      <y>10</y>
      <width>341</width>
-     <height>151</height>
+     <height>160</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -60,14 +60,14 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="InPass2">
+       <widget class="QLineEdit" name="InPass">
         <property name="echoMode">
          <enum>QLineEdit::Password</enum>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="InPass">
+       <widget class="QLineEdit" name="InPass2">
         <property name="echoMode">
          <enum>QLineEdit::Password</enum>
         </property>
@@ -174,9 +174,9 @@
   <widget class="QLabel" name="match_pass">
    <property name="geometry">
     <rect>
-     <x>180</x>
+     <x>90</x>
      <y>350</y>
-     <width>101</width>
+     <width>221</width>
      <height>31</height>
     </rect>
    </property>
