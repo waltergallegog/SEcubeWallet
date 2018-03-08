@@ -7,6 +7,8 @@
 #include <QItemSelectionModel>
 #include <QDebug>
 
+#define DEV
+
 #define IDENT_COL 0
 #define PASS_COL  3
 
@@ -50,7 +52,8 @@ void MainWindow::init()
     ui->WalletView->horizontalHeader()->setStretchLastSection(true);
     setWindowTitle(tr("SEcube Wallet"));
 
-    // SEcube Password login dialog
+#ifndef DEV
+    //SEcube Password login dialog
     LoginDialog* loginDialog = new LoginDialog( this );
     loginDialog->exec();
 
@@ -74,6 +77,7 @@ void MainWindow::init()
          * The parameter se3_session *s contains all the information that let the system acknowledge which board
          * is connected and if the user has successfully logged in.*/
     }
+#endif
     return;
 }
 
