@@ -6,50 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>646</width>
-    <height>315</height>
+    <width>647</width>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="EnvironmentBut">
-    <property name="geometry">
-     <rect>
-      <x>519</x>
-      <y>0</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Set Environment</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="Showpass">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>200</y>
-      <width>141</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show Passwords</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>60</y>
-      <width>106</width>
-      <height>132</height>
+      <y>21</y>
+      <width>141</width>
+      <height>191</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="EnvironmentBut">
+       <property name="text">
+        <string>Set Environment</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="AddEntry">
        <property name="text">
@@ -78,14 +72,21 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="Showpass">
+       <property name="text">
+        <string>Show Passwords</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>10</x>
       <y>10</y>
-      <width>429</width>
+      <width>462</width>
       <height>30</height>
      </rect>
     </property>
@@ -97,7 +98,7 @@
        </property>
       </widget>
      </item>
-     <item alignment="Qt::AlignTop">
+     <item>
       <widget class="QPushButton" name="CipherClose">
        <property name="text">
         <string>Cipher and Close</string>
@@ -116,10 +117,10 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>50</y>
+      <x>30</x>
+      <y>40</y>
       <width>431</width>
-      <height>181</height>
+      <height>251</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -139,14 +140,58 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLineEdit" name="UserFilter">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>230</y>
+      <width>139</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Filter by User</string>
+    </property>
+    <property name="clearButtonEnabled">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="DomainFilter">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>260</y>
+      <width>139</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>125</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Filter by Domain</string>
+    </property>
+    <property name="clearButtonEnabled">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>646</width>
-     <height>25</height>
+     <width>647</width>
+     <height>20</height>
     </rect>
    </property>
   </widget>

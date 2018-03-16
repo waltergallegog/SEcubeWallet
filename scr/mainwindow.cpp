@@ -7,10 +7,12 @@
 #include <QItemSelectionModel>
 #include <QDebug>
 
-#define DEV
+#define DEV // uncomment this line to disable login dialog so you can test non-secube related code
 
-#define IDENT_COL 0
-#define PASS_COL  3
+#define IDENT_COL   0
+#define USER_COL    1
+#define DOM_COL     2
+#define PASS_COL    3
 
 #define DRIVER "QSQLITE"
 
@@ -28,6 +30,7 @@ MainWindow::~MainWindow()//Destructor
 
     if(db.open()){ // close anye existent connections and database
         model->clear();
+        proxyModel->clear();
         db.close();
         QSqlDatabase::removeDatabase(DRIVER);
         db = QSqlDatabase();
@@ -49,6 +52,8 @@ void MainWindow::init()
     ui->CipherClose->setEnabled(false);
     ui->TableTitle->setVisible(false);
     ui->WalletView->hide();
+    ui->DomainFilter->hide();
+    ui->UserFilter->hide();
     ui->WalletView->horizontalHeader()->setStretchLastSection(true);
     setWindowTitle(tr("SEcube Wallet"));
 
@@ -112,6 +117,7 @@ bool MainWindow::OpenDataBase (){
     }
     if (db.open()){ //close any prev. opened connections and database
         model->clear();
+        proxyModel->clear();
         db.close();
         QSqlDatabase::removeDatabase(DRIVER);
         db = QSqlDatabase();
@@ -147,16 +153,22 @@ void MainWindow::CreateViewTable(){
     model->select();
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);// as the table will be not edditable, the changes are updated by calling submitAll()
 
+    //Create ProxyModel for filtering
+    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(model); //connect proxyModel to Model
 
-    //Connect the model to the view table: Sqltable -> Model -> TableView
-    ui->WalletView->setModel(model);
+    //Connect the model to the view table: Sqltable -> Model -> ProxyModel ->  TableView
+    ui->WalletView->setModel(proxyModel);
     //Configure the table
+    ui->WalletView->setSortingEnabled(true);//enable sorting
     ui->WalletView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
-    //ui->WalletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
-    ui->WalletView->setColumnHidden(PASS_COL, false);//Initially hide passwords column
+    ui->WalletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
+    ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
     ui->WalletView->setSelectionBehavior( QAbstractItemView::SelectItems ); //To allow only one row selection...
     ui->WalletView->setSelectionMode( QAbstractItemView::SingleSelection ); //So we can edit one entry per time
     ui->WalletView->show();// show table, initially hidden
+    ui->DomainFilter->show();
+    ui->UserFilter->show();
 
     //As we now have a wallet, we can enable the buttons
     ui->AddEntry->setEnabled(true);
@@ -322,6 +334,8 @@ void MainWindow::on_CipherClose_clicked(){
     // If encryption ok, delete plain file and set UI to "not wallet" state
     QFile::remove(fileName);
     ui->WalletView->hide();
+    ui->DomainFilter->hide();
+    ui->UserFilter->hide();
     ui->AddEntry->setEnabled(false);
     ui->EditEntry->setEnabled(false);
     ui->DeleteEntry->setEnabled(false);
@@ -395,4 +409,16 @@ void MainWindow::on_OpenCyphered_clicked(){
         return; //error opening database
     CreateViewTable();
     return;
+}
+
+void MainWindow::on_DomainFilter_textChanged(const QString &arg1){ //update Domain filter
+    proxyModel->setFilterRegExp(QRegExp(arg1, Qt::CaseInsensitive,
+                                        QRegExp::RegExp));
+    proxyModel->setFilterKeyColumn(DOM_COL);
+}
+
+void MainWindow::on_UserFilter_textChanged(const QString &arg1){ //Update User filter
+    proxyModel->setFilterRegExp(QRegExp(arg1, Qt::CaseInsensitive,
+                                        QRegExp::RegExp));
+    proxyModel->setFilterKeyColumn(USER_COL);
 }

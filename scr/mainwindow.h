@@ -28,6 +28,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QModelIndex>
+#include <QSortFilterProxyModel>
 
 
 namespace Ui {
@@ -55,6 +56,10 @@ private slots:
     void on_Showpass_toggled(bool checked);
     //void onTableClicked(const QModelIndex &index);
 
+    void on_DomainFilter_textChanged(const QString &arg1);
+
+    void on_UserFilter_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 
@@ -65,6 +70,7 @@ private:
     // Database related
     QSqlDatabase db;        // The database
     QSqlTableModel *model;  // Model to handle tables in the database easily
+    QSortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
 
 
