@@ -6,7 +6,7 @@
 #include <QModelIndex>
 #include <QItemSelectionModel>
 #include <QDebug>
-
+#include <QDate>
 #define DEV // uncomment this line to disable login dialog so you can test non-secube related code
 
 #define IDENT_COL   0
@@ -135,7 +135,9 @@ bool MainWindow::OpenDataBase (){
                   "(id integer primary key, "
                   "Username TEXT, "
                   "Domain TEXT, "
-                  "Password TEXT )"); //The table
+                  "Password TEXT, "
+                  "Date TEXT, "
+                  "Description TEXT )"); //The table
 
     if (!query.exec())
         qWarning() << "Couldn't create the table 'wallet': one might already exist";
@@ -160,7 +162,7 @@ void MainWindow::CreateViewTable(){
     //Connect the model to the view table: Sqltable -> Model -> ProxyModel ->  TableView
     ui->WalletView->setModel(proxyModel);
     //Configure the table
-    ui->WalletView->setSortingEnabled(true);//enable sorting
+    //ui->WalletView->setSortingEnabled(true);//enable sorting
     ui->WalletView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
     ui->WalletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
     ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
@@ -196,6 +198,8 @@ void MainWindow::on_AddEntry_clicked(){
     rec.setValue("Username", add->getUser());
     rec.setValue("Password",add->getPassword());
     rec.setValue("Domain",add->getDomain());
+    rec.setValue("Description",add->getDescription());
+    rec.setValue("Date", QDate::currentDate());
 
     int newRecNo = model->rowCount(); //Where to insert the new record?: at the end of the table
     if (model->insertRecord(newRecNo, rec))
@@ -217,7 +221,7 @@ void MainWindow::on_EditEntry_clicked()
         QSqlRecord rec = model->record(index.row());//Get the entry in the row selected by user
 
         //Call add entry with second constructor, so we can pass it the values to edit
-        AddEntry *add = new AddEntry(this, rec.value("Username").toString(),rec.value("Password").toString(), rec.value("Domain").toString());
+        AddEntry *add = new AddEntry(this, rec.value("Username").toString(),rec.value("Password").toString(), rec.value("Domain").toString(), rec.value("Description").toString());
         add->exec();
 
         if(add->result()==QDialog::Rejected)
@@ -228,6 +232,8 @@ void MainWindow::on_EditEntry_clicked()
         rec.setValue("Username", add->getUser());
         rec.setValue("Password",add->getPassword());
         rec.setValue("Domain",add->getDomain());
+        rec.setValue("Description",add->getDescription());
+        rec.setValue("Date", QDate::currentDate());
 
         //Write back record in original position
         if (model->setRecord(index.row(), rec))

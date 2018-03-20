@@ -19,7 +19,7 @@ public:
     explicit AddEntry(QWidget *parent = 0);
 
     //Constructor when calling from edit.
-    explicit AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn);
+    explicit AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn, QString EditDescIn);
 
     ~AddEntry();//Destructor
 
@@ -27,6 +27,8 @@ public:
     QString getUser();
     QString getDomain();
     QString getPassword();
+    QString getDescription();
+
 
 
 private slots:

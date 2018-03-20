@@ -46,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>250</y>
+     <y>240</y>
      <width>118</width>
      <height>21</height>
     </rect>
@@ -55,18 +55,24 @@
     <string>Show Password</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>11</x>
      <y>11</y>
      <width>291</width>
-     <height>191</height>
+     <height>201</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
+    <property name="labelAlignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
     <item row="0" column="0">
      <widget class="QLabel" name="label_4">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <property name="text">
        <string>Username</string>
       </property>
@@ -86,70 +92,79 @@
      <widget class="QLineEdit" name="InDomain"/>
     </item>
     <item row="2" column="0">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Description</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="InDesc">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+      <property name="placeholderText">
+       <string>Optional</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Password</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <widget class="QLineEdit" name="InPass">
       <property name="echoMode">
        <enum>QLineEdit::Password</enum>
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="4" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Repeat Password</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
+    <item row="4" column="1">
      <widget class="QLineEdit" name="InPass2">
       <property name="echoMode">
        <enum>QLineEdit::Password</enum>
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="label_5">
       <property name="text">
        <string>Entropy</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="5" column="1">
      <widget class="QProgressBar" name="score">
       <property name="value">
        <number>24</number>
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QLabel" name="label_7">
       <property name="text">
        <string>Score</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
-     <widget class="QLabel" name="entropy">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Complexity</string>
-      </property>
-     </widget>
-    </item>
     <item row="6" column="1">
-     <widget class="QLabel" name="complex2">
+     <widget class="QLabel" name="entropy">
       <property name="text">
        <string/>
       </property>
@@ -161,7 +176,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>220</y>
+     <y>260</y>
      <width>181</width>
      <height>20</height>
     </rect>
@@ -173,13 +188,25 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
+  <widget class="QLabel" name="complex2">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>220</y>
+     <width>179</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
   <zorder>layoutWidget</zorder>
   <zorder>buttonBox</zorder>
   <zorder>complex</zorder>
   <zorder>sh_pass</zorder>
-  <zorder>sh_pass</zorder>
   <zorder>match_pass</zorder>
-  <zorder>match_pass</zorder>
+  <zorder>complex2</zorder>
  </widget>
  <resources/>
  <connections>
