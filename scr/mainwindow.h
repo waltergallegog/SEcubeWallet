@@ -11,6 +11,7 @@
 #include "environmentdialog.h"
 #include "deleteconfirmation.h"
 #include "mysortfilterproxymodel.h"
+#include "helpwindow.h"
 
 //SEcure related
 #include "SEfile.h"
@@ -61,8 +62,8 @@ private slots:
     void on_DescFilter_textChanged(const QString &arg1);
     void on_WalletView_doubleClicked(const QModelIndex &index);
     void on_Months_currentIndexChanged(int index);
-
     void on_CustomMonths_textChanged(const QString &arg1);
+    void on_Help_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -77,6 +78,7 @@ private:
     MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
 
+    helpWindow *help;
 
     //Methods
      void init();           //initialization. Call LoginDialog and configure UI

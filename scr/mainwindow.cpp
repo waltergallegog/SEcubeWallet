@@ -70,6 +70,8 @@ void MainWindow::init()
     ui->WalletView->horizontalHeader()->setStretchLastSection(true);
     setWindowTitle(tr("SEcube Wallet"));
 
+    help = new helpWindow;
+
 #ifndef DEV
     //SEcube Password login dialog
     LoginDialog* loginDialog = new LoginDialog( this );
@@ -295,8 +297,18 @@ void MainWindow::on_LaunchEntry_clicked(){
     // If Multiple rows can be selected (Disabled for edit. Could be good for delete)
     for(int i=0; i< selection.count(); i++){
         int row = selection.at(i).row();
-        QString aux = "https://" + proxyModel->index(row,DOM_COL).data().toString();
-        QDesktopServices::openUrl(QUrl(aux));
+        QString domain=proxyModel->index(row,DOM_COL).data().toString();
+        QString domainaux=domain;
+        if (!domain.startsWith("http://") && !domain.startsWith("https://"))
+            domain = "http://" + domain;
+
+        if (domain.contains("www.")){
+            if (!domainaux.remove("www.").contains("."))
+                domain = domain+".com";
+        }else if (!domain.contains("."))
+            domain = domain+".com";
+        qDebug() <<domain;
+        QDesktopServices::openUrl(QUrl(domain));
     }
 }
 
@@ -455,12 +467,13 @@ void MainWindow::on_DescFilter_textChanged(const QString &arg1){
 }
 
 void MainWindow::on_Months_currentIndexChanged(int index){
-    if (index==CUSTOM)
-        proxyModel->setFilterOlder(true, ui->CustomMonths->text().toInt());
-    else
-        proxyModel->setFilterOlder(false,index);
+    proxyModel->setFilterOlder(index, ui->CustomMonths->text());
 }
 
 void MainWindow::on_CustomMonths_textChanged(const QString &arg1){
-    MainWindow::on_Months_currentIndexChanged(ui->Months->currentIndex());
+    proxyModel->setFilterOlder(ui->Months->currentIndex(), arg1);
+}
+
+void MainWindow::on_Help_clicked(){
+    help->show();
 }

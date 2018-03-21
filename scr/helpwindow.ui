@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>helpWindow</class>
+ <widget class="QDialog" name="helpWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>319</width>
+    <height>270</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>301</width>
+     <height>251</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;The password strength feature is based on the &lt;a href=&quot;https://github.com/dropbox/zxcvbn&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#001eb8;&quot;&gt;zxcvbn project&lt;/span&gt;&lt;/a&gt;, which encourages the use of &lt;span style=&quot; font-weight:600;&quot;&gt;Sentence passwords&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;Passwords Older than&lt;/span&gt; filter to check if any of the passwords has expired.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;The User, Domain and Description &lt;span style=&quot; font-weight:600;&quot;&gt;filters&lt;/span&gt; accept &lt;span style=&quot; font-weight:600;&quot;&gt;Regular Expressions&lt;/span&gt; (e.g Walter|Duver).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;If no top level domain is specified(e.g www.polito), the application uses &lt;span style=&quot; font-weight:600;&quot;&gt;.com&lt;/span&gt; by default.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Source code available at &lt;a href=&quot;https://github.com/waltergallegog/SEcubeWallet&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#001eb8;&quot;&gt;github&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="scaledContents">
+    <bool>false</bool>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+   <property name="margin">
+    <number>5</number>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

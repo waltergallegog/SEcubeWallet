@@ -34,16 +34,36 @@ void MySortFilterProxyModel::setFilterDesc(const QString &regExp){
     invalidateFilter();
 }
 
-void MySortFilterProxyModel::setFilterOlder(bool isCustom, int index){
-    if (isCustom) //Custom months
-        filterDate=QDate::currentDate().addMonths((-1)*index);
-    else if (index==0) //no filter
-        filterDate=QDate::fromString("-1");
+void MySortFilterProxyModel::setFilterOlder(int index, const QString &QuantityS){
+
+    int Quantity = 0;
+    if (!QuantityS.isEmpty())
+        Quantity = QuantityS.toInt()*(-1);// change to negative to substract using add
     else
-        filterDate=QDate::currentDate().addMonths(vec_months[index-1]);
+        index=0;//if empty then no filter
+
+    switch (index) {
+    case 0: // no filter
+        filterDate=QDate::fromString("-1");
+        break;
+    case 1:
+        filterDate=QDate::currentDate().addDays(Quantity);
+        break;
+    case 2:
+        filterDate=QDate::currentDate().addDays(7*Quantity); //weeks
+        break;
+    case 3:
+        filterDate=QDate::currentDate().addMonths(Quantity);
+        break;
+    case 4:
+        filterDate=QDate::currentDate().addYears(Quantity);
+        break;
+    default:
+        filterDate=QDate::fromString("-1");
+        break;
+    }
 
     qDebug()<<filterDate.toString();
-
     invalidateFilter();
 }
 
@@ -61,6 +81,6 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
     return (    sourceModel()->data(userIndex).toString().contains(userRegExp)
             &&  sourceModel()->data(domainIndex).toString().contains(domainRegExp)
             &&  sourceModel()->data(descIndex).toString().contains(descRegExp)
-            &&  (thisDate < filterDate || !filterDate.isValid())
+            &&  (thisDate <= filterDate || !filterDate.isValid())
             );
 }

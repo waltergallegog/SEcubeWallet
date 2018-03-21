@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     addentry.cpp \
     deleteconfirmation.cpp \
     zxcvbn.cpp \
-    mysortfilterproxymodel.cpp
+    mysortfilterproxymodel.cpp \
+    helpwindow.cpp
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
@@ -42,11 +43,13 @@ HEADERS  += mainwindow.h \
     deleteconfirmation.h \
     dict-src.h \
     zxcvbn.h \
-    mysortfilterproxymodel.h
+    mysortfilterproxymodel.h \
+    helpwindow.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
-    deleteconfirmation.ui
+    deleteconfirmation.ui \
+    helpwindow.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

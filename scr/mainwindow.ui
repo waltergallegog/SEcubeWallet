@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
-    <height>352</height>
+    <width>802</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,14 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>0</y>
+      <x>650</x>
+      <y>10</y>
       <width>141</width>
       <height>141</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <item alignment="Qt::AlignVCenter">
+     <item alignment="Qt::AlignBottom">
       <widget class="QPushButton" name="AddEntry">
        <property name="text">
         <string>Add To Wallet</string>
@@ -52,7 +52,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignHCenter">
       <widget class="QCheckBox" name="Showpass">
        <property name="text">
         <string>Show Passwords</string>
@@ -64,8 +64,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>0</y>
+      <x>10</x>
+      <y>10</y>
       <width>621</width>
       <height>31</height>
      </rect>
@@ -99,13 +99,20 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="Help">
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>40</y>
+      <x>10</x>
+      <y>50</y>
       <width>621</width>
       <height>251</height>
      </rect>
@@ -130,8 +137,8 @@
    <widget class="QLineEdit" name="UserFilter">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>210</y>
+      <x>650</x>
+      <y>220</y>
       <width>141</width>
       <height>23</height>
      </rect>
@@ -149,8 +156,8 @@
    <widget class="QLineEdit" name="DomainFilter">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>240</y>
+      <x>650</x>
+      <y>250</y>
       <width>141</width>
       <height>23</height>
      </rect>
@@ -174,8 +181,8 @@
    <widget class="QLineEdit" name="DescFilter">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>270</y>
+      <x>650</x>
+      <y>280</y>
       <width>141</width>
       <height>23</height>
      </rect>
@@ -190,11 +197,14 @@
    <widget class="QComboBox" name="Months">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>170</y>
+      <x>710</x>
+      <y>180</y>
       <width>81</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
     </property>
     <item>
      <property name="text">
@@ -203,58 +213,46 @@
     </item>
     <item>
      <property name="text">
-      <string>1 month</string>
+      <string>Days</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>2 months</string>
+      <string>Weeks</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>4 months</string>
+      <string>Months</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>8 months</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>1 year</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>2 years</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Custom</string>
+      <string>Years</string>
      </property>
     </item>
    </widget>
    <widget class="QLineEdit" name="CustomMonths">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>170</y>
+      <x>650</x>
+      <y>180</y>
       <width>51</width>
       <height>23</height>
      </rect>
     </property>
+    <property name="text">
+     <string/>
+    </property>
     <property name="placeholderText">
-     <string>Months</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLabel" name="olderText">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>150</y>
+      <x>660</x>
+      <y>160</y>
       <width>131</width>
       <height>16</height>
      </rect>
@@ -263,36 +261,7 @@
      <string>Passwords older than</string>
     </property>
    </widget>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>UserFilter</zorder>
-   <zorder>DomainFilter</zorder>
-   <zorder>verticalSpacer</zorder>
-   <zorder>DescFilter</zorder>
-   <zorder>Months</zorder>
-   <zorder>CustomMonths</zorder>
-   <zorder>olderText</zorder>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>827</width>
-     <height>20</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

@@ -14,7 +14,7 @@ public:
     void setFilterUser(const QString &regExp);
     void setFilterDomain(const QString &regExp);
     void setFilterDesc(const QString &regExp);
-    void setFilterOlder(bool isCustom, int index);
+    void setFilterOlder(int index, const QString &QuantityS);
 
 private:
     QRegExp userRegExp;
@@ -22,7 +22,6 @@ private:
     QRegExp descRegExp;
     QDate   filterDate;
     QString format;
-    int vec_months[6]={-1,-2,-4,-8,-12,-30};
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
