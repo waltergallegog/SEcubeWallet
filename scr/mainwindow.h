@@ -10,6 +10,7 @@
 #include "addentry.h"
 #include "environmentdialog.h"
 #include "deleteconfirmation.h"
+#include "mysortfilterproxymodel.h"
 
 //SEcure related
 #include "SEfile.h"
@@ -55,10 +56,13 @@ private slots:
     void on_EditEntry_clicked();
     void on_Showpass_toggled(bool checked);
     //void onTableClicked(const QModelIndex &index);
-
     void on_DomainFilter_textChanged(const QString &arg1);
-
     void on_UserFilter_textChanged(const QString &arg1);
+    void on_DescFilter_textChanged(const QString &arg1);
+    void on_WalletView_doubleClicked(const QModelIndex &index);
+    void on_Months_currentIndexChanged(int index);
+
+    void on_CustomMonths_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -70,7 +74,7 @@ private:
     // Database related
     QSqlDatabase db;        // The database
     QSqlTableModel *model;  // Model to handle tables in the database easily
-    QSortFilterProxyModel *proxyModel;
+    MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
 
 

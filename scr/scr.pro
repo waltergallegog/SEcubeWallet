@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     securefiledialog.cpp \
     addentry.cpp \
     deleteconfirmation.cpp \
-    zxcvbn.cpp
+    zxcvbn.cpp \
+    mysortfilterproxymodel.cpp
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     addentry.h \
     deleteconfirmation.h \
     dict-src.h \
-    zxcvbn.h
+    zxcvbn.h \
+    mysortfilterproxymodel.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \

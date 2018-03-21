@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>647</width>
+    <width>827</width>
     <height>352</height>
    </rect>
   </property>
@@ -17,34 +17,14 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>21</y>
+      <x>670</x>
+      <y>0</y>
       <width>141</width>
-      <height>191</height>
+      <height>141</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="EnvironmentBut">
-       <property name="text">
-        <string>Set Environment</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item alignment="Qt::AlignVCenter">
       <widget class="QPushButton" name="AddEntry">
        <property name="text">
         <string>Add To Wallet</string>
@@ -68,7 +48,7 @@
      <item>
       <widget class="QPushButton" name="LaunchEntry">
        <property name="text">
-        <string>Launch Entry</string>
+        <string>Launch Domain</string>
        </property>
       </widget>
      </item>
@@ -84,31 +64,38 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>462</width>
-      <height>30</height>
+      <x>30</x>
+      <y>0</y>
+      <width>621</width>
+      <height>31</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+     <item alignment="Qt::AlignVCenter">
       <widget class="QPushButton" name="NewWallet">
        <property name="text">
         <string>Create New Wallet</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignVCenter">
       <widget class="QPushButton" name="CipherClose">
        <property name="text">
         <string>Cipher and Close</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item alignment="Qt::AlignVCenter">
       <widget class="QPushButton" name="OpenCyphered">
        <property name="text">
         <string>Open Cyphered</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignVCenter">
+      <widget class="QPushButton" name="EnvironmentBut">
+       <property name="text">
+        <string>Set Environment</string>
        </property>
       </widget>
      </item>
@@ -119,7 +106,7 @@
      <rect>
       <x>30</x>
       <y>40</y>
-      <width>431</width>
+      <width>621</width>
       <height>251</height>
      </rect>
     </property>
@@ -143,9 +130,9 @@
    <widget class="QLineEdit" name="UserFilter">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>230</y>
-      <width>139</width>
+      <x>670</x>
+      <y>210</y>
+      <width>141</width>
       <height>23</height>
      </rect>
     </property>
@@ -162,9 +149,9 @@
    <widget class="QLineEdit" name="DomainFilter">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>260</y>
-      <width>139</width>
+      <x>670</x>
+      <y>240</y>
+      <width>141</width>
       <height>23</height>
      </rect>
     </property>
@@ -184,13 +171,115 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QLineEdit" name="DescFilter">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>270</y>
+      <width>141</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Filter by Description</string>
+    </property>
+    <property name="clearButtonEnabled">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="Months">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>170</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>-</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>1 month</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2 months</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4 months</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8 months</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>1 year</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2 years</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Custom</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLineEdit" name="CustomMonths">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>170</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Months</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="olderText">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>150</y>
+      <width>131</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Passwords older than</string>
+    </property>
+   </widget>
+   <zorder>layoutWidget</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>layoutWidget</zorder>
+   <zorder>UserFilter</zorder>
+   <zorder>DomainFilter</zorder>
+   <zorder>verticalSpacer</zorder>
+   <zorder>DescFilter</zorder>
+   <zorder>Months</zorder>
+   <zorder>CustomMonths</zorder>
+   <zorder>olderText</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>647</width>
+     <width>827</width>
      <height>20</height>
     </rect>
    </property>
