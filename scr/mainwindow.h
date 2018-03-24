@@ -10,8 +10,8 @@
 #include "addentry.h"
 #include "environmentdialog.h"
 #include "deleteconfirmation.h"
-#include "mysortfilterproxymodel.h"
 #include "helpwindow.h"
+#include "newtable.h"
 
 //SEcure related
 #include "SEfile.h"
@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
+#include "mysortfilterproxymodel.h"
 
 
 namespace Ui {
@@ -65,6 +66,12 @@ private slots:
     void on_CustomMonths_textChanged(const QString &arg1);
     void on_Help_clicked();
 
+    void on_NewTable_clicked();
+
+    void on_WalletList_currentIndexChanged(const QString &arg1);
+
+    void on_DeleteWallet_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -83,7 +90,7 @@ private:
     //Methods
      void init();           //initialization. Call LoginDialog and configure UI
      bool OpenDataBase();   //Create/Open Data base and create table, connections
-     void CreateViewTable();//Create the table model and display the data in the UI.
+     void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
 };
 
 #endif // MAINWINDOW_H

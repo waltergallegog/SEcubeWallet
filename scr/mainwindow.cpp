@@ -63,6 +63,9 @@ void MainWindow::init()
     ui->olderText->setEnabled(false);
     ui->Months->setEnabled(false);
     ui->CustomMonths->setEnabled(false);
+    ui->NewTable->setEnabled(false);
+    ui->WalletList->setEnabled(false);
+    ui->DeleteWallet->setEnabled(false);
 
     ui->TableTitle->setVisible(false);
     ui->WalletView->hide();
@@ -117,13 +120,14 @@ void MainWindow::on_NewWallet_clicked()
         ui->TableTitle->setVisible(true);
         if (!OpenDataBase())
             return; //error opening database
-        CreateViewTable();
+        ui->NewTable->setEnabled(true);
+        ui->DeleteWallet->setEnabled(true);
     }
 
     return;
 }
 
-// Create/Open sqlite dataBase and create/open wallet table
+// Create/Open sqlite dataBase
 bool MainWindow::OpenDataBase (){
 
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
@@ -145,28 +149,24 @@ bool MainWindow::OpenDataBase (){
         return false;
     }
 
-    QSqlQuery query;
-    query.prepare("create table Wallet "
-                  "(id integer primary key, "
-                  "Username TEXT, "
-                  "Domain TEXT, "
-                  "Password TEXT, "
-                  "Date TEXT, "
-                  "Description TEXT )"); //The table
+    ui->WalletList->clear();
 
-    if (!query.exec())
-        qWarning() << "Couldn't create the table 'wallet': one might already exist";
+    QStringList CurrentTables = db.tables(QSql::Tables);
+    if (!CurrentTables.isEmpty()){
+        ui->WalletList->setEnabled(true);
+        ui->WalletList->addItems(CurrentTables);
+    }
 
     return true;
 
 }
 
 //After table is created in database, display it in a QTableView, and manage it using a Table Model
-void MainWindow::CreateViewTable(){
+void MainWindow::CreateViewTable(const QString &WalletName ){
 
     // Create and configure model to access table easily
     model = new QSqlTableModel;
-    model->setTable("Wallet");
+    model->setTable(WalletName);
     model->select();
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);// as the table will be not edditable, the changes are updated by calling submitAll()
 
@@ -384,6 +384,9 @@ void MainWindow::on_CipherClose_clicked(){
     ui->olderText->setEnabled(false);
     ui->Months->setEnabled(false);
     ui->CustomMonths->setEnabled(false);
+    ui->NewTable->setEnabled(false);
+    ui->WalletList->setEnabled(false);
+    ui->DeleteWallet->setEnabled(false);
 
     return;
 }
@@ -450,7 +453,7 @@ void MainWindow::on_OpenCyphered_clicked(){
     //Re-Open data base and create table.
     if (!OpenDataBase())
         return; //error opening database
-    CreateViewTable();
+    //CreateViewTable();
     return;
 }
 
@@ -476,4 +479,59 @@ void MainWindow::on_CustomMonths_textChanged(const QString &arg1){
 
 void MainWindow::on_Help_clicked(){
     help->show();
+}
+
+void MainWindow::on_NewTable_clicked(){
+
+    NewTable *newT = new NewTable(this);
+    newT->exec();
+    if(newT->result()==QDialog::Rejected){
+        return; // Error or cancel, do nothing
+    }
+    QString WalletName = newT->getName();
+
+    QSqlQuery query;
+    query.prepare("create table "+WalletName+
+                  "(id integer primary key, "
+                  "Username TEXT, "
+                  "Domain TEXT, "
+                  "Password TEXT, "
+                  "Date TEXT, "
+                  "Description TEXT )"); //The table
+
+    if (!query.exec())
+        qWarning() << "Couldn't create the table" << WalletName <<" one might already exist";
+
+    query.finish();
+
+    ui->WalletList->setEnabled(true);
+    if(ui->WalletList->findText(WalletName) == -1) //Check if item already in the list
+        ui->WalletList->addItem(WalletName); //if not, add it
+    ui->WalletList->setCurrentText(WalletName);
+
+    CreateViewTable(WalletName);
+}
+
+void MainWindow::on_WalletList_currentIndexChanged(const QString &arg1){ //just change the view to the selected wallet
+    CreateViewTable(arg1);
+}
+
+void MainWindow::on_DeleteWallet_clicked(){
+    QString WalletName=ui->WalletList->currentText();
+    if (!WalletName.isEmpty()){
+        DeleteConfirmation * conf = new DeleteConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected)
+            return;//if error or cancel, do nothing
+
+        QSqlQuery query(db);
+
+        query.prepare("DROP TABLE "+WalletName);
+        if (!query.exec()){
+            qWarning() << "Couldn't delete table" << WalletName;
+            qWarning() << "ERROR: " << query.lastError();
+            return;
+        }
+        ui->WalletList->removeItem(ui->WalletList->currentIndex());
+    }
 }

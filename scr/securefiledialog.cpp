@@ -7,9 +7,9 @@ SecureFileDialog::SecureFileDialog(QWidget *parent, int newFile) : QDialog(paren
     this->newFile=newFile;
     setUpGUI();
     if (!newFile)
-        setWindowTitle( tr("Choose Wallet to open") );
+        setWindowTitle( tr("Choose DB to open") );
     else
-        setWindowTitle( tr("Create New Wallet") );
+        setWindowTitle( tr("Create New DB") );
 
     setModal( true );
 }
@@ -35,7 +35,7 @@ void SecureFileDialog::setUpGUI(){
 
     browsePath->setFileMode(QFileDialog::DirectoryOnly);
     if( newFile ){
-        labelFileView->setText( tr("Wallet name:"));
+        labelFileView->setText( tr("DB name:"));
         chooseNewFile = new QLineEdit ( this );
         labelFileView->setBuddy( chooseNewFile );
         formGridLayout->addWidget( chooseNewFile, 1, 1 );
