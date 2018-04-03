@@ -168,6 +168,8 @@ void AddEntry::on_InPass_textChanged(QString text){
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
         ui->score->setValue(0);
+	ui->entropy->setText("");
+
     }
 }
 
