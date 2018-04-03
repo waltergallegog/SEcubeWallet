@@ -2,8 +2,12 @@
 layout: default
 ---
 
-## Welcome to another page
+# [](#header-1)Authors Bio
 
-_yay_
+> We are a two Embedded System students of the Politecnico di Torino
+
+## Walter Gallego
+
+## Duverley Grajales
 
 [back](./)

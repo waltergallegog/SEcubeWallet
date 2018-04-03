@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <meta name="description" content="Development of a Secure Wallet : using Qt and the SEcube platform">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css?v=">
+
+<!-- Begin Jekyll SEO tag v2.4.0 -->
+<title>Development of a Secure Wallet | using Qt and the SEcube platform</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Development of a Secure Wallet" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="using Qt and the SEcube platform" />
+<meta property="og:description" content="using Qt and the SEcube platform" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="Development of a Secure Wallet" />
+<script type="application/ld+json">
+{"name":"Development of a Secure Wallet","description":"using Qt and the SEcube platform","@type":"WebSite","url":"http://localhost:4000/","headline":"Development of a Secure Wallet","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="">View on GitHub</a>
+
+          <h1 id="project_title">Development of a Secure Wallet</h1>
+          <h2 id="project_tagline">using Qt and the SEcube platform</h2>
+
+          
+            <section id="downloads">
+              <a class="zip_download_link" href="">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="">Download this project as a tar.gz file</a>
+            </section>
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><a href="another-page">Authors Bio</a></p>
+
+<p><em>Digital passwords are among the most sensitive data one person or organization can have. They protect private information ranging from personal files to bank accounts, and if stolen, the consequences can be catastrophic. In this work we develop a Qt application, SECubeWallet, able to secure any number of passwords, relaying on the encryption power provided by the SEcube platform, which uses a software password together with Hardware keys existing in a small and portable device, making the hacking of the secured data virtually impossible. The main additional feature offered is a realistic password strength estimation using the zxcvbn dropbox project.</em></p>
+
+<h1 id="secube-open-security-platform"><a href="#header-1"></a>SECUBE OPEN SECURITY PLATFORM</h1>
+
+<p>The core of our implementation is the SEcube Platform.</p>
+<blockquote>
+  <p>The SEcube (Secure Environment cube) Open Security Platform is an open source security oriented hardware and software platform, designed and constructed with ease of integration and service-orientation in mind. The hardware part of the platform was originally designed by Blu5 Group1, whereas the software libraries stem from a strong cooperation among international research institutions.</p>
+</blockquote>
+
+<blockquote>
+  <p>The software libraries and design environment allow developers who are not willing or able to produce the security APIs and protocols themselves to exploit the ready functions provided (currently as APIs and soon as services) within the SEcube platform and experience the platform as a high-security black box.</p>
+</blockquote>
+
+<h4 id="hardware-device-family"><a href="#header-4"></a>Hardware device family</h4>
+<p>The SECube device family comprise three major members:</p>
+<ul>
+  <li><strong>The Chip</strong>, named SEcube Chip, or simply SEcube.</li>
+  <li><strong>The Development Board</strong>, named SEcube DevKit.</li>
+  <li><strong>The USB Stick</strong>, named USEcube Stick.</li>
+</ul>
+
+<p>In our project we used the Development Board provided by the professors, already configured to our needs. For thefinal user the board would be of course too inconvenient to carry, and instead the USEcube Stick would be preferred.</p>
+
+<h4 id="l2-security-apis"><a href="#header-4"></a>L2 Security APIs</h4>
+
+<p>From the user/developer point of view, the APIs have been implemented targeting two nested environments depending on where physically the code runs:</p>
+<ul>
+  <li><strong>Device-Side</strong>, including the libraries of basic functionalities that are executed on the embedded processor of the SEcube-based hardware device.</li>
+  <li><strong>Host-Side</strong>, containing libraries of functions executed on the host PC and interface functions for calling services and processes residing on the embedded processor of the SEcube device.</li>
+</ul>
+
+<p>From the architectural point of view, the Host-Side Libraries have been implemented targeting 4 hierarchical abstraction levels, and namely:</p>
+<ul>
+  <li><strong>Level 0</strong>: Communication Protocol and Provisioning APIs.</li>
+  <li><strong>Level 1</strong>: Basic Security APIs (Level1 Host-Side L1).</li>
+  <li><strong>Level 2</strong>: Intermediate Security APIs (Level2 L2).</li>
+  <li><strong>Level 3</strong>: Advanced Security APIs (Level3 L3).</li>
+</ul>
+
+<p>L2 can be considered as the merge of two projects: SEfile, concerning data at rest, and SElink, concerning instead data at motion.</p>
+
+<blockquote>
+  <p>SEfile targets any user that, by moving inside a secure environment, wants to perform basic operation on regular files. It must be pointed out that all encryption functionalities are demanded to the secure device in their entirety. In addition, SEfile does not expose to the host device details about what, or where it is reading/writing data: thus, the host OS, which might be untrusted, is totally unaware of what it is writing</p>
+</blockquote>
+
+<h1 id="qt"><a href="#header-1"></a>QT</h1>
+<p>Our application’s graphical interface was developed using the Qt framework.</p>
+<blockquote>
+  <p>Qt is a cross-platform application development framework for desktop, embedded and mobile. Supported Platforms include Linux, OS X, Windows, VxWorks, QNX, Android, iOS, BlackBerry, Sailfish OS and others. Qt is not a programming language on its own. It is a framework written in C++. A preprocessor, the MOC (Meta-Object Compiler), is used to extend the C++ language with features like signals and slots. Before the compilation step, the MOC parses the source files written in Qt-extended C++ and generates standard compliant C++ sources from them. Thus the framework itself and applications/libraries using it can be compiled by any standard compliant C++ compiler like Clang, GCC, ICC, MinGW and MSVC</p>
+</blockquote>
+
+<h4 id="qt-creator"><a href="#header-4"></a>Qt creator</h4>
+<p>For development we used the IDE Qt Creator.</p>
+<blockquote>
+  <p>Qt Creator provides a cross-platform, complete integrated development environment (IDE) for application developers to create applications for multiple desktop, embedded, and mobile device platforms, such as Android and iOS. It is available for Linux, macOS and Windows operating systems</p>
+</blockquote>
+
+<p>Using Qt creator allowed us to implement easily and fast a robust and elegant solution to our problem. Thanks to the multitude of functions specially dedicated to the management of SQlite databases and display tables, we were able to focus or attention to solve other problems and to extend the functionalities of the project.</p>
+
+<h1 id="zxcvbn-realistic-password-strength-estimation"><a href="#header-1"></a>ZXCVBN: Realistic Password Strength Estimation</h1>
+
+<h3 id="header-3"><a href="#header-3"></a>Header 3</h3>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Javascript code with syntax highlighting.</span>
+<span class="kd">var</span> <span class="nx">fun</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">lang</span><span class="p">(</span><span class="nx">l</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">dateformat</span><span class="p">.</span><span class="nx">i18n</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./lang/'</span> <span class="o">+</span> <span class="nx">l</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Ruby code with syntax highlighting</span>
+<span class="no">GitHubPages</span><span class="o">::</span><span class="no">Dependencies</span><span class="p">.</span><span class="nf">gems</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">gem</span><span class="p">,</span> <span class="n">version</span><span class="o">|</span>
+  <span class="n">s</span><span class="p">.</span><span class="nf">add_dependency</span><span class="p">(</span><span class="n">gem</span><span class="p">,</span> <span class="s2">"= </span><span class="si">#{</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h4 id="header-4"><a href="#header-4"></a>Header 4</h4>
+
+<ul>
+  <li>This is an unordered list following a header.</li>
+  <li>This is an unordered list following a header.</li>
+  <li>This is an unordered list following a header.</li>
+</ul>
+
+<h5 id="header-5"><a href="#header-5"></a>Header 5</h5>
+
+<ol>
+  <li>This is an ordered list following a header.</li>
+  <li>This is an ordered list following a header.</li>
+  <li>This is an ordered list following a header.</li>
+</ol>
+
+<h6 id="header-6"><a href="#header-6"></a>Header 6</h6>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">head1</th>
+      <th style="text-align: left">head two</th>
+      <th style="text-align: left">three</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">ok</td>
+      <td style="text-align: left">good swedish fish</td>
+      <td style="text-align: left">nice</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">out of stock</td>
+      <td style="text-align: left">good and plenty</td>
+      <td style="text-align: left">nice</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">ok</td>
+      <td style="text-align: left">good <code class="highlighter-rouge">oreos</code></td>
+      <td style="text-align: left">hmm</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">ok</td>
+      <td style="text-align: left">good <code class="highlighter-rouge">zoute</code> drop</td>
+      <td style="text-align: left">yumm</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="theres-a-horizontal-rule-below-this">There’s a horizontal rule below this.</h3>
+
+<hr />
+
+<h3 id="here-is-an-unordered-list">Here is an unordered list:</h3>
+
+<ul>
+  <li>Item foo</li>
+  <li>Item bar</li>
+  <li>Item baz</li>
+  <li>Item zip</li>
+</ul>
+
+<h3 id="and-an-ordered-list">And an ordered list:</h3>
+
+<ol>
+  <li>Item one</li>
+  <li>Item two</li>
+  <li>Item three</li>
+  <li>Item four</li>
+</ol>
+
+<h3 id="and-a-nested-list">And a nested list:</h3>
+
+<ul>
+  <li>level 1 item
+    <ul>
+      <li>level 2 item</li>
+      <li>level 2 item
+        <ul>
+          <li>level 3 item</li>
+          <li>level 3 item</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>level 1 item
+    <ul>
+      <li>level 2 item</li>
+      <li>level 2 item</li>
+      <li>level 2 item</li>
+    </ul>
+  </li>
+  <li>level 1 item
+    <ul>
+      <li>level 2 item</li>
+      <li>level 2 item</li>
+    </ul>
+  </li>
+  <li>level 1 item</li>
+</ul>
+
+<h3 id="small-image">Small image</h3>
+
+<p><img src="https://assets-cdn.github.com/images/icons/emoji/octocat.png" alt="" /></p>
+
+<h3 id="large-image">Large image</h3>
+
+<p><img src="https://guides.github.com/activities/hello-world/branching.png" alt="" /></p>
+
+<h3 id="definition-lists-can-be-used-with-html-syntax">Definition lists can be used with HTML syntax.</h3>
+
+<dl>
+<dt>Name</dt>
+<dd>Godzilla</dd>
+<dt>Born</dt>
+<dd>1952</dd>
+<dt>Birthplace</dt>
+<dd>Japan</dd>
+<dt>Color</dt>
+<dd>Green</dd>
+</dl>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The final element.
+</code></pre></div></div>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+  </body>
+</html>
