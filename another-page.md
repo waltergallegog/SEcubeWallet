@@ -19,7 +19,7 @@ As a group of two, both with experience in working with Git and in particular Gi
 
 ![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/duver.png)
 
->Born in Colombia in 1991, I studied electronic engineering at the  University of Antioquia. I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. I have in the following research groups Squadra Corse and Team H2Polito. In this moment work for the Beond Azienda in I3P.
+>Born in Colombia in 1991, I studied electronic engineering at the  University of Antioquia. I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. I have in the following research groups Squadra Corse and Team H2Polito. In this moment work for Beond Srl in I3P.
 
 [duverleygrajales](https://github.com/duverleygrajales)
 
