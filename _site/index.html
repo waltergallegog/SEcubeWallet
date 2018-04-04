@@ -129,151 +129,112 @@ ubiquitous despite being a conclusively burdensome and ineffective security prac
   <p>People of course choose patterns dictionary words, spatial patterns like <em>qwerty</em>, <em>asdf</em> or <em>zxcvbn</em>, repeats like <em>aaaaaaa</em>, sequences like <em>abcdef</em> or <em>654321</em>, or some combination of the above. For passwords with uppercase letters, odds are its the first letter thats uppercase. Numbers and symbols are often predictable as well: <em>l33t</em> speak (3 for e, 0 for o, @ or 4 for a), years, dates, zip codes, and so on. As a result, simplistic strength estimation gives bad advice. Without checking for common patterns, the practice of encouraging numbers and symbols means encouraging passwords that might only be slightly harder for a computer to crack, and yet frustratingly harder for a human to remember. <em>xkcd</em> nailed it.</p>
 </blockquote>
 
+<h4 id="zxcvbn-and-qt-integration"><a href="#header-4"></a>zxcvbn and Qt integration</h4>
+<p>First of all, we modified the <em>zxcvbn makefile</em>, to remove the unnecessary files and to understand how to proceed with the integration. It is necessary to compile said makefile in order to generate the <em>dictionary</em> used for passwords comparisons and entropy estimation. When we realized integration of the makefile with Qt was really cumbersome because Qt uses a qmake instead of a regular make, we decided to generate the source dictionary offline. Having the source dictionary ready, we included and modified the files <em>zxcvbn.cpp</em> and <em>zxcvbn.h</em> into our project. The modifications were necessary to use C++ libraries instead of C libraries.
+Finally, with the files already integrated on the project, we just had to use function <em>ZxcvbnMatch(password)</em> to estimate the entropy and give the user a metric about how strong their password is.</p>
+
 <h1 id="implementation"><a href="#header-1"></a>Implementation</h1>
 
-<h3 id="header-3"><a href="#header-3"></a>Header 3</h3>
+<p>The basic idea behind our project is: We use the SEfile APIs to encrypt a file containing the passwords the user wants to protect. Said file is encrypted by the SEcube device connected to the computer, and can only be decrypted later if the same device is connected. The encryption/decryption can be done in any computer where an appropriate version of Qt is installed.</p>
 
-<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Javascript code with syntax highlighting.</span>
-<span class="kd">var</span> <span class="nx">fun</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">lang</span><span class="p">(</span><span class="nx">l</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">dateformat</span><span class="p">.</span><span class="nx">i18n</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./lang/'</span> <span class="o">+</span> <span class="nx">l</span><span class="p">)</span>
-  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Ruby code with syntax highlighting</span>
-<span class="no">GitHubPages</span><span class="o">::</span><span class="no">Dependencies</span><span class="p">.</span><span class="nf">gems</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">gem</span><span class="p">,</span> <span class="n">version</span><span class="o">|</span>
-  <span class="n">s</span><span class="p">.</span><span class="nf">add_dependency</span><span class="p">(</span><span class="n">gem</span><span class="p">,</span> <span class="s2">"= </span><span class="si">#{</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<span class="k">end</span>
-</code></pre></div></div>
-
-<h4 id="header-4"><a href="#header-4"></a>Header 4</h4>
-
-<ul>
-  <li>This is an unordered list following a header.</li>
-  <li>This is an unordered list following a header.</li>
-  <li>This is an unordered list following a header.</li>
-</ul>
-
-<h5 id="header-5"><a href="#header-5"></a>Header 5</h5>
-
+<p>A detailed description of the usage workflow, functionalities and components is given below:</p>
 <ol>
-  <li>This is an ordered list following a header.</li>
-  <li>This is an ordered list following a header.</li>
-  <li>This is an ordered list following a header.</li>
+  <li>The user connects and mounts the SEcube device to the host computer.</li>
+  <li>The user executes our application <strong>SEcubeWallet</strong></li>
+  <li>The application ask for a master password, which has been previously configured into the SEcube device (in our case is <strong>test</strong>). The entered password has to coincide with the stored one to allow the login.</li>
 </ol>
 
-<h6 id="header-6"><a href="#header-6"></a>Header 6</h6>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">head1</th>
-      <th style="text-align: left">head two</th>
-      <th style="text-align: left">three</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">ok</td>
-      <td style="text-align: left">good swedish fish</td>
-      <td style="text-align: left">nice</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">out of stock</td>
-      <td style="text-align: left">good and plenty</td>
-      <td style="text-align: left">nice</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">ok</td>
-      <td style="text-align: left">good <code class="highlighter-rouge">oreos</code></td>
-      <td style="text-align: left">hmm</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">ok</td>
-      <td style="text-align: left">good <code class="highlighter-rouge">zoute</code> drop</td>
-      <td style="text-align: left">yumm</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="theres-a-horizontal-rule-below-this">There’s a horizontal rule below this.</h3>
-
-<hr />
-
-<h3 id="here-is-an-unordered-list">Here is an unordered list:</h3>
-
-<ul>
-  <li>Item foo</li>
-  <li>Item bar</li>
-  <li>Item baz</li>
-  <li>Item zip</li>
-</ul>
-
-<h3 id="and-an-ordered-list">And an ordered list:</h3>
-
+<p>After access is granted, the GUI shown in the figure allows the user to:</p>
 <ol>
-  <li>Item one</li>
-  <li>Item two</li>
-  <li>Item three</li>
-  <li>Item four</li>
+  <li>Create a new Wallet.</li>
+  <li>Cypher the wallet, close it and delete the regular (insecure) file.</li>
+  <li>Open an existent cyphered Wallet.</li>
+  <li>Add/Edit a new entry to an existing Wallet. The user fills the required fields, and for the password there is strength measure feature.</li>
+  <li>Delete an existing entry.</li>
+  <li>Launch a web browser and open the selected domain.</li>
+  <li>Edit the environment variables.</li>
+  <li>Safe application close.</li>
 </ol>
 
-<h3 id="and-a-nested-list">And a nested list:</h3>
+<p><img src="https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/gui.png" alt="" /></p>
 
+<h4 id="device-connection"><a href="#header-4"></a>Device connection</h4>
+
+<p>The SEcube hardware devices SEcube DevKit and USEcube Stick can be easily connected to any pc host via USB ports. They appear in the system as a storage volume and need to be mounted in order to be used.</p>
+
+<h4 id="secubewallet-execution"><a href="#header-4"></a>SEcubeWallet execution</h4>
+
+<p>The application is executed as any standard QT application. The host pc requires then to have an appropriate version of Qt or Qt libraries installed and configured. To this moment, the version of Qt used for development is Qt 5.8.0.</p>
+
+<h4 id="secure-login"><a href="#header-4"></a>Secure login</h4>
+
+<p>For our project we used the Login dialogue from the example Secure Text Editor provided alongside with the L2 User Manual and shown in the figure. This dialogue opens a
+secure connection with the SEcube device and as a result a <em>se3 session</em> pointer <em>s</em> is created. This pointer contains all the information that let the system acknowledge which board is connected and if the user has successfully logged in. After the board is connected and the user is correctly logged in, the <em>secure init()</em> function is issued.</p>
+
+<p><img src="https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/login.png" alt="" /></p>
+
+<h4 id="create-a-new-wallet"><a href="#header-4"></a>Create a new Wallet</h4>
+
+<p>Each wallet is stored as a table in a sqlite database, and is protected independently by a password. In this way the application supports multiple users working with the same SEcube device. This can be useful for companies that wish to protect the passwords of all of their employees, but keep their passwords separated from each other. The user enters the desired name and path using the dialogue shown in the figure, based on the example <em>Secure Text Editor</em>.</p>
+
+<p><img src="https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/create.png" alt="" /></p>
+
+<p>The database is created with a <em>QSqlQuery</em> and the function <em>query.prepare</em> that allow us to execute sqlite commands. For the managing of the tables, we use a <em>QSqlTableModel</em> which simplifies the process by wrapping the sqlite functions. To display it in a <em>QTableView</em>, we connect the model to the view table, resulting in the flow <em>Sqltable-&gt;Model-&gt;TableView</em>.</p>
+
+<h4 id="cypher-and-close"><a href="#header-4"></a>Cypher and close</h4>
+
+<p>After the user has finished creating/editing the wallet, the Sqlite Database file containing the passwords needs to be cyphered using the SEcube device. This is possible using the <em>secure open</em>, <em>secure write</em> and <em>secure close</em> functions from the SEfile API. As a result, an encrypted version of the database file is created. Our implementation is based on the example <em>Secure Text Editor</em>.
+After the file is encrypted we can proceed to close the database, delete the existing <em>plain</em> sqlite file, which is non secure, and close the <em>tableView</em> displaying the information. In this way, we are sure the passwords are safely stored in the encrypted file, and can only be read by the owner.</p>
+
+<h4 id="open-existing-wallet"><a href="#header-4"></a>Open existing wallet</h4>
+
+<p>To open cyphered wallets, the <em>Secure File Dialogue</em> from the <em>Secure Text Editor</em> example is used. This dialogue shows the user wallets in the current working directory that where previously encrypted using the connected SEcube device, as in the figure. The user then selects one of the wallets to be opened.</p>
+
+<p><img src="https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/open.png" alt="" /></p>
+
+<p>With the selected cyphered file, and using the SEfile API functions <em>secure open</em>, <em>secure read</em> and <em>secure close</em>, a Sqlite file containing the stored passwords is created. Then a database connection to the file is opened and the entries are displayed in a Table View.</p>
+
+<h4 id="addedit-entry-to-wallet"><a href="#header-4"></a>Add/Edit entry to wallet</h4>
+
+<p>To Add or Edit a new entry to the wallet, the dialogue shown in figure was implemented.</p>
+
+<p><img src="https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/add.png" alt="" /></p>
+
+<p>In this dialogue the user enters the required fields <em>username</em>, <em>domain</em> and <em>password</em>. The password has to be entered twice, to be sure is correct. Additionally, using <strong>zxcvbn</strong>, we estimate its strength and show it to the user with a progress bar. To edit, the user selects an entry, and clicks the <em>edit</em> button. The same dialogue is called, but with a different constructor, that initialize the fields with the current data.
+To insert data to the tables, we use again our model and the function <em>model-&gt;insertRecord(Position, record)</em>, and to submit the changes <em>model-&gt;submitAll()</em>.</p>
+
+<h4 id="delete-an-existing-entry"><a href="#header-4"></a>Delete an existing entry</h4>
+
+<p>To delete an entry, the user just has to select one of the entries in the table and click the <em>delete</em> button. After this a confirmation prompt is shown warning the user an entry is about to be deleted forever. if the user clicks <em>ok</em>, the application proceeds to eliminate the data using the <em>removeRow</em> function from our model.</p>
+
+<h4 id="launch-web-browser"><a href="#header-4"></a>Launch web browser</h4>
+
+<p>If the user wishes to open in a web browser one of the domains in the wallet, it selects an entry and clicks the Launch button. Thanks to Qt function <em>QDesktopServices::OpenUrl(Qurl(string))</em> we only had to modify the domain field to include <em>http://</em> in the beginning of the string.</p>
+
+<h4 id="edit-environment-variables"><a href="#header-4"></a>Edit environment variables</h4>
+
+<p>This dialogue is intended for advanced users who would like to choose the algorithm and keys used for encryption in the SEcube device. Right now, with the device configuration provided by the professors, only one option is available.</p>
+
+<h4 id="safe-close"><a href="#header-4"></a>Safe Close</h4>
+
+<p>When the user decides to close the application, several actions need to be performed.</p>
 <ul>
-  <li>level 1 item
-    <ul>
-      <li>level 2 item</li>
-      <li>level 2 item
-        <ul>
-          <li>level 3 item</li>
-          <li>level 3 item</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>level 1 item
-    <ul>
-      <li>level 2 item</li>
-      <li>level 2 item</li>
-      <li>level 2 item</li>
-    </ul>
-  </li>
-  <li>level 1 item
-    <ul>
-      <li>level 2 item</li>
-      <li>level 2 item</li>
-    </ul>
-  </li>
-  <li>level 1 item</li>
+  <li>Encrypt file</li>
+  <li>Delete Sqlite file</li>
+  <li>Close the connection to the database
+This is done by reusing the functions already developed for the cipher and close button.</li>
 </ul>
 
-<h3 id="small-image">Small image</h3>
+<h1 id="improvements-and-future-work"><a href="#header-1"></a>Improvements and Future work</h1>
 
-<p><img src="https://assets-cdn.github.com/images/icons/emoji/octocat.png" alt="" /></p>
+<h4 id="autofill-login-forms-in-website"><a href="#header-4"></a>Autofill login forms in website</h4>
+<p>When the user clicks the launch button, not only the selected domain is opened, also, the login forms are autofilled using the stored username and password. We did not implemented this functionality as it requires HTML/CSS knowledge an it is out of the scope of the course.</p>
 
-<h3 id="large-image">Large image</h3>
+<h4 id="os-integration"><a href="#header-4"></a>OS integration</h4>
+<p>Some OS, like linux distributions running the KDE Plasma Desktop already offer a wallet solution integrated in the system. Merging our project with these existing wallets could be a great feature for some users.</p>
 
-<p><img src="https://guides.github.com/activities/hello-world/branching.png" alt="" /></p>
-
-<h3 id="definition-lists-can-be-used-with-html-syntax">Definition lists can be used with HTML syntax.</h3>
-
-<dl>
-<dt>Name</dt>
-<dd>Godzilla</dd>
-<dt>Born</dt>
-<dd>1952</dd>
-<dt>Birthplace</dt>
-<dd>Japan</dd>
-<dt>Color</dt>
-<dd>Green</dd>
-</dl>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
-</code></pre></div></div>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The final element.
-</code></pre></div></div>
+<h4 id="browser-integration"><a href="#header-4"></a>Browser integration</h4>
+<p>The vast majority of users store their passwords within their preferred web browser, alongside other sensitive information like browsing history and bookmarks. Using the capabilities of the SEcube security platform to protect all that data while maintaining ease of use and transparency to the final user would be a great advance. We did not investigate further in that direction, but we guess it is possible by developing a complement for the most popular web browsers (Firefox, Chrome, Opera) to run together with the main application.</p>
 
       </section>
     </div>
