@@ -8,7 +8,7 @@ DeleteConfirmation::DeleteConfirmation(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle( tr("Confrim Delete") );
+    setWindowTitle( tr("Confirm Delete") );
     setModal( true );
 }
 

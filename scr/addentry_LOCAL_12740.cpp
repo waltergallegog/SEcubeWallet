@@ -34,7 +34,7 @@ AddEntry::AddEntry(QWidget *parent) :
 }
 
 // Second constructor, called from eddit entry
-AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn, QString EditDescIn) :
+AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn ) :
     QDialog(parent),
     ui(new Ui::AddEntry)
 {
@@ -44,7 +44,6 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InDomain->setText(EditDomIn);
     ui->InPass->setText(EditPassIn);
     ui->InPass2->setText(EditPassIn);
-    ui->InDesc->setText(EditDescIn);
 
     if (!ZxcvbnInit()){
         qDebug() << "Failed Open Dictionary File";
@@ -108,10 +107,6 @@ QString AddEntry::getPassword(){
     return ui->InPass->text();
 }
 
-
-QString AddEntry::getDescription(){
-    return ui->InDesc->text();
-}
 /*void AddEntry::on_InUser_textChanged(const QString &arg1){
     EnableOkButton();
     UNUSED(arg1);
@@ -173,7 +168,8 @@ void AddEntry::on_InPass_textChanged(QString text){
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
         ui->score->setValue(0);
-        ui->entropy->setText("");
+	ui->entropy->setText("");
+
     }
 }
 

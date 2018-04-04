@@ -10,6 +10,8 @@
 #include "addentry.h"
 #include "environmentdialog.h"
 #include "deleteconfirmation.h"
+#include "helpwindow.h"
+#include "newtable.h"
 
 //SEcure related
 #include "SEfile.h"
@@ -28,6 +30,8 @@
 #include <QFile>
 #include <QDebug>
 #include <QModelIndex>
+#include <QSortFilterProxyModel>
+#include "mysortfilterproxymodel.h"
 
 
 namespace Ui {
@@ -54,6 +58,19 @@ private slots:
     void on_EditEntry_clicked();
     void on_Showpass_toggled(bool checked);
     //void onTableClicked(const QModelIndex &index);
+    void on_DomainFilter_textChanged(const QString &arg1);
+    void on_UserFilter_textChanged(const QString &arg1);
+    void on_DescFilter_textChanged(const QString &arg1);
+    void on_WalletView_doubleClicked(const QModelIndex &index);
+    void on_Months_currentIndexChanged(int index);
+    void on_CustomMonths_textChanged(const QString &arg1);
+    void on_Help_clicked();
+
+    void on_NewTable_clicked();
+
+    void on_WalletList_currentIndexChanged(const QString &arg1);
+
+    void on_DeleteWallet_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -65,13 +82,15 @@ private:
     // Database related
     QSqlDatabase db;        // The database
     QSqlTableModel *model;  // Model to handle tables in the database easily
+    MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
 
+    helpWindow *help;
 
     //Methods
      void init();           //initialization. Call LoginDialog and configure UI
      bool OpenDataBase();   //Create/Open Data base and create table, connections
-     void CreateViewTable();//Create the table model and display the data in the UI.
+     void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
 };
 
 #endif // MAINWINDOW_H

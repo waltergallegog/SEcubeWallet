@@ -31,7 +31,10 @@ SOURCES += main.cpp\
     securefiledialog.cpp \
     addentry.cpp \
     deleteconfirmation.cpp \
-    zxcvbn.cpp
+    zxcvbn.cpp \
+    mysortfilterproxymodel.cpp \
+    helpwindow.cpp \
+    newtable.cpp
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
@@ -40,11 +43,16 @@ HEADERS  += mainwindow.h \
     addentry.h \
     deleteconfirmation.h \
     dict-src.h \
-    zxcvbn.h
+    zxcvbn.h \
+    mysortfilterproxymodel.h \
+    helpwindow.h \
+    newtable.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
-    deleteconfirmation.ui
+    deleteconfirmation.ui \
+    helpwindow.ui \
+    newtable.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile
