@@ -10,7 +10,7 @@ As a group of two, both with experience in working with Git and in particular Gi
 
 ![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/walter.png)
 
->Born in Colombia in 1993, I started my journey in electronic engineering at the  University of Antioquia in 2010. After 5 years of studies I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. My areas of interest encomprise the development of specific purpose hardware in VHDL/Verilog, the programming of microcontolled based devices on C/C++ and the application of those in Machine Learning projects.
+>Born in Colombia in 1993, I started my journey in electronic engineering at the  University of Antioquia in 2010. After 5 years of studies I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. My areas of interest encomprise the development of specific purpose hardware in VHDL/Verilog, the programming of microcontoller based devices on C/C++ and the application of those in Machine Learning projects.
 
 [waltergallegog](https://github.com/waltergallegog)
 
@@ -21,6 +21,6 @@ As a group of two, both with experience in working with Git and in particular Gi
 
 >Born in Colombia in 1991, I studied electronic engineering at the  University of Antioquia. I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. I have in the following research groups Squadra Corse and Team H2Polito. In this moment work for the Beond Azienda in I3P.
 
-[duverleygrajales](https://https://github.com/duverleygrajales)
+[duverleygrajales](https://github.com/duverleygrajales)
 
 [back](./)
