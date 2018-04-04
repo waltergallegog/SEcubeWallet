@@ -4,7 +4,7 @@ layout: default
 
 # [](#header-1)Authors Bio
 
-We are a two Embedded System students of the Politecnico di Torino.
+As a group of two, both with experience in working with Git and in particular GitHub, we opted for using it as control version system, taking advantage of the features offered by Git, namely branching and releasing. Unfortunately due to the restriction imposed by the fact that we only had one development kit, we did not worked concurrently on the project. Rather, we met and worked on the initial sketch together, to then assign different portions of the project to each member. Finally we met again for a revision and final check-up
 
 ## Walter Gallego Gomez
 

@@ -65,6 +65,10 @@ To put it in other words, the authors of the project argue that a password like 
 
 >People of course choose patterns dictionary words, spatial patterns like _qwerty_, _asdf_ or _zxcvbn_, repeats like _aaaaaaa_, sequences like _abcdef_ or _654321_, or some combination of the above. For passwords with uppercase letters, odds are its the first letter thats uppercase. Numbers and symbols are often predictable as well: _l33t_ speak (3 for e, 0 for o, @ or 4 for a), years, dates, zip codes, and so on. As a result, simplistic strength estimation gives bad advice. Without checking for common patterns, the practice of encouraging numbers and symbols means encouraging passwords that might only be slightly harder for a computer to crack, and yet frustratingly harder for a human to remember. _xkcd_ nailed it.
 
+#### [](#header-4)zxcvbn and Qt integration
+First of all, we modified the _zxcvbn makefile_, to remove the unnecessary files and to understand how to proceed with the integration. It is necessary to compile said makefile in order to generate the _dictionary_ used for passwords comparisons and entropy estimation. When we realized integration of the makefile with Qt was really cumbersome because Qt uses a qmake instead of a regular make, we decided to generate the source dictionary offline. Having the source dictionary ready, we included and modified the files _zxcvbn.cpp_ and _zxcvbn.h_ into our project. The modifications were necessary to use C++ libraries instead of C libraries.
+Finally, with the files already integrated on the project, we just had to use function _ZxcvbnMatch(password)_ to estimate the entropy and give the user a metric about how strong their password is.
+
 # [](#header-1)Implementation
 
 The basic idea behind our project is: We use the SEfile APIs to encrypt a file containing the passwords the user wants to protect. Said file is encrypted by the SEcube device connected to the computer, and can only be decrypted later if the same device is connected. The encryption/decryption can be done in any computer where an appropriate version of Qt is installed.
@@ -84,104 +88,80 @@ After access is granted, the GUI shown in the figure allows the user to:
 10.  Edit the environment variables.
 11.  Safe application close.
 
-### [](#header-3)Header 3
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/gui.png)
 
-```js
-// Javascript code with syntax highlighting.
-var fun = function lang(l) {
-  dateformat.i18n = require('./lang/' + l)
-  return true;
-}
-```
+#### [](#header-4)Device connection
 
-```ruby
-# Ruby code with syntax highlighting
-GitHubPages::Dependencies.gems.each do |gem, version|
-  s.add_dependency(gem, "= #{version}")
-end
-```
+The SEcube hardware devices SEcube DevKit and USEcube Stick can be easily connected to any pc host via USB ports. They appear in the system as a storage volume and need to be mounted in order to be used.
 
-#### [](#header-4)Header 4
+#### [](#header-4)SEcubeWallet execution
 
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
+The application is executed as any standard QT application. The host pc requires then to have an appropriate version of Qt or Qt libraries installed and configured. To this moment, the version of Qt used for development is Qt 5.8.0.
 
-##### [](#header-5)Header 5
+#### [](#header-4)Secure login
 
-1.  This is an ordered list following a header.
-2.  This is an ordered list following a header.
-3.  This is an ordered list following a header.
+For our project we used the Login dialogue from the example Secure Text Editor provided alongside with the L2 User Manual and shown in the figure. This dialogue opens a
+secure connection with the SEcube device and as a result a _se3 session_ pointer _s_ is created. This pointer contains all the information that let the system acknowledge which board is connected and if the user has successfully logged in. After the board is connected and the user is correctly logged in, the _secure init()_ function is issued.
 
-###### [](#header-6)Header 6
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/login.png)
 
-| head1        | head two          | three |
-|:-------------|:------------------|:------|
-| ok           | good swedish fish | nice  |
-| out of stock | good and plenty   | nice  |
-| ok           | good `oreos`      | hmm   |
-| ok           | good `zoute` drop | yumm  |
+#### [](#header-4)Create a new Wallet
 
-### There's a horizontal rule below this.
+Each wallet is stored as a table in a sqlite database, and is protected independently by a password. In this way the application supports multiple users working with the same SEcube device. This can be useful for companies that wish to protect the passwords of all of their employees, but keep their passwords separated from each other. The user enters the desired name and path using the dialogue shown in the figure, based on the example _Secure Text Editor_.
 
-* * *
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/create.png)
 
-### Here is an unordered list:
+The database is created with a _QSqlQuery_ and the function _query.prepare_ that allow us to execute sqlite commands. For the managing of the tables, we use a _QSqlTableModel_ which simplifies the process by wrapping the sqlite functions. To display it in a _QTableView_, we connect the model to the view table, resulting in the flow _Sqltable->Model->TableView_.
 
-*   Item foo
-*   Item bar
-*   Item baz
-*   Item zip
+#### [](#header-4)Cypher and close
 
-### And an ordered list:
+After the user has finished creating/editing the wallet, the Sqlite Database file containing the passwords needs to be cyphered using the SEcube device. This is possible using the _secure open_, _secure write_ and _secure close_ functions from the SEfile API. As a result, an encrypted version of the database file is created. Our implementation is based on the example _Secure Text Editor_.
+After the file is encrypted we can proceed to close the database, delete the existing _plain_ sqlite file, which is non secure, and close the _tableView_ displaying the information. In this way, we are sure the passwords are safely stored in the encrypted file, and can only be read by the owner.
 
-1.  Item one
-1.  Item two
-1.  Item three
-1.  Item four
+#### [](#header-4)Open existing wallet
 
-### And a nested list:
+To open cyphered wallets, the _Secure File Dialogue_ from the _Secure Text Editor_ example is used. This dialogue shows the user wallets in the current working directory that where previously encrypted using the connected SEcube device, as in the figure. The user then selects one of the wallets to be opened.
 
-- level 1 item
-  - level 2 item
-  - level 2 item
-    - level 3 item
-    - level 3 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-- level 1 item
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/open.png)
 
-### Small image
+With the selected cyphered file, and using the SEfile API functions _secure open_, _secure read_ and _secure close_, a Sqlite file containing the stored passwords is created. Then a database connection to the file is opened and the entries are displayed in a Table View.
 
-![](https://assets-cdn.github.com/images/icons/emoji/octocat.png)
+#### [](#header-4)Add/Edit entry to wallet
 
-### Large image
+To Add or Edit a new entry to the wallet, the dialogue shown in figure was implemented.
 
-![](https://guides.github.com/activities/hello-world/branching.png)
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/add.png)
 
+In this dialogue the user enters the required fields _username_, _domain_ and _password_. The password has to be entered twice, to be sure is correct. Additionally, using **zxcvbn**, we estimate its strength and show it to the user with a progress bar. To edit, the user selects an entry, and clicks the _edit_ button. The same dialogue is called, but with a different constructor, that initialize the fields with the current data.
+To insert data to the tables, we use again our model and the function _model->insertRecord(Position, record)_, and to submit the changes _model->submitAll()_.
 
-### Definition lists can be used with HTML syntax.
+#### [](#header-4)Delete an existing entry
 
-<dl>
-<dt>Name</dt>
-<dd>Godzilla</dd>
-<dt>Born</dt>
-<dd>1952</dd>
-<dt>Birthplace</dt>
-<dd>Japan</dd>
-<dt>Color</dt>
-<dd>Green</dd>
-</dl>
+To delete an entry, the user just has to select one of the entries in the table and click the _delete_ button. After this a confirmation prompt is shown warning the user an entry is about to be deleted forever. if the user clicks _ok_, the application proceeds to eliminate the data using the _removeRow_ function from our model.
 
-```
-Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
-```
+#### [](#header-4)Launch web browser
 
-```
-The final element.
-```
+If the user wishes to open in a web browser one of the domains in the wallet, it selects an entry and clicks the Launch button. Thanks to Qt function _QDesktopServices::OpenUrl(Qurl(string))_ we only had to modify the domain field to include _http://_ in the beginning of the string.
+
+#### [](#header-4)Edit environment variables
+
+This dialogue is intended for advanced users who would like to choose the algorithm and keys used for encryption in the SEcube device. Right now, with the device configuration provided by the professors, only one option is available.
+
+#### [](#header-4)Safe Close
+
+When the user decides to close the application, several actions need to be performed.
+*    Encrypt file
+*    Delete Sqlite file
+*    Close the connection to the database
+This is done by reusing the functions already developed for the cipher and close button.
+
+# [](#header-1)Improvements and Future work
+
+#### [](#header-4)Autofill login forms in website
+When the user clicks the launch button, not only the selected domain is opened, also, the login forms are autofilled using the stored username and password. We did not implemented this functionality as it requires HTML/CSS knowledge an it is out of the scope of the course.
+
+#### [](#header-4)OS integration
+Some OS, like linux distributions running the KDE Plasma Desktop already offer a wallet solution integrated in the system. Merging our project with these existing wallets could be a great feature for some users.
+
+#### [](#header-4)Browser integration
+The vast majority of users store their passwords within their preferred web browser, alongside other sensitive information like browsing history and bookmarks. Using the capabilities of the SEcube security platform to protect all that data while maintaining ease of use and transparency to the final user would be a great advance. We did not investigate further in that direction, but we guess it is possible by developing a complement for the most popular web browsers (Firefox, Chrome, Opera) to run together with the main application.
