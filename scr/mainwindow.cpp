@@ -160,6 +160,9 @@ bool MainWindow::OpenDataBase (){
     ui->DeleteWallet->setEnabled(true);
     ui->TableTitle->setText(fileName); // To display name of wallet in UI.
     ui->TableTitle->setVisible(true);
+    ui->OpenCyphered->setEnabled(false);
+    ui->CipherClose->setEnabled(true);
+
     return true;
 
 }
@@ -391,6 +394,13 @@ void MainWindow::on_CipherClose_clicked(){
     ui->NewTable->setEnabled(false);
     ui->WalletList->setEnabled(false);
     ui->DeleteWallet->setEnabled(false);
+    ui->OpenCyphered->setEnabled(true);
+
+    if(db.open()){ // close anye existent connections and database
+        db.close();
+        QSqlDatabase::removeDatabase(DRIVER);
+        db = QSqlDatabase();
+    }
 
     return;
 }
