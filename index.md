@@ -38,10 +38,12 @@ L2 can be considered as the merge of two projects: SEfile, concerning data at re
 >SEfile targets any user that, by moving inside a secure environment, wants to perform basic operation on regular files. It must be pointed out that all encryption functionalities are demanded to the secure device in their entirety. In addition, SEfile does not expose to the host device details about what, or where it is reading/writing data: thus, the host OS, which might be untrusted, is totally unaware of what it is writing
 
 # [](#header-1)QT
+
 Our application’s graphical interface was developed using the Qt framework.
 >Qt is a cross-platform application development framework for desktop, embedded and mobile. Supported Platforms include Linux, OS X, Windows, VxWorks, QNX, Android, iOS, BlackBerry, Sailfish OS and others. Qt is not a programming language on its own. It is a framework written in C++. A preprocessor, the MOC (Meta-Object Compiler), is used to extend the C++ language with features like signals and slots. Before the compilation step, the MOC parses the source files written in Qt-extended C++ and generates standard compliant C++ sources from them. Thus the framework itself and applications/libraries using it can be compiled by any standard compliant C++ compiler like Clang, GCC, ICC, MinGW and MSVC
 
 #### [](#header-4)Qt creator
+
 For development we used the IDE Qt Creator.
 >Qt Creator provides a cross-platform, complete integrated development environment (IDE) for application developers to create applications for multiple desktop, embedded, and mobile device platforms, such as Android and iOS. It is available for Linux, macOS and Windows operating systems
 
@@ -50,6 +52,37 @@ Using Qt creator allowed us to implement easily and fast a robust and elegant so
 
 # [](#header-1)ZXCVBN: Realistic Password Strength Estimation
 
+An important feature to final users is the possibility to realistically estimate how strong a password is, i.e., how hard could it be for hackers to crack it, as there is no point in using our system to protect weak passwords, that could be easily guessed with brute force attacks.
+
+As it is out of our expertise to develop a reliable function to make this estimation, we preferred to use a trusted project coming from dropbox hackweek event in 2012. The estimator called zxcvbn was originally written in JavaScript aiming for an easy integration with multiple web browsers and OS.
+
+>For over 30 years, password requirements and feedback have largely remained a product of LUDS: counts of lowerand uppercase letters, digits and symbols. LUDS remains
+ubiquitous despite being a conclusively burdensome and ineffective security practice. zxcvbn is an alternative password strength estimator that is small, fast, and crucially no harder than LUDS to adopt. Using leaked passwords, we compare its estimations to the best of four modern guessing attacks and show it to be accurate and conservative at low magnitudes, suitable for mitigating online attacks. We find 1.5 MB of compressed storage is sufficient to accurately estimate the best-known guessing attacks up to 105 guesses, or 104 and 103 guesses, respectively, given 245 kB and 29 kB. zxcvbn can be adopted with 4 lines of code and downloaded in seconds. It runs in milliseconds and works as-is on web, iOS and Android.
+
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/password_strength.png)
+
+To put it in other words, the authors of the project argue that a password like _correcthorsebatterystaple_ (a nonsense English phrase) is more strong than a password like _Tr0ub4dour&3_, even if the former does not have any upper cases or numbers, and the latter seems more complicated.
+
+>People of course choose patterns dictionary words, spatial patterns like _qwerty_, _asdf_ or _zxcvbn_, repeats like _aaaaaaa_, sequences like _abcdef_ or _654321_, or some combination of the above. For passwords with uppercase letters, odds are its the first letter thats uppercase. Numbers and symbols are often predictable as well: _l33t_ speak (3 for e, 0 for o, @ or 4 for a), years, dates, zip codes, and so on. As a result, simplistic strength estimation gives bad advice. Without checking for common patterns, the practice of encouraging numbers and symbols means encouraging passwords that might only be slightly harder for a computer to crack, and yet frustratingly harder for a human to remember. _xkcd_ nailed it.
+
+# [](#header-1)Implementation
+
+The basic idea behind our project is: We use the SEfile APIs to encrypt a file containing the passwords the user wants to protect. Said file is encrypted by the SEcube device connected to the computer, and can only be decrypted later if the same device is connected. The encryption/decryption can be done in any computer where an appropriate version of Qt is installed.
+
+A detailed description of the usage workflow, functionalities and components is given below:
+1.  The user connects and mounts the SEcube device to the host computer.
+2.  The user executes our application **SEcubeWallet**
+3.  The application ask for a master password, which has been previously configured into the SEcube device (in our case is **test**). The entered password has to coincide with the stored one to allow the login.
+
+After access is granted, the GUI shown in the figure allows the user to:
+4.  Create a new Wallet.
+5.  Cypher the wallet, close it and delete the regular (insecure) file.
+6.  Open an existent cyphered Wallet.
+7.  Add/Edit a new entry to an existing Wallet. The user fills the required fields, and for the password there is strength measure feature.
+8.  Delete an existing entry.
+9.  Launch a web browser and open the selected domain.
+10.  Edit the environment variables.
+11.  Safe application close.
 
 ### [](#header-3)Header 3
 

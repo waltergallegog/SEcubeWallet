@@ -8,14 +8,19 @@ We are a two Embedded System students of the Politecnico di Torino.
 
 ## Walter Gallego Gomez
 
->Born in Colombia in 1993, I started my journey in electronic engineering at the  University of Antioquia in 2010. After 5 years of studies I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. My areas of interest encomprise the development of specific purpose hardware in VHDL/Verilog, the programming of microcontolled based devices on C/C++ and the application of those in Machine Learning projects.
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/walter.png)
 
-![](https://github.com/duverleygrajales/SEcubeWallet/blob/gh-pages/assets/images/walter.png)
+>Born in Colombia in 1993, I started my journey in electronic engineering at the  University of Antioquia in 2010. After 5 years of studies I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. My areas of interest encomprise the development of specific purpose hardware in VHDL/Verilog, the programming of microcontolled based devices on C/C++ and the application of those in Machine Learning projects.
 
 [waltergallegog](https://github.com/waltergallegog)
 
 
-
 ## Duverley Grajales
+
+![](https://raw.githubusercontent.com/duverleygrajales/SEcubeWallet/gh-pages/assets/images/duver.png)
+
+>Born in Colombia in 1991, I studied electronic engineering at the  University of Antioquia. I moved to Italy to pursuit a master degree in Embedded Systems at Politecnico di Torino. I have in the following research groups Squadra Corse and Team H2Polito. In this moment work for the Beond Azienda in I3P.
+
+[duverleygrajales](https://https://github.com/duverleygrajales)
 
 [back](./)
