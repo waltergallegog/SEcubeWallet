@@ -7,7 +7,7 @@
 #include <QItemSelectionModel>
 #include <QDebug>
 #include <QDate>
-#define DEV // uncomment this line to disable login dialog so you can test non-secube related code
+//#define DEV // uncomment this line to disable login dialog so you can test non-secube related code
 
 #define IDENT_COL   0
 #define USER_COL    1
@@ -66,7 +66,6 @@ void MainWindow::init()
     ui->NewTable->setEnabled(false);
     ui->WalletList->setEnabled(false);
     ui->DeleteWallet->setEnabled(false);
-
     ui->TableTitle->setVisible(false);
     ui->WalletView->hide();
 
@@ -156,7 +155,11 @@ bool MainWindow::OpenDataBase (){
         ui->WalletList->setEnabled(true);
         ui->WalletList->addItems(CurrentTables);
     }
-
+    ui->NewTable->setEnabled(true);
+    ui->WalletList->setEnabled(true);
+    ui->DeleteWallet->setEnabled(true);
+    ui->TableTitle->setText(fileName); // To display name of wallet in UI.
+    ui->TableTitle->setVisible(true);
     return true;
 
 }
@@ -376,6 +379,7 @@ void MainWindow::on_CipherClose_clicked(){
     ui->EditEntry->setEnabled(false);
     ui->DeleteEntry->setEnabled(false);
     ui->CipherClose->setEnabled(false);
+    ui->LaunchEntry->setEnabled(false);
     ui->TableTitle->setVisible(false);
     ui->Showpass->setEnabled(false);
     ui->DomainFilter->setEnabled(false);
