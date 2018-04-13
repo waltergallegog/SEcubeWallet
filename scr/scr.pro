@@ -66,3 +66,40 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfi
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfile/release/SEfile.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfile/debug/SEfile.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../SEfile/libSEfile.a
+
+CONFIG(SQLITE_OS_SECURE){
+   DEFINES += SQLITE_OS_SECURE
+
+    # Added SQLite installation path variables, matching our setup guide
+    win32 {
+        SECURESQLPATH = "$$OUT_PWD/../securesqlite3"
+        SEFILEPATH  = "$$OUT_PWD/../SEfile"
+        CONFIG(debug,debug|release){
+            SECURESQLPATH = $$SECURESQLPATH/debug
+            SEFILEPATH = $$SEFILEPATH/debug
+        }
+        CONFIG(release,debug|release){
+            SECURESQLPATH = $$SECURESQLPATH/release
+            SEFILEPATH = $$SEFILEPATH/release
+        }
+    }
+    !win32 {
+        SECURESQLPATH = "../securesqlite3"
+        SEFILEPATH  = "../SEfile"
+    }
+
+    LIBS += -L$$SECURESQLPATH \
+        -L$$SEFILEPATH
+
+    LIBS += -lsecuresqlite3 -lSEfile
+
+    INCLUDEPATH += "$$PWD/../securesqlite3" \
+        "$$PWD/../SEfile"
+    DEPENDPATH += "$$PWD/../securesqlite3"\
+        "$$PWD/../SEfile" \
+        $$SECURESQLPATH \
+        $$SEFILEPATH
+
+} else {
+    LIBS += -lsqlite3
+}

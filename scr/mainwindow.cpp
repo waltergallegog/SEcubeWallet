@@ -7,6 +7,7 @@
 #include <QItemSelectionModel>
 #include <QDebug>
 #include <QDate>
+#include <QSqlDriver>
 //#define DEV // uncomment this line to disable login dialog so you can test non-secube related code
 
 #define IDENT_COL   0
@@ -21,6 +22,9 @@
 #define UNUSED(expr) (void)(expr)
 
 #define DRIVER "QSQLITE"
+
+Q_DECLARE_OPAQUE_POINTER(sqlite3*)
+Q_DECLARE_METATYPE(sqlite3*)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -122,27 +126,54 @@ void MainWindow::on_NewWallet_clicked()
         ui->NewTable->setEnabled(true);
         ui->DeleteWallet->setEnabled(true);
     }
-
     return;
 }
 
 // Create/Open sqlite dataBase
 bool MainWindow::OpenDataBase (){
 
+
+//    QVariant v = db.driver()->handle();
+//    qDebug()<< v.isValid() << "  type  "<<v.typeName();
+//    if (v.isValid() && qstrcmp(v.typeName(), "sqlite3*")==0) {
+//        // v.data() returns a pointer to the handle
+//        db2 = *static_cast<sqlite3 **>(v.data());
+//        if (db2 == 0){  // check that it is not NULL
+//            int rc;
+//            sqlite3_os_init();
+
+//            rc = sqlite3_open(fileName.toUtf8(), &db2);
+
+//            if( rc )
+//               qDebug() << "Can't open database" << sqlite3_errmsg(db2);
+//            else
+//               qDebug() << "Opened database successfully";
+//          }
+//        else
+//            qDebug() << "not working";
+
+//    }
+//    else
+//        qDebug() << "not working 2";
+
+
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
         exit (1); // as the application does not work without Sqlite, exit.
     }
+
     if (db.open()){ //close any prev. opened connections and database
         model->clear();
         proxyModel->clear();
         db.close();
         QSqlDatabase::removeDatabase(DRIVER);
         db = QSqlDatabase();
+
+        //sqlite3_close(db);
     }
 
     db = QSqlDatabase::addDatabase(DRIVER);
-    db.setDatabaseName(fileName);
+    db.setDatabaseName(":memory:");
     if(!db.open()){ //Check if it was possible to open the database
         qWarning() << "ERROR: " << db.lastError();
         return false;
@@ -155,6 +186,7 @@ bool MainWindow::OpenDataBase (){
         ui->WalletList->setEnabled(true);
         ui->WalletList->addItems(CurrentTables);
     }
+
     ui->NewTable->setEnabled(true);
     ui->WalletList->setEnabled(true);
     ui->DeleteWallet->setEnabled(true);
@@ -518,12 +550,41 @@ void MainWindow::on_NewTable_clicked(){
 
     query.finish();
 
+//    char *zErrMsg = 0;
+
+//    QString sql = "create table "+WalletName+
+//          "(id integer primary key, "
+//          "Username TEXT, "
+//          "Domain TEXT, "
+//          "Password TEXT, "
+//          "Date TEXT, "
+//          "Description TEXT );"; //The table
+
+//     /* Execute SQL statement */
+//     int rc = sqlite3_exec(db2, sql.toUtf8(), callback, 0, &zErrMsg);
+
+//     if( rc != SQLITE_OK ){
+//        qDebug() << "SQL error: %s\n"<< zErrMsg;
+//        sqlite3_free(zErrMsg);
+//     } else {
+//        qDebug() << "Table created successfully";
+//     }
+
     ui->WalletList->setEnabled(true);
     if(ui->WalletList->findText(WalletName) == -1) //Check if item already in the list
         ui->WalletList->addItem(WalletName); //if not, add it
     ui->WalletList->setCurrentText(WalletName);
 
     CreateViewTable(WalletName);
+}
+
+int MainWindow::callback(void *NotUsed, int argc, char **argv, char **azColName){
+   int i;
+   for(i=0; i<argc; i++){
+      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    return 0;
 }
 
 void MainWindow::on_WalletList_currentIndexChanged(const QString &arg1){ //just change the view to the selected wallet

@@ -24,6 +24,9 @@
 #include <QSqlTableModel>
 #include <QSqlRecord>
 
+#include "../securesqlite3/sqlite3.h"
+
+
 //Miscellaneous
 #include <QTableView>
 #include <QObject>
@@ -85,12 +88,16 @@ private:
     MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
 
+    sqlite3 *db2;
+
     helpWindow *help;
 
     //Methods
      void init();           //initialization. Call LoginDialog and configure UI
      bool OpenDataBase();   //Create/Open Data base and create table, connections
      void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
+     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+
 };
 
 #endif // MAINWINDOW_H
