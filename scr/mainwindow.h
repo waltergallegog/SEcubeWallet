@@ -36,6 +36,8 @@
 #include <QSortFilterProxyModel>
 #include "mysortfilterproxymodel.h"
 
+static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName);
+static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName);
 
 namespace Ui {
 class MainWindow;
@@ -68,11 +70,8 @@ private slots:
     void on_Months_currentIndexChanged(int index);
     void on_CustomMonths_textChanged(const QString &arg1);
     void on_Help_clicked();
-
     void on_NewTable_clicked();
-
     void on_WalletList_currentIndexChanged(const QString &arg1);
-
     void on_DeleteWallet_clicked();
 
 private:
@@ -83,21 +82,27 @@ private:
     SEFILE_FHANDLE sefile_file; // Encrypted file
 
     // Database related
-    QSqlDatabase db;        // The database
+    QSqlDatabase dbMem;        // The database
     QSqlTableModel *model;  // Model to handle tables in the database easily
     MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
+    QStringList tableList;
+    QString currentTable;
+    QSqlQuery query;
 
-    sqlite3 *db2;
+    sqlite3 *dbSec;
 
     helpWindow *help;
 
     //Methods
-     void init();           //initialization. Call LoginDialog and configure UI
-     bool OpenDataBase();   //Create/Open Data base and create table, connections
-     void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
-     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+    void init();           //initialization. Call LoginDialog and configure UI
+    bool OpenDataBase();   //Create/Open Data base and create table, connections
+    void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
 
+    int callback_createTableList(int argc, char **argv, char **azColName); //Build TableList from ciphered db
+    int callback_populateTable(int argc, char **argv, char **azColName); //Build TableList from ciphered db
+    friend int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName);
+    friend int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName);
 };
 
 #endif // MAINWINDOW_H

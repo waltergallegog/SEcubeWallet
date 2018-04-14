@@ -26,6 +26,17 @@
 Q_DECLARE_OPAQUE_POINTER(sqlite3*)
 Q_DECLARE_METATYPE(sqlite3*)
 
+static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName){ //create Table List
+    MainWindow* main = reinterpret_cast<MainWindow*>(mainwindowP);
+    return main->callback_createTableList(argc, argv, azColName);
+}
+
+static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName){ //Populate Table
+    MainWindow* main = reinterpret_cast<MainWindow*>(mainwindowP);
+    return main->callback_populateTable(argc, argv, azColName);
+}
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow ){
@@ -34,16 +45,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()//Destructor
 {
-    if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
-        on_CipherClose_clicked(); //Call cipher before closing
+    sqlite3_os_end(); //Release the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //    if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
+    //        on_CipherClose_clicked(); //Call cipher before closing
     secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
 
-    if(db.open()){ // close anye existent connections and database
+    if(dbMem.open()){ // close any existent connections and database
         model->clear();
         proxyModel->clear();
-        db.close();
+        dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
-        db = QSqlDatabase();
+        dbMem = QSqlDatabase();
     }
 
     if(s.logged_in)
@@ -103,6 +115,8 @@ void MainWindow::init()
          * The parameter se3_session *s contains all the information that let the system acknowledge which board
          * is connected and if the user has successfully logged in.*/
     }
+
+    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #endif
     return;
 }
@@ -132,56 +146,31 @@ void MainWindow::on_NewWallet_clicked()
 // Create/Open sqlite dataBase
 bool MainWindow::OpenDataBase (){
 
-
-//    QVariant v = db.driver()->handle();
-//    qDebug()<< v.isValid() << "  type  "<<v.typeName();
-//    if (v.isValid() && qstrcmp(v.typeName(), "sqlite3*")==0) {
-//        // v.data() returns a pointer to the handle
-//        db2 = *static_cast<sqlite3 **>(v.data());
-//        if (db2 == 0){  // check that it is not NULL
-//            int rc;
-//            sqlite3_os_init();
-
-//            rc = sqlite3_open(fileName.toUtf8(), &db2);
-
-//            if( rc )
-//               qDebug() << "Can't open database" << sqlite3_errmsg(db2);
-//            else
-//               qDebug() << "Opened database successfully";
-//          }
-//        else
-//            qDebug() << "not working";
-
-//    }
-//    else
-//        qDebug() << "not working 2";
-
-
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
         exit (1); // as the application does not work without Sqlite, exit.
     }
 
-    if (db.open()){ //close any prev. opened connections and database
+    if (dbMem.open()){ //close any prev. opened connections and database
         model->clear();
         proxyModel->clear();
-        db.close();
+        dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
-        db = QSqlDatabase();
+        dbMem = QSqlDatabase();
 
         //sqlite3_close(db);
     }
 
-    db = QSqlDatabase::addDatabase(DRIVER);
-    db.setDatabaseName(":memory:");
-    if(!db.open()){ //Check if it was possible to open the database
-        qWarning() << "ERROR: " << db.lastError();
+    dbMem = QSqlDatabase::addDatabase(DRIVER);
+    dbMem.setDatabaseName(":memory:");
+    if(!dbMem.open()){ //Check if it was possible to open the database
+        qWarning() << "ERROR: " << dbMem.lastError();
         return false;
     }
 
     ui->WalletList->clear();
 
-    QStringList CurrentTables = db.tables(QSql::Tables);
+    QStringList CurrentTables = dbMem.tables(QSql::Tables);
     if (!CurrentTables.isEmpty()){
         ui->WalletList->setEnabled(true);
         ui->WalletList->addItems(CurrentTables);
@@ -285,9 +274,9 @@ void MainWindow::on_EditEntry_clicked()
 
         //Call add entry with second constructor, so we can pass it the values to edit
         AddEntry *add = new AddEntry(this, proxyModel->index(row,USER_COL).data().toString(),
-                                           proxyModel->index(row,PASS_COL).data().toString(),
-                                           proxyModel->index(row,DOM_COL).data().toString(),
-                                           proxyModel->index(row,DESC_COL).data().toString());
+                                     proxyModel->index(row,PASS_COL).data().toString(),
+                                     proxyModel->index(row,DOM_COL).data().toString(),
+                                     proxyModel->index(row,DESC_COL).data().toString());
         add->exec();
 
         if(add->result()==QDialog::Rejected)
@@ -363,51 +352,85 @@ void MainWindow::on_EnvironmentBut_clicked(){
     return;
 }
 
-//Cipher database file and delete the plain file. (From SeFile_IMG example)
+//// ************ if user wants to write to disk ***************
 void MainWindow::on_CipherClose_clicked(){
-    uint16_t ret = SE3_OK;
-    char enc_filename[65];
-    uint16_t enc_len = 0;
 
-    memset(enc_filename, 0, 65);
-    crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+    //    //// *  Delete Secure database (if any) in disk first (only way to dump a data base)
 
-    QString *path_plainfile = new QString(fileName);
-    if((ret = secure_open(path_plainfile->toUtf8().data(), &sefile_file, SEFILE_WRITE, SEFILE_NEWFILE))){
-        if ( ret == SEFILE_SIGNATURE_MISMATCH )  // Check if signature on header failed
-            qDebug() << "Signature Mismatch";
-        else
-            qDebug() << "Error in open sec file: " << ret;
+    //    //prepare vars
+    //    char enc_filename[65];
+    //    uint16_t enc_len = 0;
+    //    memset(enc_filename, 0, 65);
 
-        return; //Something went wrong with open file, do nothing
+    //    //Get name of file in disk (encrypted) and delete.
+    //    crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+    //    QFile::remove(enc_filename);
+
+    //// * Create a secure Sqlite using securesqlite3 functions
+    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+
+    if( sqlite3_open(fileName.toUtf8(), &dbSec) ) //create a new database using the filename specified by the user before.
+        qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
+    else
+        qDebug() << "Opened database successfully";
+
+    //// * Dump everything from the in-memory database to the secure database
+    char *zErrMsg = 0;
+
+    QSqlQuery query(dbMem);
+
+    QStringList values;
+    QSqlRecord record;
+    QString finalSql;
+    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2); "); //Insert statement
+
+    // Read from in mem database
+    QStringList tableList = dbMem.tables(QSql::Tables); // Get a list of the tables in dbMem
+    foreach (const QString table, tableList) {
+        QString sql = "create table "+table+
+                "(id integer primary key, "
+                "Username TEXT, "
+                "Domain TEXT, "
+                "Password TEXT, "
+                "Date TEXT, "
+                "Description TEXT );"; //The table
+
+        if ( sqlite3_exec(dbSec, sql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//create the table
+            qDebug() << "SQL error: %s\n"<< zErrMsg;
+            sqlite3_free(zErrMsg);
+        } else
+            qDebug() << table << "created successfully";
+
+        query.prepare(QString("SELECT * FROM [%1]").arg(table)); //prepare select
+        query.exec();
+        while (query.next()){
+            values.clear();
+            record = query.record();
+            for (int i = 0; i < record.count(); i++)
+                values << "'"+record.value(i).toString()+"'";//value needs to be inside ''
+            finalSql += insert.arg(table).arg(values.join(", "));//create a single sql statement from all the inserts
+        }
     }
+    // write into sec database
+    qDebug() << finalSql;
 
-    //fileName holds the current database file
-    QFile plain_file(fileName);
-    plain_file.open(QIODevice::ReadOnly); //only need to read it
-    qint64 size_len = plain_file.size();
+    if ( sqlite3_exec(dbSec, finalSql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//execute the statement
+        qDebug() << "SQL error "<< zErrMsg;
+        sqlite3_free(zErrMsg);
+    } else
+        qDebug() <<"Saved successfully";
 
-    // Begin encryption of file
-    uint8_t *buffer = (uint8_t*) malloc((size_t)size_len*sizeof(uint8_t));
-    memcpy(buffer, plain_file.readAll().data(), (size_t)size_len);
-    if((ret = secure_write(&sefile_file, buffer, size_len))) {
-        if ( ret == SEFILE_SIGNATURE_MISMATCH )
-            qDebug() << "Signature Mismatch";
-        else
-            qDebug() << "Error in open sec file: " << ret;
+    //// Close secure database connection
+    sqlite3_close (dbSec);
+    sqlite3_os_end();
 
-        free(buffer);
-        secure_close(&sefile_file);
-        plain_file.close();
-        return; //Something went wrong with open file, do nothing
-    }
+    //    if(dbMem.open()){ // close anye existent connections and database
+    //        dbMem.close();
+    //        QSqlDatabase::removeDatabase(DRIVER);
+    //        dbMem = QSqlDatabase();
+    //    }
 
-    free(buffer);
-    secure_close(&sefile_file);
-    plain_file.close();
 
-    // If encryption ok, delete plain file and set UI to "not wallet" state
-    QFile::remove(fileName);
     ui->WalletView->hide();
 
     ui->AddEntry->setEnabled(false);
@@ -428,21 +451,46 @@ void MainWindow::on_CipherClose_clicked(){
     ui->DeleteWallet->setEnabled(false);
     ui->OpenCyphered->setEnabled(true);
 
-    if(db.open()){ // close anye existent connections and database
-        db.close();
-        QSqlDatabase::removeDatabase(DRIVER);
-        db = QSqlDatabase();
-    }
 
     return;
 }
 
-//Open Cyphered database and display it
+int MainWindow::callback_createTableList(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
+    qDebug() << "in callback_createTableList";
+    tableList << argv[0]; //only one arg, the table name.
+    return 0;
+}
+
+int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
+    int i;
+    qDebug() << "in callback_populateTable";
+
+    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2);"); //Insert statement
+    QStringList values;
+    QString aux;
+
+    for(i = 0; i<argc; i++){
+        aux = argv[i];
+        values << "'"+aux+"'";
+    }
+
+    query.prepare( insert.arg(currentTable).arg(values.join(", ")) );
+    if (!query.exec()){
+        qWarning() << "Couldn't insert values";
+        qWarning() << "ERROR: " << query.lastError();
+        return 0;
+    }
+
+    return 0;
+}
+
+
+
+////Open Cyphered database and display it
 void MainWindow::on_OpenCyphered_clicked(){
-    QByteArray plain_buffer;
-    uint8_t *buffer;
-    uint16_t ret = SE3_OK;
-    uint32_t nBytesRead = 0, file_len = 0;
+
+
+    //// Open Secure database
 
     //call securefileDialog. Option 0 displays the cyphered files in the current directory
     SecureFileDialog *fileDialog = new SecureFileDialog( this, 0 );
@@ -454,53 +502,78 @@ void MainWindow::on_OpenCyphered_clicked(){
     path = fileDialog->getChosenFile();
     fileName = QFileInfo(QFile(path)).fileName();
 
-    if(fileName.isNull()) return;
-    path = path.left(path.size() - fileName.size());
+    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    if( sqlite3_open_v2(fileName.toUtf8(), &dbSec, SQLITE_OPEN_READONLY, NULL) ) //open the database for read using the filename specified by the user before.
+        qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
+    else
+        qDebug() << "Opened database successfully";
 
-    QString *path_plainfile = new QString(path + fileName);
+    QString tableNames="SELECT name FROM sqlite_master "
+                       "WHERE type='table' "
+                       "ORDER BY name;";
+    char *zErrMsg = 0;
+    tableList.clear();
+    if ( sqlite3_exec(dbSec, tableNames.toUtf8(), c_callback_createTableList, this, &zErrMsg) != SQLITE_OK){
+        qDebug() << "SQL error"<< zErrMsg;
+        sqlite3_free(zErrMsg);
+    } else
+        qDebug() <<" Get table names successfully";
 
-    //Open file
-    if((ret = secure_open(path_plainfile->toUtf8().data(), &sefile_file, SEFILE_WRITE, SEFILE_OPEN))){
-        if ( ret == SEFILE_SIGNATURE_MISMATCH )  // Check if signature on header failed
-            qDebug() << "Signature Mismatch";
+
+    if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
+        qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
+        exit (1); // as the application does not work without Sqlite, exit.
+    }
+
+    if (dbMem.open()){ //close any prev. opened connections and database
+        model->clear();
+        proxyModel->clear();
+        dbMem.close();
+        QSqlDatabase::removeDatabase(DRIVER);
+        dbMem = QSqlDatabase();
+    }
+
+    dbMem = QSqlDatabase::addDatabase(DRIVER);
+    dbMem.setDatabaseName(":memory:");
+    if(!dbMem.open()){ //Check if it was possible to open the database
+        qWarning() << "ERROR: " << dbMem.lastError();
+        return;
+    }
+    query = QSqlQuery(dbMem);
+
+    foreach (const QString table, tableList){
+
+        ui->WalletList->setEnabled(true);
+        ui->WalletList->addItem(table);
+
+        QString sql = "create table "+table+
+                "(id integer primary key, "
+                "Username TEXT, "
+                "Domain TEXT, "
+                "Password TEXT, "
+                "Date TEXT, "
+                "Description TEXT );"; //The table
+        query.prepare(sql);
+        if (!query.exec())
+            qWarning() << "Couldn't create the table" << table <<" one might already exist";
         else
-            qDebug() << "Error in open sec file: " << ret;
+            qDebug() << table << "created successfully";
+        currentTable = table;
 
-        return; //Something went wrong with open file, do nothing
+        if ( sqlite3_exec(dbSec, QString("SELECT * FROM [%1]").arg(table).toUtf8(), c_callback_populateTable, this, &zErrMsg) != SQLITE_OK){
+            qDebug() << "SQL error"<< zErrMsg;
+            sqlite3_free(zErrMsg);
+        } else
+            qDebug() <<" Get all from " << table <<" successfully";
     }
+    query.finish();
 
-    //Get size
-    if((ret = secure_getfilesize(path_plainfile->toUtf8().data(), &file_len))){
-        if ( ret == SEFILE_SIGNATURE_MISMATCH )
-            qDebug() << "Signature Mismatch";
-        else if (ret > 0)
-            qDebug() << "Error in open sec file: " << ret;
-        secure_close(&sefile_file);
-        return;
-    }
 
-    //Start decrypthion
-    buffer = (uint8_t *)calloc(file_len, sizeof(uint8_t));
-    if((ret = secure_read(&sefile_file,  buffer, file_len, &nBytesRead))){
-        if ( ret == SEFILE_SIGNATURE_MISMATCH )
-            qDebug() << "Signature Mismatch";
-        else if (ret > 0)
-            qDebug() << "Error in open sec file: " << ret;
-        secure_close(&sefile_file);
-        return;
-    }
-
-    plain_buffer = QByteArray((char *)buffer, (int)nBytesRead);
-    QFile plain_file(fileName); //Create plain fail
-    plain_file.open(QIODevice::WriteOnly); //We need to write it
-    plain_file.write(plain_buffer);//Write
-    plain_file.close();//Close
-
-    //Re-Open data base and create table.
-    if (!OpenDataBase())
-        return; //error opening database
-    //CreateViewTable();
-    return;
+    //    //Re-Open data base and create table.
+    //    if (!OpenDataBase())
+    //        return; //error opening database
+    //    //CreateViewTable();
+    //    return;
 }
 
 void MainWindow::on_DomainFilter_textChanged(const QString &arg1){ //update Domain filter
@@ -536,7 +609,7 @@ void MainWindow::on_NewTable_clicked(){
     }
     QString WalletName = newT->getName();
 
-    QSqlQuery query;
+    QSqlQuery query(dbMem);
     query.prepare("create table "+WalletName+
                   "(id integer primary key, "
                   "Username TEXT, "
@@ -550,41 +623,12 @@ void MainWindow::on_NewTable_clicked(){
 
     query.finish();
 
-//    char *zErrMsg = 0;
-
-//    QString sql = "create table "+WalletName+
-//          "(id integer primary key, "
-//          "Username TEXT, "
-//          "Domain TEXT, "
-//          "Password TEXT, "
-//          "Date TEXT, "
-//          "Description TEXT );"; //The table
-
-//     /* Execute SQL statement */
-//     int rc = sqlite3_exec(db2, sql.toUtf8(), callback, 0, &zErrMsg);
-
-//     if( rc != SQLITE_OK ){
-//        qDebug() << "SQL error: %s\n"<< zErrMsg;
-//        sqlite3_free(zErrMsg);
-//     } else {
-//        qDebug() << "Table created successfully";
-//     }
-
     ui->WalletList->setEnabled(true);
     if(ui->WalletList->findText(WalletName) == -1) //Check if item already in the list
         ui->WalletList->addItem(WalletName); //if not, add it
     ui->WalletList->setCurrentText(WalletName);
 
     CreateViewTable(WalletName);
-}
-
-int MainWindow::callback(void *NotUsed, int argc, char **argv, char **azColName){
-   int i;
-   for(i=0; i<argc; i++){
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-    }
-    printf("\n");
-    return 0;
 }
 
 void MainWindow::on_WalletList_currentIndexChanged(const QString &arg1){ //just change the view to the selected wallet
@@ -599,7 +643,7 @@ void MainWindow::on_DeleteWallet_clicked(){
         if(conf->result()==QDialog::Rejected)
             return;//if error or cancel, do nothing
 
-        QSqlQuery query(db);
+        QSqlQuery query(dbMem);
 
         query.prepare("DROP TABLE "+WalletName);
         if (!query.exec()){
@@ -607,6 +651,7 @@ void MainWindow::on_DeleteWallet_clicked(){
             qWarning() << "ERROR: " << query.lastError();
             return;
         }
+        query.finish();
         ui->WalletList->removeItem(ui->WalletList->currentIndex());
     }
 }

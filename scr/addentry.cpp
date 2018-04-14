@@ -127,8 +127,6 @@ void AddEntry::on_InPass_textChanged(QString text){
     PasswordWarning();
     UNUSED(arg1);*/
 
-    qDebug() << "perra";
-
     if(!text.isEmpty()){
         if (!ZxcvbnInit()){
             qDebug() << "Failed Open Dictionary File";
