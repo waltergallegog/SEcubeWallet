@@ -33,3 +33,11 @@ memset(enc_filename, 0, 65);
 //Get name of file in disk (encrypted) and delete.
 crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
 QFile::remove(enc_filename);
+
+
+//********* populte walletlist
+QStringList CurrentTables = dbMem.tables(QSql::Tables);
+if (!CurrentTables.isEmpty()){
+//        ui->WalletList->setEnabled(true);
+//        ui->WalletList->addItems(CurrentTables);
+}

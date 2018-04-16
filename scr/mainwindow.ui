@@ -48,6 +48,9 @@
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -78,8 +81,9 @@
     <addaction name="action_Add_Folder"/>
     <addaction name="action_Delete_Folder"/>
     <addaction name="separator"/>
-    <addaction name="actionAdd_Entry"/>
-    <addaction name="actionDelete_Entry"/>
+    <addaction name="action_Add_Entry"/>
+    <addaction name="action_Edit_Entry"/>
+    <addaction name="action_Delete_Entry"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -93,7 +97,7 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="action_Set_Environment"/>
-    <addaction name="actionShow_Passwords"/>
+    <addaction name="action_Show_Passwords"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -155,10 +159,11 @@
    <attribute name="toolBarBreak">
     <bool>true</bool>
    </attribute>
-   <addaction name="actionAdd_Entry"/>
-   <addaction name="actionDelete_Entry"/>
+   <addaction name="action_Add_Entry"/>
+   <addaction name="action_Edit_Entry"/>
+   <addaction name="action_Delete_Entry"/>
    <addaction name="separator"/>
-   <addaction name="actionShow_Passwords"/>
+   <addaction name="action_Show_Passwords"/>
    <addaction name="separator"/>
    <addaction name="action_Launch_Domain"/>
   </widget>
@@ -219,12 +224,12 @@
     <string>Set Environment</string>
    </property>
   </action>
-  <action name="actionAdd_Entry">
+  <action name="action_Add_Entry">
    <property name="text">
     <string>Add Entry</string>
    </property>
   </action>
-  <action name="actionDelete_Entry">
+  <action name="action_Delete_Entry">
    <property name="text">
     <string>Delete Entry</string>
    </property>
@@ -234,12 +239,17 @@
     <string>&amp;Launch Domain</string>
    </property>
   </action>
-  <action name="actionShow_Passwords">
+  <action name="action_Show_Passwords">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
     <string>Show &amp;Passwords</string>
+   </property>
+  </action>
+  <action name="action_Edit_Entry">
+   <property name="text">
+    <string>Edit Entry</string>
    </property>
   </action>
  </widget>

@@ -56,7 +56,6 @@ public:
 
 private slots:
 
-    void on_NewDB_clicked();
     void on_AddEntry_clicked();
     void on_CipherClose_clicked();
     void on_OpenCyphered_clicked();
@@ -104,7 +103,19 @@ private:
 
     helpWindow *help;
 
-   ColumnAlignedLayout *alignedLayout;
+    /// ****** GUI elements ****
+    ColumnAlignedLayout *alignedLayout;
+    QWidget* dateWidget;
+    QHBoxLayout* dateLayout;
+    QLineEdit *idFilter;
+    QLineEdit *userFilter;
+    QLineEdit *domFilter;
+    QLineEdit *passFilter;
+    QLineEdit *dateFilter;
+    QComboBox *dateUnit;
+    QLineEdit *descFilter;
+
+    QComboBox *walletList;
 
     //// ***** Methods
     void init();           //initialization. Call LoginDialog and configure UI
