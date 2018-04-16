@@ -34,7 +34,10 @@
 #include <QDebug>
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
+#include <QLineEdit>
+#include <QScrollBar>
 #include "mysortfilterproxymodel.h"
+#include "columnalignedlayout.h"
 
 static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName);
 static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName);
@@ -53,7 +56,7 @@ public:
 
 private slots:
 
-    void on_NewWallet_clicked();
+    void on_NewDB_clicked();
     void on_AddEntry_clicked();
     void on_CipherClose_clicked();
     void on_OpenCyphered_clicked();
@@ -73,6 +76,13 @@ private slots:
     void on_NewTable_clicked();
     void on_WalletList_currentIndexChanged(const QString &arg1);
     void on_DeleteWallet_clicked();
+
+    void on_action_New_Wallet_triggered();
+    void invalidateAlignedLayout();
+
+
+
+    void on_action_Add_Folder_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -94,7 +104,9 @@ private:
 
     helpWindow *help;
 
-    //Methods
+   ColumnAlignedLayout *alignedLayout;
+
+    //// ***** Methods
     void init();           //initialization. Call LoginDialog and configure UI
     bool OpenDataBase();   //Create/Open Data base and create table, connections
     void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.

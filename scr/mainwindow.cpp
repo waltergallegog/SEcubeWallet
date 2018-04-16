@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QSqlDriver>
-//#define DEV // uncomment this line to disable login dialog so you can test non-secube related code
+#include <QComboBox>
 
 #define IDENT_COL   0
 #define USER_COL    1
@@ -16,8 +16,6 @@
 #define PASS_COL    3
 #define DATE_COL    4
 #define DESC_COL    5
-
-#define CUSTOM      7
 
 #define UNUSED(expr) (void)(expr)
 
@@ -45,52 +43,58 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()//Destructor
 {
-    sqlite3_os_end(); //Release the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
-    //    if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
-    //        on_CipherClose_clicked(); //Call cipher before closing
-    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+#ifdef SECUBE
+    // prompt if user wants to cipher before closing
+    // if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
+    // on_CipherClose_clicked(); //Call cipher before closing
 
-    if(dbMem.open()){ // close any existent connections and database
+    sqlite3_os_end(); //Release the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+    if(s.logged_in)
+        L1_logout(&s);
+    delete ui;
+#endif
+
+    if(dbMem.open()){ // close any existent connections and in memory database
         model->clear();
         proxyModel->clear();
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
         dbMem = QSqlDatabase();
     }
-
-    if(s.logged_in)
-        L1_logout(&s);
-    delete ui;
 }
 
-void MainWindow::init()
-{
+void MainWindow::init(){
     // Configure UI and initial state of buttons as not clickable because there is no wallet to edit yet
     ui->setupUi(this);
-    ui->AddEntry->setEnabled(false);
-    ui->EditEntry->setEnabled(false);
-    ui->DeleteEntry->setEnabled(false);
-    ui->LaunchEntry->setEnabled(false);
-    ui->CipherClose->setEnabled(false);
-    ui->Showpass->setEnabled(false);
-    ui->DomainFilter->setEnabled(false);
-    ui->UserFilter->setEnabled(false);
-    ui->DescFilter->setEnabled(false);
-    ui->olderText->setEnabled(false);
-    ui->Months->setEnabled(false);
-    ui->CustomMonths->setEnabled(false);
-    ui->NewTable->setEnabled(false);
-    ui->WalletList->setEnabled(false);
-    ui->DeleteWallet->setEnabled(false);
-    ui->TableTitle->setVisible(false);
+
+    ui->folderTB->addWidget(new QComboBox);
+
+
+//    ui->AddEntry->setEnabled(false);
+//    ui->EditEntry->setEnabled(false);
+//    ui->DeleteEntry->setEnabled(false);
+//    ui->LaunchEntry->setEnabled(false);
+    //    ui->CipherClose->setEnabled(false);
+//    ui->Showpass->setEnabled(false);
+//    ui->DomainFilter->setEnabled(false);
+//    ui->UserFilter->setEnabled(false);
+//    ui->DescFilter->setEnabled(false);
+//    ui->olderText->setEnabled(false);
+//    ui->Months->setEnabled(false);
+//    ui->CustomMonths->setEnabled(false);
+    //    ui->NewTable->setEnabled(false);
+ //   ui->WalletList->setEnabled(false);
+    //    ui->DeleteWallet->setEnabled(false);
+//    ui->TableTitle->setVisible(false);
     ui->WalletView->hide();
 
-    ui->WalletView->horizontalHeader()->setStretchLastSection(true);
+    //ui->WalletView->horizontalHeader()->setStretchLastSection(true);
     setWindowTitle(tr("SEcube Wallet"));
 
     help = new helpWindow;
 
-#ifndef DEV
+#ifdef SECUBE
     //SEcube Password login dialog
     LoginDialog* loginDialog = new LoginDialog( this );
     loginDialog->exec();
@@ -121,30 +125,17 @@ void MainWindow::init()
     return;
 }
 
-
-// New wallet button clicked: promt secureFileDialog and create database.
-void MainWindow::on_NewWallet_clicked()
-{
-    SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 ); //option 1 means we are creating new file
-    fileDialog->exec();
-    if(fileDialog->result()==QDialog::Rejected){
-        return; // Error in Dialog or Cancel button, do nothing
-    }
-    fileName = fileDialog->getChosenFile();
-
-    if(!fileName.isEmpty()){
-        ui->TableTitle->setText(fileName); // To display name of wallet in UI.
-        ui->TableTitle->setVisible(true);
-        if (!OpenDataBase())
-            return; //error opening database
-        ui->NewTable->setEnabled(true);
-        ui->DeleteWallet->setEnabled(true);
-    }
-    return;
+void MainWindow::invalidateAlignedLayout(){
+    alignedLayout->invalidate();
 }
 
-// Create/Open sqlite dataBase
-bool MainWindow::OpenDataBase (){
+// New wallet button clicked: promt secureFileDialog and create database.
+
+void MainWindow::on_action_New_Wallet_triggered()
+{
+
+    //    ui->NewTable->setEnabled(true);
+    //    ui->DeleteWallet->setEnabled(true);
 
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
@@ -157,34 +148,67 @@ bool MainWindow::OpenDataBase (){
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
         dbMem = QSqlDatabase();
-
-        //sqlite3_close(db);
     }
 
     dbMem = QSqlDatabase::addDatabase(DRIVER);
     dbMem.setDatabaseName(":memory:");
     if(!dbMem.open()){ //Check if it was possible to open the database
         qWarning() << "ERROR: " << dbMem.lastError();
-        return false;
+        return;// Do nothing
     }
 
-    ui->WalletList->clear();
+//    ui->WalletList->clear();
 
     QStringList CurrentTables = dbMem.tables(QSql::Tables);
     if (!CurrentTables.isEmpty()){
-        ui->WalletList->setEnabled(true);
-        ui->WalletList->addItems(CurrentTables);
+//        ui->WalletList->setEnabled(true);
+//        ui->WalletList->addItems(CurrentTables);
     }
 
-    ui->NewTable->setEnabled(true);
-    ui->WalletList->setEnabled(true);
-    ui->DeleteWallet->setEnabled(true);
-    ui->TableTitle->setText(fileName); // To display name of wallet in UI.
-    ui->TableTitle->setVisible(true);
-    ui->OpenCyphered->setEnabled(false);
-    ui->CipherClose->setEnabled(true);
+    //    ui->NewTable->setEnabled(true);
+//    ui->WalletList->setEnabled(true);
+    //    ui->DeleteWallet->setEnabled(true);
+//    ui->TableTitle->setText(fileName); // To display name of wallet in UI.
+//    ui->TableTitle->setVisible(true);
+    //    ui->OpenCyphered->setEnabled(false);
+    //    ui->CipherClose->setEnabled(true);
 
-    return true;
+    return;
+
+
+}
+void MainWindow::on_NewDB_clicked(){
+
+}
+
+void MainWindow::on_action_Add_Folder_triggered(){
+    NewTable *newT = new NewTable(this);
+    newT->exec();
+    if(newT->result()==QDialog::Rejected){
+        return; // Error or cancel, do nothing
+    }
+    QString WalletName = newT->getName();
+
+    QSqlQuery query(dbMem);
+    query.prepare("create table "+WalletName+
+                  "(id integer primary key, "
+                  "Username TEXT, "
+                  "Domain TEXT, "
+                  "Password TEXT, "
+                  "Date TEXT, "
+                  "Description TEXT )"); //The table
+
+    if (!query.exec())
+        qWarning() << "Couldn't create the table" << WalletName <<" one might already exist";
+
+    query.finish();
+
+//    ui->WalletList->setEnabled(true);
+//    if(ui->WalletList->findText(WalletName) == -1) //Check if item already in the list
+//        ui->WalletList->addItem(WalletName); //if not, add it
+//    ui->WalletList->setCurrentText(WalletName);
+
+    CreateViewTable(WalletName);
 
 }
 
@@ -208,26 +232,62 @@ void MainWindow::CreateViewTable(const QString &WalletName ){
     ui->WalletView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
     ui->WalletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
     ui->WalletView->verticalHeader()->hide();
-    ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
+    //ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
     ui->WalletView->setSelectionBehavior( QAbstractItemView::SelectItems ); //To allow only one row selection...
     ui->WalletView->setSelectionMode( QAbstractItemView::SingleSelection ); //So we can edit one entry per time
     ui->WalletView->show();// show table, initially hidden
 
 
     //As we now have a wallet, we can enable the buttons
-    ui->AddEntry->setEnabled(true);
-    ui->EditEntry->setEnabled(true);
-    ui->DeleteEntry->setEnabled(true);
-    ui->LaunchEntry->setEnabled(true);
-    ui->Showpass->setEnabled(true);
-    ui->Showpass->setChecked(false);
-    ui->CipherClose->setEnabled(true);
-    ui->DomainFilter->setEnabled(true);
-    ui->UserFilter->setEnabled(true);
-    ui->DescFilter->setEnabled(true);
-    ui->olderText->setEnabled(true);
-    ui->Months->setEnabled(true);
-    ui->CustomMonths->setEnabled(true);
+//    ui->AddEntry->setEnabled(true);
+//    ui->EditEntry->setEnabled(true);
+//    ui->DeleteEntry->setEnabled(true);
+//    ui->LaunchEntry->setEnabled(true);
+//    ui->Showpass->setEnabled(true);
+//    ui->Showpass->setChecked(false);
+    //    ui->CipherClose->setEnabled(true);
+//    ui->DomainFilter->setEnabled(true);
+//    ui->UserFilter->setEnabled(true);
+//    ui->DescFilter->setEnabled(true);
+//    ui->olderText->setEnabled(true);
+//    ui->Months->setEnabled(true);
+//    ui->CustomMonths->setEnabled(true);
+
+
+
+    alignedLayout = new ColumnAlignedLayout();
+
+    QLineEdit *idFilter = new QLineEdit(this);
+    QLineEdit *userFilter = new QLineEdit(this);
+    QLineEdit *domFilter = new QLineEdit(this);
+    QLineEdit *passFilter = new QLineEdit(this);
+    QLineEdit *dateFilter = new QLineEdit(this);
+    QLineEdit *descFilter = new QLineEdit(this);
+
+//    idFilter->setVisible(false);
+//    userFilter->setVisible(false);
+//    domFilter->setVisible(false);
+//    passFilter->setVisible(false);
+//    dateFilter->setVisible(false);
+    //descFilter->setVisible(false);
+
+    //delete ui->filtersWidget->layout();
+    ui->filtersWidget->setLayout(alignedLayout);
+
+    alignedLayout->addWidget(idFilter);
+    alignedLayout->addWidget(userFilter);
+    alignedLayout->addWidget(domFilter);
+    alignedLayout->addWidget(passFilter);
+    alignedLayout->addWidget(dateFilter);//alignedLayout->addWidget(ui->dateFilterCombo);
+    alignedLayout->addWidget(descFilter);
+    alignedLayout->setContentsMargins(0,0,0,0);
+
+
+    alignedLayout->setTableColumnsToTrack(ui->WalletView->horizontalHeader());
+    alignedLayout->setParent(ui->filtersWidget);
+    connect(ui->WalletView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), SLOT(invalidateAlignedLayout()));
+    connect(ui->WalletView->horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(invalidateAlignedLayout()));
+
 
     return;
 }
@@ -355,19 +415,38 @@ void MainWindow::on_EnvironmentBut_clicked(){
 //// ************ if user wants to write to disk ***************
 void MainWindow::on_CipherClose_clicked(){
 
-    //    //// *  Delete Secure database (if any) in disk first (only way to dump a data base)
+    ////  ask for a filename to save changes
 
-    //    //prepare vars
-    //    char enc_filename[65];
-    //    uint16_t enc_len = 0;
-    //    memset(enc_filename, 0, 65);
+    SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 ); //option 1 means we are creating new file
+    fileDialog->exec();
+    if(fileDialog->result()==QDialog::Rejected){
+        return; // Error in Dialog or Cancel button, do nothing
+    }
+    fileName = fileDialog->getChosenFile();
 
-    //    //Get name of file in disk (encrypted) and delete.
-    //    crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
-    //    QFile::remove(enc_filename);
+    if(fileName.isEmpty()) // if no valid file name => do nothing
+        return;
+
+//    ui->TableTitle->setText(fileName); // To display name of table in UI.
+//    ui->TableTitle->setVisible(true);
+
+
+    //// Check if file already exists
+
+    //prepare vars
+    char enc_filename[65];
+    uint16_t enc_len = 0;
+    memset(enc_filename, 0, 65);
+
+    //Get name of file in disk (encrypted) and delete.
+    crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+    if (QFile::exists(enc_filename)){
+        // prompt: file already exists
+    }
+
 
     //// * Create a secure Sqlite using securesqlite3 functions
-    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 
     if( sqlite3_open(fileName.toUtf8(), &dbSec) ) //create a new database using the filename specified by the user before.
         qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
@@ -424,32 +503,25 @@ void MainWindow::on_CipherClose_clicked(){
     sqlite3_close (dbSec);
     sqlite3_os_end();
 
-    //    if(dbMem.open()){ // close anye existent connections and database
-    //        dbMem.close();
-    //        QSqlDatabase::removeDatabase(DRIVER);
-    //        dbMem = QSqlDatabase();
-    //    }
-
-
     ui->WalletView->hide();
 
-    ui->AddEntry->setEnabled(false);
-    ui->EditEntry->setEnabled(false);
-    ui->DeleteEntry->setEnabled(false);
-    ui->CipherClose->setEnabled(false);
-    ui->LaunchEntry->setEnabled(false);
-    ui->TableTitle->setVisible(false);
-    ui->Showpass->setEnabled(false);
-    ui->DomainFilter->setEnabled(false);
-    ui->UserFilter->setEnabled(false);
-    ui->DescFilter->setEnabled(false);
-    ui->olderText->setEnabled(false);
-    ui->Months->setEnabled(false);
-    ui->CustomMonths->setEnabled(false);
-    ui->NewTable->setEnabled(false);
-    ui->WalletList->setEnabled(false);
-    ui->DeleteWallet->setEnabled(false);
-    ui->OpenCyphered->setEnabled(true);
+//    ui->AddEntry->setEnabled(false);
+//    ui->EditEntry->setEnabled(false);
+//    ui->DeleteEntry->setEnabled(false);
+    //    ui->CipherClose->setEnabled(false);
+//    ui->LaunchEntry->setEnabled(false);
+//    ui->TableTitle->setVisible(false);
+//    ui->Showpass->setEnabled(false);
+//    ui->DomainFilter->setEnabled(false);
+//    ui->UserFilter->setEnabled(false);
+//    ui->DescFilter->setEnabled(false);
+//    ui->olderText->setEnabled(false);
+//    ui->Months->setEnabled(false);
+//    ui->CustomMonths->setEnabled(false);
+    //    ui->NewTable->setEnabled(false);
+//    ui->WalletList->setEnabled(false);
+    //    ui->DeleteWallet->setEnabled(false);
+    //    ui->OpenCyphered->setEnabled(true);
 
 
     return;
@@ -458,11 +530,15 @@ void MainWindow::on_CipherClose_clicked(){
 int MainWindow::callback_createTableList(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
     qDebug() << "in callback_createTableList";
     tableList << argv[0]; //only one arg, the table name.
+    UNUSED(argc);
+    UNUSED(azColName);
     return 0;
 }
 
 int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
     int i;
+    UNUSED(azColName);
+
     qDebug() << "in callback_populateTable";
 
     static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2);"); //Insert statement
@@ -543,8 +619,8 @@ void MainWindow::on_OpenCyphered_clicked(){
 
     foreach (const QString table, tableList){
 
-        ui->WalletList->setEnabled(true);
-        ui->WalletList->addItem(table);
+//        ui->WalletList->setEnabled(true);
+//        ui->WalletList->addItem(table);
 
         QString sql = "create table "+table+
                 "(id integer primary key, "
@@ -567,14 +643,9 @@ void MainWindow::on_OpenCyphered_clicked(){
             qDebug() <<" Get all from " << table <<" successfully";
     }
     query.finish();
-
-
-    //    //Re-Open data base and create table.
-    //    if (!OpenDataBase())
-    //        return; //error opening database
-    //    //CreateViewTable();
-    //    return;
 }
+
+//// ****** Search/Filters  *****
 
 void MainWindow::on_DomainFilter_textChanged(const QString &arg1){ //update Domain filter
     proxyModel->setFilterDomain(arg1);
@@ -589,12 +660,14 @@ void MainWindow::on_DescFilter_textChanged(const QString &arg1){
 }
 
 void MainWindow::on_Months_currentIndexChanged(int index){
-    proxyModel->setFilterOlder(index, ui->CustomMonths->text());
+//    proxyModel->setFilterOlder(index, ui->CustomMonths->text());
 }
 
 void MainWindow::on_CustomMonths_textChanged(const QString &arg1){
-    proxyModel->setFilterOlder(ui->Months->currentIndex(), arg1);
+//    proxyModel->setFilterOlder(ui->Months->currentIndex(), arg1);
 }
+
+//// ***** Help Menu *******
 
 void MainWindow::on_Help_clicked(){
     help->show();
@@ -602,56 +675,34 @@ void MainWindow::on_Help_clicked(){
 
 void MainWindow::on_NewTable_clicked(){
 
-    NewTable *newT = new NewTable(this);
-    newT->exec();
-    if(newT->result()==QDialog::Rejected){
-        return; // Error or cancel, do nothing
-    }
-    QString WalletName = newT->getName();
 
-    QSqlQuery query(dbMem);
-    query.prepare("create table "+WalletName+
-                  "(id integer primary key, "
-                  "Username TEXT, "
-                  "Domain TEXT, "
-                  "Password TEXT, "
-                  "Date TEXT, "
-                  "Description TEXT )"); //The table
-
-    if (!query.exec())
-        qWarning() << "Couldn't create the table" << WalletName <<" one might already exist";
-
-    query.finish();
-
-    ui->WalletList->setEnabled(true);
-    if(ui->WalletList->findText(WalletName) == -1) //Check if item already in the list
-        ui->WalletList->addItem(WalletName); //if not, add it
-    ui->WalletList->setCurrentText(WalletName);
-
-    CreateViewTable(WalletName);
 }
 
 void MainWindow::on_WalletList_currentIndexChanged(const QString &arg1){ //just change the view to the selected wallet
-    CreateViewTable(arg1);
+    //CreateViewTable(arg1);
 }
 
 void MainWindow::on_DeleteWallet_clicked(){
-    QString WalletName=ui->WalletList->currentText();
-    if (!WalletName.isEmpty()){
-        DeleteConfirmation * conf = new DeleteConfirmation;
-        conf->exec();
-        if(conf->result()==QDialog::Rejected)
-            return;//if error or cancel, do nothing
+//    QString WalletName=ui->WalletList->currentText();
+//    if (!WalletName.isEmpty()){
+//        DeleteConfirmation * conf = new DeleteConfirmation;
+//        conf->exec();
+//        if(conf->result()==QDialog::Rejected)
+//            return;//if error or cancel, do nothing
 
-        QSqlQuery query(dbMem);
+//        QSqlQuery query(dbMem);
 
-        query.prepare("DROP TABLE "+WalletName);
-        if (!query.exec()){
-            qWarning() << "Couldn't delete table" << WalletName;
-            qWarning() << "ERROR: " << query.lastError();
-            return;
-        }
-        query.finish();
-        ui->WalletList->removeItem(ui->WalletList->currentIndex());
-    }
+//        query.prepare("DROP TABLE "+WalletName);
+//        if (!query.exec()){
+//            qWarning() << "Couldn't delete table" << WalletName;
+//            qWarning() << "ERROR: " << query.lastError();
+//            return;
+//        }
+//        query.finish();
+//        ui->WalletList->removeItem(ui->WalletList->currentIndex());
+//    }
 }
+
+
+
+

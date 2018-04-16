@@ -1,6 +1,4 @@
 // have in mem datab and sec database linked
-
-
 QVariant v = db.driver()->handle();
 qDebug()<< v.isValid() << "  type  "<<v.typeName();
 if (v.isValid() && qstrcmp(v.typeName(), "sqlite3*")==0) {
@@ -22,4 +20,16 @@ if (v.isValid() && qstrcmp(v.typeName(), "sqlite3*")==0) {
 
 }
 else
-    qDebug() << "not working 2"; 
+    qDebug() << "not working 2";
+
+
+//// *  Delete Secure database (if any) in disk first (only way to dump a data base)
+
+//prepare vars
+char enc_filename[65];
+uint16_t enc_len = 0;
+memset(enc_filename, 0, 65);
+
+//Get name of file in disk (encrypted) and delete.
+crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+QFile::remove(enc_filename);
