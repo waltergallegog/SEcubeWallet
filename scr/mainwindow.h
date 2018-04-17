@@ -13,6 +13,7 @@
 #include "helpwindow.h"
 #include "newtable.h"
 
+
 //SEcure related
 #include "SEfile.h"
 #include "se3/L1.h"
@@ -28,7 +29,6 @@
 
 
 //Miscellaneous
-#include <QTableView>
 #include <QObject>
 #include <QFile>
 #include <QDebug>
@@ -38,6 +38,7 @@
 #include <QScrollBar>
 #include "mysortfilterproxymodel.h"
 #include "columnalignedlayout.h"
+#include "passworditemdelegate.h"
 
 static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName);
 static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName);
@@ -55,33 +56,28 @@ public:
     ~MainWindow();
 
 private slots:
-
-    void on_AddEntry_clicked();
-    void on_CipherClose_clicked();
-    void on_OpenCyphered_clicked();
-    void on_DeleteEntry_clicked();
-    void on_LaunchEntry_clicked();
-    void on_EnvironmentBut_clicked();
-    void on_EditEntry_clicked();
-    void on_Showpass_toggled(bool checked);
-    //void onTableClicked(const QModelIndex &index);
-    void on_DomainFilter_textChanged(const QString &arg1);
-    void on_UserFilter_textChanged(const QString &arg1);
-    void on_DescFilter_textChanged(const QString &arg1);
-    void on_WalletView_doubleClicked(const QModelIndex &index);
-    void on_Months_currentIndexChanged(int index);
-    void on_CustomMonths_textChanged(const QString &arg1);
-    void on_Help_clicked();
-    void on_NewTable_clicked();
-    void on_WalletList_currentIndexChanged(const QString &arg1);
-    void on_DeleteWallet_clicked();
-
     void on_action_New_Wallet_triggered();
-    void invalidateAlignedLayout();
-
-
-
     void on_action_Add_Folder_triggered();
+    void on_action_Add_Entry_triggered();
+    void on_action_Show_Passwords_toggled(bool show);
+    void on_action_Edit_Entry_triggered();
+    void on_walletView_doubleClicked(const QModelIndex &index);
+    void on_action_Delete_Entry_triggered();
+    void on_action_Launch_Domain_triggered();
+    void on_action_Set_Environment_triggered();
+    void on_action_Save_Wallet_triggered();
+    void on_action_Open_Wallet_triggered();
+    void on_action_About_triggered();
+
+    void DomainFilter_textChanged(const QString &arg1);
+    void UserFilter_textChanged(const QString &arg1);
+    void PassFilter_textChanged(const QString &arg1);
+    void DescFilter_textChanged(const QString &arg1);
+    void dateUnit_currentIndexChanged(int index);
+    void dateFilter_textChanged(const QString &arg1);
+
+    void invalidateAlignedLayout();
+    void walletList_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -116,6 +112,8 @@ private:
     QLineEdit *descFilter;
 
     QComboBox *walletList;
+
+    PasswordItemDelegate * passDelegate=new PasswordItemDelegate(this);
 
     //// ***** Methods
     void init();           //initialization. Call LoginDialog and configure UI

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>695</width>
+    <width>792</width>
     <height>458</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
      </widget>
     </item>
     <item row="2" column="0">
-     <widget class="QTableView" name="WalletView">
+     <widget class="MyQTableView" name="walletView">
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
@@ -60,7 +60,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>695</width>
+     <width>792</width>
      <height>20</height>
     </rect>
    </property>
@@ -254,6 +254,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MyQTableView</class>
+   <extends>QTableView</extends>
+   <header location="global">myqtableview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../icons/icons.qrc"/>
  </resources>

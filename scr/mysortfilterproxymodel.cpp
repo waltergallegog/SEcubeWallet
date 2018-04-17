@@ -3,6 +3,7 @@
 
 #define USER_COL    1
 #define DOM_COL     2
+#define PASS_COL    3
 #define DATE_COL    4
 #define DESC_COL    5
 
@@ -11,9 +12,11 @@ MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent)
 {
     userRegExp.setCaseSensitivity(Qt::CaseInsensitive);
     domainRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+    passRegExp.setCaseSensitivity(Qt::CaseInsensitive);
     descRegExp.setCaseSensitivity(Qt::CaseInsensitive);
     userRegExp.setPatternSyntax(QRegExp::RegExp);
     domainRegExp.setPatternSyntax(QRegExp::RegExp);
+    passRegExp.setPatternSyntax(QRegExp::RegExp);
     descRegExp.setPatternSyntax(QRegExp::RegExp);
 
     format = "yyyy-MM-dd";
@@ -26,6 +29,11 @@ void MySortFilterProxyModel::setFilterUser(const QString &regExp){
 
 void MySortFilterProxyModel::setFilterDomain(const QString &regExp){
     domainRegExp.setPattern(regExp);
+    invalidateFilter();
+}
+
+void MySortFilterProxyModel::setFilterPass(const QString &regExp){
+    passRegExp.setPattern(regExp);
     invalidateFilter();
 }
 
@@ -73,6 +81,7 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
 {
     QModelIndex userIndex = sourceModel()->index(sourceRow, USER_COL, sourceParent);
     QModelIndex domainIndex = sourceModel()->index(sourceRow, DOM_COL, sourceParent);
+    QModelIndex passIndex = sourceModel()->index(sourceRow, PASS_COL, sourceParent);
     QModelIndex descIndex = sourceModel()->index(sourceRow, DESC_COL, sourceParent);
 
     QModelIndex dateIndex = sourceModel()->index(sourceRow, DATE_COL, sourceParent);
@@ -80,6 +89,7 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
 
     return (    sourceModel()->data(userIndex).toString().contains(userRegExp)
             &&  sourceModel()->data(domainIndex).toString().contains(domainRegExp)
+            &&  sourceModel()->data(passIndex).toString().contains(passRegExp)
             &&  sourceModel()->data(descIndex).toString().contains(descRegExp)
             &&  (thisDate <= filterDate || !filterDate.isValid())
             );

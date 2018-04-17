@@ -41,3 +41,16 @@ if (!CurrentTables.isEmpty()){
 //        ui->WalletList->setEnabled(true);
 //        ui->WalletList->addItems(CurrentTables);
 }
+
+
+//**************delete widgets*******
+NOTE: delete the previous (if any) filters, easier but ugly?
+    if (dateWidget!=NULL){
+        for (auto widget: dateWidget->findChildren<QWidget*> ())
+            delete widget;
+    }
+    for (auto widget: ui->filtersWidget->findChildren<QWidget*> ())
+        delete widget;
+
+    delete ui->filtersWidget->layout();//and delete layout before puting it there again
+    

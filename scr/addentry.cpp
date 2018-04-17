@@ -127,6 +127,9 @@ void AddEntry::on_InPass_textChanged(QString text){
     PasswordWarning();
     UNUSED(arg1);*/
 
+//BUG when password1 changes after pass2, doesnot allow to enter
+
+
     if(!text.isEmpty()){
         if (!ZxcvbnInit()){
             qDebug() << "Failed Open Dictionary File";
