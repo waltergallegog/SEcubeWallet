@@ -76,18 +76,19 @@ void MainWindow::init(){
     ui->setupUi(this);
     setWindowTitle(tr("SEcube Wallet"));
 
-    // add Wallet List to ToolBar before delete
-    walletList = new QComboBox(this);
-    ui->folderTB->insertWidget(ui->action_Delete_Folder, walletList);
-    connect(walletList, SIGNAL(currentIndexChanged(QString)), SLOT(walletList_currentIndexChanged(QString)));
+    // add table List to ToolBar before delete
+    tableList = new QComboBox(this);
+//    ui->tableTB->insertWidget(ui->action_Delete_Table, tableList);
+    ui->entriesTB->insertWidget(ui->action_Add_Entry, tableList);
+    connect(tableList, SIGNAL(currentIndexChanged(QString)), SLOT(tableList_currentIndexChanged(QString)));
 
     //State of some actions as not clickable because there is no wallet to edit yet
     ui->action_Save_Wallet->setEnabled(false);
     ui->action_Save_Wallet_As->setEnabled(false);
     ui->action_Delete_Wallet->setEnabled(false);
 
-    ui->action_Add_Folder->setEnabled(false);
-    ui->action_Delete_Folder->setEnabled(false);
+    ui->action_Add_Table->setEnabled(false);
+    ui->action_Delete_Table->setEnabled(false);
 
     ui->action_Add_Entry->setEnabled(false);
     ui->action_Edit_Entry->setEnabled(false);
@@ -95,8 +96,7 @@ void MainWindow::init(){
     ui->action_Show_Passwords->setEnabled(false);
     ui->action_Launch_Domain->setEnabled(false);
 
-    //dateWidget=NULL;
-    alignedLayout=NULL;//only initi align Layout once.
+    model=NULL;//only initi Table once
     //ui->WalletView->hide();
 
     help = new helpWindow;
@@ -133,7 +133,7 @@ void MainWindow::init(){
 
 
 
-/// New wallet button clicked: start an in-memory database so the user can add folders/entries. Nothing to save in disk yet
+/// New wallet button clicked: start an in-memory database so the user can add tables/entries. Nothing to save in disk yet
 void MainWindow::on_action_New_Wallet_triggered()
 {
     //TODO: Before starting a new wallet check if there are not saved changes.
@@ -159,25 +159,25 @@ void MainWindow::on_action_New_Wallet_triggered()
     }
 
     // if everything whent ok, enable some actions
-    ui->action_Add_Folder->setEnabled(true);
-    ui->action_Delete_Folder->setEnabled(true);
+    ui->action_Add_Table->setEnabled(true);
+    ui->action_Delete_Table->setEnabled(true);
 
     return;
 }
 
-//// Create a new table in the database, and add it to walletList
+//// Create a new table in the database, and add it to tableList
 
-void MainWindow::on_action_Add_Folder_triggered(){
+void MainWindow::on_action_Add_Table_triggered(){
     NewTable *newT = new NewTable(this);
     newT->exec();
     if(newT->result()==QDialog::Rejected){
         return; // Error or cancel, do nothing
     }
-    QString walletName = newT->getName();
+    QString tableName = newT->getName();
 
     //TODO: use global query instead of local?
     QSqlQuery query(dbMem);
-    query.prepare("create table "+walletName+
+    query.prepare("create table "+tableName+
                   "(id integer primary key, "
                   "Username TEXT, "
                   "Domain TEXT, "
@@ -185,30 +185,45 @@ void MainWindow::on_action_Add_Folder_triggered(){
                   "Date TEXT, "
                   "Description TEXT )"); //The table
 
-    if (!query.exec())
-        qWarning() << "Couldn't create the table " << walletName <<" one might already exist";
+    if (!query.exec()){
+        //TODO: prompt error dialog name may be invalid. see more. and link
+        qWarning() << "Couldn't create the table " << tableName << query.lastError();
+        return;
+    }
 
     query.finish();
 
-    walletList->setEnabled(true);
-    if(walletList->findText(walletName) == -1) //Check if item already in the list
-        walletList->addItem(walletName); //if not, add it
-    walletList->setCurrentText(walletName);
+    tableList->setEnabled(true);
+    if(tableList->findText(tableName) == -1) //Check if item already in the list
+        tableList->addItem(tableName); //if not, add it
+    tableList->setCurrentText(tableName);
 
     //TODO: as there is a new table-> enable save
 
-    // Finally, update the tableView to reflect the new/opened folder
-    CreateViewTable(walletName);
+    // Finally, update the tableView to reflect the new/opened table
+    if (model==NULL)
+        createTableView(tableName);
+    //    else{
+    //        UpdateTableView(tableName);// not necessary, done by tableList combobox
+    //    }
+
+    //As we now have a table, we can enable the buttons
+    ui->action_Add_Entry->setEnabled(true);
+    ui->action_Edit_Entry->setEnabled(true);
+    ui->action_Delete_Entry->setEnabled(true);
+    ui->action_Launch_Domain->setEnabled(true);
+    ui->action_Show_Passwords->setEnabled(true);
+    ui->action_Show_Passwords->setChecked(false);
 }
 
 
 
 //// After table is created in database, display it in a QTableView, and manage it using a Table Model
-void MainWindow::CreateViewTable(const QString &walletName ){
+void MainWindow::createTableView(const QString &tableName ){
 
     // Create and configure model to access table easily
     model = new QSqlTableModel;
-    model->setTable(walletName);
+    model->setTable(tableName);
     model->select();
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);// as the table will be not edditable, the changes are updated by calling submitAll()
 
@@ -217,136 +232,107 @@ void MainWindow::CreateViewTable(const QString &walletName ){
     proxyModel->setSourceModel(model); //connect proxyModel to Model
 
     //Connect the model to the view table: Sqltable -> Model -> ProxyModel ->  TableView
-    ui->walletView->setModel(proxyModel);
+    ui->tableView->setModel(proxyModel);
 
     //Configure the table
     //ui->WalletView->setSortingEnabled(true);//enable sorting
-    ui->walletView->verticalHeader()->hide();
+    ui->tableView->verticalHeader()->hide();
 
 
-    ui->walletView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
-    //ui->WalletView->setColumnHidden(PASS_COL, true);//Initially hide passwords column
+    ui->tableView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
+    ui->tableView->setItemDelegateForColumn(PASS_COL, passDelegate);//Hide passwords initially
 
-    ui->walletView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
-    ui->walletView->setSelectionBehavior( QAbstractItemView::SelectItems ); //To allow only one row selection...
-    ui->walletView->setSelectionMode( QAbstractItemView::SingleSelection ); //So we can edit one entry per time
-    ui->walletView->show();// show table, initially hidden
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
+    ui->tableView->setSelectionBehavior( QAbstractItemView::SelectItems ); //To allow only one row selection...
+    ui->tableView->setSelectionMode( QAbstractItemView::SingleSelection ); //So we can edit one entry per time
+    ui->tableView->show();// show table, initially hidden
 
-    ui->walletView->setItemDelegateForColumn(PASS_COL, passDelegate);
+    // resize table columns to fill available space
+    int col;
+    int totalWidth=0;
+    int tableWidth=ui->tableView->width();
+    for (col=USER_COL;col<=DESC_COL; col++)//Get total space ocup. by columns
+        totalWidth+= ui->tableView->horizontalHeader()->sectionSize(col);
+    int diff = tableWidth-totalWidth;
+    int div = diff / 5;
+    int mod = diff % 5;
 
+    //remainder too to the first column. (the -2 is for margins pixels(?))
+    ui->tableView->horizontalHeader()->resizeSection(USER_COL, div + mod -2 + ui->tableView->horizontalHeader()->sectionSize(USER_COL));
 
-    //As we now have a wallet, we can enable the buttons
-    ui->action_Add_Entry->setEnabled(true);
-    ui->action_Edit_Entry->setEnabled(true);
-    ui->action_Delete_Entry->setEnabled(true);
-    ui->action_Launch_Domain->setEnabled(true);
-    ui->action_Show_Passwords->setEnabled(true);
-    ui->action_Show_Passwords->setChecked(false);
-
-    // Configure aligned filters
-    if (alignedLayout==NULL){// if it has not been initialized yet=> do it only once
-
-        // resize table columns to fill available space
-        int col;
-        int totalWidth=0;
-        int walletWidth=ui->walletView->width();
-        for (col=USER_COL;col<=DESC_COL; col++)//Get total space ocup. by columns
-            totalWidth+= ui->walletView->horizontalHeader()->sectionSize(col);
-        int diff = walletWidth-totalWidth;
-        int div = diff / 5;
-        int mod = diff % 5;
-
-        //remainder too to the first column. (the -2 is for margins pixels(?))
-        ui->walletView->horizontalHeader()->resizeSection(USER_COL, div + mod -2 + ui->walletView->horizontalHeader()->sectionSize(USER_COL));
-
-        //add to each column the correspo. value.
-        for (col=DOM_COL;col<=DESC_COL; col++)
-            ui->walletView->horizontalHeader()->resizeSection(col, div + ui->walletView->horizontalHeader()->sectionSize(col));
-
-        alignedLayout = new ColumnAlignedLayout();
-
-        //filter's text input
-        idFilter = new QLineEdit(this);//not really used, just for consistency
-        userFilter = new QLineEdit(this);
-        domFilter = new QLineEdit(this);
-        descFilter = new QLineEdit(this);
-        passFilter = new QLineEdit(this);
-        passFilter->setEnabled(false);
+    //add to each column the correspo. value.
+    for (col=DOM_COL;col<=DESC_COL; col++)
+        ui->tableView->horizontalHeader()->resizeSection(col, div + ui->tableView->horizontalHeader()->sectionSize(col));
 
 
+    // Aligned Layout
+    filters = new FiltersAligned();
 
-        //for date, we need text plus combo
-        dateWidget = new QWidget;
-        dateLayout = new QHBoxLayout;
-        dateFilter = new QLineEdit(this);
-        dateUnit = new QComboBox(this);
-        dateUnit->addItem("-");
-        dateUnit->addItem("Days");
-        dateUnit->addItem("Weeks");
-        dateUnit->addItem("Months");
-        dateUnit->addItem("Years");
+    connect(filters->userFilter, SIGNAL(textChanged(QString)), SLOT(UserFilter_textChanged(QString)));
+    connect(filters->domFilter,  SIGNAL(textChanged(QString)), SLOT(DomainFilter_textChanged(QString)));
+    connect(filters->passFilter, SIGNAL(textChanged(QString)), SLOT(PassFilter_textChanged(QString)));
+    connect(filters->descFilter, SIGNAL(textChanged(QString)), SLOT(DescFilter_textChanged(QString)));
+    connect(filters->dateFilter, SIGNAL(textChanged(QString)), SLOT(dateFilter_textChanged(QString)));
+    connect(filters->dateUnit,   SIGNAL(currentIndexChanged(int)), SLOT(dateUnit_currentIndexChanged(int)));
 
+    //TODO: to have some spacing btwn filters, put each filter inside a widget with a layout, and put margins.
 
-
-        dateWidget->setLayout(dateLayout);
-        dateLayout->addWidget(dateFilter);
-        dateLayout->addWidget(dateUnit);
-        dateLayout->setMargin(2);
-        dateLayout->setSpacing(0);
-
-
-        userFilter->setClearButtonEnabled(true);
-        domFilter->setClearButtonEnabled(true);
-        passFilter->setClearButtonEnabled(true);
-        dateFilter->setClearButtonEnabled(true);
-        descFilter->setClearButtonEnabled(true);
-
-        //TODO: placeholder text not visible when qlineedit is small. Problematic for date.
-        userFilter->setPlaceholderText("Filter");
-        domFilter->setPlaceholderText ("Filter");
-        passFilter->setPlaceholderText("Filter");
-        descFilter->setPlaceholderText("Filter");
-        dateFilter->setPlaceholderText("Older");
-        dateFilter->setToolTip("Display only passwords created/modified before than...");
-
-        connect(userFilter, SIGNAL(textChanged(QString)), SLOT(UserFilter_textChanged(QString)));
-        connect(domFilter,  SIGNAL(textChanged(QString)), SLOT(DomainFilter_textChanged(QString)));
-        connect(passFilter, SIGNAL(textChanged(QString)), SLOT(PassFilter_textChanged(QString)));
-        connect(descFilter, SIGNAL(textChanged(QString)), SLOT(DescFilter_textChanged(QString)));
-        connect(dateFilter, SIGNAL(textChanged(QString)), SLOT(dateFilter_textChanged(QString)));
-
-        connect(dateUnit,   SIGNAL(currentIndexChanged(int)), SLOT(dateUnit_currentIndexChanged(int)));
-
-        //TODO: to have some spacing btwn filters, put each filter inside a widget with a layout, and put margins.
-
-        ui->filtersWidget->setLayout(alignedLayout);
-
-        alignedLayout->addWidget(idFilter);
-        alignedLayout->addWidget(userFilter);
-        alignedLayout->addWidget(domFilter);
-        alignedLayout->addWidget(passFilter);
-        alignedLayout->addWidget(dateWidget);//alignedLayout->addWidget(ui->dateFilterCombo);
-        alignedLayout->addWidget(descFilter);
-        alignedLayout->setContentsMargins(0,0,0,0);
-
-
-        alignedLayout->setTableColumnsToTrack(ui->walletView->horizontalHeader());
-        alignedLayout->setParent(ui->filtersWidget);
-        connect(ui->walletView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), SLOT(invalidateAlignedLayout()));
-        connect(ui->walletView->horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(invalidateAlignedLayout()));
-    }
+    ui->filtersWidget->setLayout(filters);
+    filters->setTableColumnsToTrack(ui->tableView->horizontalHeader());
+    filters->setParent(ui->filtersWidget);
+    connect(ui->tableView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), SLOT(invalidateAlignedLayout()));
+    connect(ui->tableView->horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(invalidateAlignedLayout()));
 
     return;
 }
-
-/// When user changes folder we need to modify the walletview
-void MainWindow::walletList_currentIndexChanged(const QString &arg1){ //just change the view to the selected wallet
-    CreateViewTable(arg1);
-}
-
 ////Used by columnAlignedLayout in createViewTable
 void MainWindow::invalidateAlignedLayout(){
-    alignedLayout->invalidate();
+    filters->invalidate();
+}
+
+
+/// Update Table view. When user selects a different table
+
+void MainWindow::UpdateTableView(const QString &tableName){
+
+    int col;
+    int widths [DESC_COL-USER_COL+1];
+    for (col=USER_COL;col<=DESC_COL; col++)
+        widths[col] =  ui->tableView->horizontalHeader()->sectionSize(col);
+
+    model->setTable(tableName);
+    model->select();
+    for (col=USER_COL;col<=DESC_COL; col++)
+        ui->tableView->horizontalHeader()->resizeSection(col, widths[col]);
+    ui->tableView->setColumnHidden(IDENT_COL, true);
+}
+
+/// When user changes table we need to modify the tableview
+void MainWindow::tableList_currentIndexChanged(const QString &arg1){ //just change the view to the selected table
+    if(model!=NULL)
+        UpdateTableView(arg1);
+
+}
+
+void MainWindow::on_action_Delete_Table_triggered(){
+    QString tableName = tableList->currentText();
+    if (!tableName.isEmpty()){
+        DeleteConfirmation * conf = new DeleteConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected)
+            return;//if error or cancel, do nothing
+
+        QSqlQuery query(dbMem);
+
+        query.prepare("DROP TABLE " + tableName);
+        if (!query.exec()){
+            qWarning() << "Couldn't delete table" << tableName;
+            qWarning() << "ERROR: " << query.lastError();
+            return;
+        }
+        query.finish();
+        tableList->removeItem(tableList->currentIndex());
+    }
 }
 
 ///Call dialog and populate Table with the aqcuired data
@@ -373,7 +359,7 @@ void MainWindow::on_action_Add_Entry_triggered(){
     return;
 }
 
-void MainWindow::on_walletView_doubleClicked(const QModelIndex &index){
+void MainWindow::on_tableView_doubleClicked(const QModelIndex &index){
     MainWindow::on_action_Edit_Entry_triggered();
     UNUSED(index);
 }
@@ -381,7 +367,7 @@ void MainWindow::on_walletView_doubleClicked(const QModelIndex &index){
 ///Call add entry dialog an pass values to constructior allowing users to edit the data
 void MainWindow::on_action_Edit_Entry_triggered()
 {
-    QModelIndexList selection = ui->walletView->selectionModel()->selectedIndexes();//Get Items selected in table
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedIndexes();//Get Items selected in table
     model->submitAll();//Submit any pending changes before continue. (cannot be done before select bcs it deletes it)
 
     // If Multiple rows can be selected (Disabled for edit. Could be good for delete)
@@ -414,7 +400,7 @@ void MainWindow::on_action_Edit_Entry_triggered()
 ///Call confirmation dialog, if confirmed, delete entry
 void MainWindow::on_action_Delete_Entry_triggered(){
     //TODO: ask for password. change in settings.
-    QModelIndexList selection = ui->walletView->selectionModel()->selectedIndexes();//Get Items selected in table
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedIndexes();//Get Items selected in table
     model->submitAll();//Submit any pending changes before continue. (cannot be done before select bcs it deletes it)
 
     // If Multiple rows can be selected (disabled to allow edit)
@@ -436,7 +422,7 @@ void MainWindow::on_action_Delete_Entry_triggered(){
 ///Check url is writen correctly and call browser
 void MainWindow::on_action_Launch_Domain_triggered(){
     //TODO: autofill forms. check again url
-    QModelIndexList selection = ui->walletView->selectionModel()->selectedIndexes();//Get Items selected in table
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedIndexes();//Get Items selected in table
     model->submitAll();//Submit any pending changes before continue. (cannot be done before select bcs it deletes it)
 
     // If Multiple rows can be selected (Disabled for edit. Could be good for delete)
@@ -460,16 +446,16 @@ void MainWindow::on_action_Launch_Domain_triggered(){
 ////Make passwords Not/visible by setting or not a column delegator
 void MainWindow::on_action_Show_Passwords_toggled(bool show){
 
-//TODO: confirmation dialog, maybe with password? configurable from settings.
+    //TODO: confirmation dialog, maybe with password? configurable from settings.
     if (!show){
-        ui->walletView->setItemDelegateForColumn(PASS_COL, passDelegate);
-        passFilter->clear();
-        passFilter->setEnabled(false);
+        ui->tableView->setItemDelegateForColumn(PASS_COL, passDelegate);
+        filters->passFilter->clear();
+        filters->passFilter->setEnabled(false);
     }
     else{
-        ui->walletView->setItemDelegateForColumn(PASS_COL, 0);
-        passFilter->clear();
-        passFilter->setEnabled(true);
+        ui->tableView->setItemDelegateForColumn(PASS_COL, 0);
+        filters->passFilter->clear();
+        filters->passFilter->setEnabled(true);
     }
 
 }
@@ -533,8 +519,8 @@ void MainWindow::on_action_Save_Wallet_triggered(){
     static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2); "); //Insert statement
 
     // Read from in mem database
-    QStringList tableList = dbMem.tables(QSql::Tables); // Get a list of the tables in dbMem
-    foreach (const QString table, tableList) {
+    QStringList tables = dbMem.tables(QSql::Tables); // Get a list of the tables in dbMem
+    foreach (const QString table, tables) {
         QString sql = "create table "+table+
                 "(id integer primary key, "
                 "Username TEXT, "
@@ -572,7 +558,7 @@ void MainWindow::on_action_Save_Wallet_triggered(){
     sqlite3_close (dbSec);
     sqlite3_os_end();
 
-    ui->walletView->hide();
+    ui->tableView->hide();
 
     //    ui->AddEntry->setEnabled(false);
     //    ui->EditEntry->setEnabled(false);
@@ -598,7 +584,7 @@ void MainWindow::on_action_Save_Wallet_triggered(){
 
 int MainWindow::callback_createTableList(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
     qDebug() << "in callback_createTableList";
-    tableList << argv[0]; //only one arg, the table name.
+    tables << argv[0]; //only one arg, the table name.
     UNUSED(argc);
     UNUSED(azColName);
     return 0;
@@ -654,7 +640,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
                        "WHERE type='table' "
                        "ORDER BY name;";
     char *zErrMsg = 0;
-    tableList.clear();
+    tables.clear();
     if ( sqlite3_exec(dbSec, tableNames.toUtf8(), c_callback_createTableList, this, &zErrMsg) != SQLITE_OK){
         qDebug() << "SQL error"<< zErrMsg;
         sqlite3_free(zErrMsg);
@@ -683,10 +669,10 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     }
     query = QSqlQuery(dbMem);
 
-    foreach (const QString table, tableList){
+    foreach (const QString table, tables){
 
-        //        ui->WalletList->setEnabled(true);
-        //        ui->WalletList->addItem(table);
+        //        ui->tableList->setEnabled(true);
+        //        ui->tableList->addItem(table);
 
         QString sql = "create table "+table+
                 "(id integer primary key, "
@@ -696,8 +682,10 @@ void MainWindow::on_action_Open_Wallet_triggered(){
                 "Date TEXT, "
                 "Description TEXT );"; //The table
         query.prepare(sql);
-        if (!query.exec())
+        if (!query.exec()){
             qWarning() << "Couldn't create the table" << table <<" one might already exist";
+            return;
+        }
         else
             qDebug() << table << "created successfully";
         currentTable = table;
@@ -730,14 +718,16 @@ void MainWindow::DescFilter_textChanged(const QString &arg1){
 }
 
 void MainWindow::dateUnit_currentIndexChanged(int index){
-    proxyModel->setFilterOlder(index, dateFilter->text());
+    proxyModel->setFilterOlder(index, filters->dateFilter->text());
 }
 
 void MainWindow::dateFilter_textChanged(const QString &arg1){
-    proxyModel->setFilterOlder(dateUnit->currentIndex(), arg1);
+    proxyModel->setFilterOlder(filters->dateUnit->currentIndex(), arg1);
 }
 
 //// ***** Help Menu *******
 void MainWindow::on_action_About_triggered(){
     help->show();
 }
+
+

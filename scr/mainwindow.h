@@ -37,7 +37,7 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include "mysortfilterproxymodel.h"
-#include "columnalignedlayout.h"
+#include "filtersaligned.h"
 #include "passworditemdelegate.h"
 
 static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, char **azColName);
@@ -57,16 +57,20 @@ public:
 
 private slots:
     void on_action_New_Wallet_triggered();
-    void on_action_Add_Folder_triggered();
-    void on_action_Add_Entry_triggered();
-    void on_action_Show_Passwords_toggled(bool show);
-    void on_action_Edit_Entry_triggered();
-    void on_walletView_doubleClicked(const QModelIndex &index);
-    void on_action_Delete_Entry_triggered();
-    void on_action_Launch_Domain_triggered();
-    void on_action_Set_Environment_triggered();
-    void on_action_Save_Wallet_triggered();
     void on_action_Open_Wallet_triggered();
+    void on_action_Save_Wallet_triggered();
+
+    void on_action_Add_Table_triggered();
+    void on_action_Delete_Table_triggered();
+
+    void on_action_Add_Entry_triggered();
+    void on_action_Edit_Entry_triggered();
+    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_action_Delete_Entry_triggered();
+    void on_action_Show_Passwords_toggled(bool show);
+    void on_action_Launch_Domain_triggered();
+
+    void on_action_Set_Environment_triggered();
     void on_action_About_triggered();
 
     void DomainFilter_textChanged(const QString &arg1);
@@ -77,7 +81,7 @@ private slots:
     void dateFilter_textChanged(const QString &arg1);
 
     void invalidateAlignedLayout();
-    void walletList_currentIndexChanged(const QString &arg1);
+    void tableList_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -91,7 +95,7 @@ private:
     QSqlTableModel *model;  // Model to handle tables in the database easily
     MySortFilterProxyModel *proxyModel;
     QString path, fileName; // To store database filename
-    QStringList tableList;
+    QStringList tables;
     QString currentTable;
     QSqlQuery query;
 
@@ -100,25 +104,16 @@ private:
     helpWindow *help;
 
     /// ****** GUI elements ****
-    ColumnAlignedLayout *alignedLayout;
-    QWidget* dateWidget;
-    QHBoxLayout* dateLayout;
-    QLineEdit *idFilter;
-    QLineEdit *userFilter;
-    QLineEdit *domFilter;
-    QLineEdit *passFilter;
-    QLineEdit *dateFilter;
-    QComboBox *dateUnit;
-    QLineEdit *descFilter;
-
-    QComboBox *walletList;
+    FiltersAligned *filters;
+    QComboBox *tableList;
 
     PasswordItemDelegate * passDelegate=new PasswordItemDelegate(this);
 
     //// ***** Methods
     void init();           //initialization. Call LoginDialog and configure UI
     bool OpenDataBase();   //Create/Open Data base and create table, connections
-    void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
+    void createTableView(const QString &tableName);//Create the table model and display the data in the UI.
+    void UpdateTableView(const QString &tableName);
 
     int callback_createTableList(int argc, char **argv, char **azColName); //Build TableList from ciphered db
     int callback_populateTable(int argc, char **argv, char **azColName); //Build TableList from ciphered db

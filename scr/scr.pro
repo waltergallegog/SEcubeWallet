@@ -35,9 +35,9 @@ SOURCES += main.cpp\
     mysortfilterproxymodel.cpp \
     helpwindow.cpp \
     newtable.cpp \
-    columnalignedlayout.cpp \
     myqtableview.cpp \
-    passworditemdelegate.cpp
+    passworditemdelegate.cpp \
+    filtersaligned.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -51,9 +51,9 @@ HEADERS  += mainwindow.h \
     mysortfilterproxymodel.h \
     helpwindow.h \
     newtable.h \
-    columnalignedlayout.h \
     myqtableview.h \
-    passworditemdelegate.h
+    passworditemdelegate.h \
+    filtersaligned.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
