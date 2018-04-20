@@ -7,7 +7,7 @@ NewTable::NewTable(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle( tr("New Wallet") );
+    setWindowTitle( tr("New Table") );
     setModal(true); //Modal, so user cannot access main window without first closing this one
 }
 

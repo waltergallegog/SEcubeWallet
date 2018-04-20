@@ -2,6 +2,13 @@
 #define MAINWINDOW_H
 
 
+#define IDENT_COL   0
+#define USER_COL    1
+#define DOM_COL     2
+#define PASS_COL    3
+#define DATE_COL    4
+#define DESC_COL    5
+
 #include <QMainWindow>
 
 //other windows, dialogs
@@ -83,6 +90,10 @@ private slots:
     void invalidateAlignedLayout();
     void tableList_currentIndexChanged(const QString &arg1);
 
+    void on_action_Delete_Wallet_triggered();
+
+    void on_action_Fit_Table_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -92,22 +103,23 @@ private:
 
     // Database related
     QSqlDatabase dbMem;        // The database
+    QSqlQuery query;
     QSqlTableModel *model;  // Model to handle tables in the database easily
     MySortFilterProxyModel *proxyModel;
-    QString path, fileName; // To store database filename
     QStringList tables;
     QString currentTable;
-    QSqlQuery query;
+    QString path, fileName; // To store database filename
 
-    sqlite3 *dbSec;
+    sqlite3 *dbSec;    
 
-    helpWindow *help;
+    //bool dirty; // true if in-memory database has been modified and needs to be saved.
 
     /// ****** GUI elements ****
     FiltersAligned *filters;
     QComboBox *tableList;
-
+    QLabel* displayWalletName;
     PasswordItemDelegate * passDelegate=new PasswordItemDelegate(this);
+    int widths [DESC_COL-USER_COL+1];
 
     //// ***** Methods
     void init();           //initialization. Call LoginDialog and configure UI

@@ -105,9 +105,16 @@
     </property>
     <addaction name="action_Launch_Domain"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action_Fit_Table"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
    <addaction name="menuTools"/>
+   <addaction name="menuView"/>
    <addaction name="menuSettings"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -157,13 +164,14 @@
     <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="action_Add_Entry"/>
    <addaction name="action_Edit_Entry"/>
    <addaction name="action_Delete_Entry"/>
    <addaction name="separator"/>
    <addaction name="action_Show_Passwords"/>
+   <addaction name="action_Fit_Table"/>
    <addaction name="separator"/>
    <addaction name="action_Launch_Domain"/>
   </widget>
@@ -259,6 +267,11 @@
   <action name="action_Edit_Entry">
    <property name="text">
     <string>Edit Entry</string>
+   </property>
+  </action>
+  <action name="action_Fit_Table">
+   <property name="text">
+    <string>&amp;Fit Table</string>
    </property>
   </action>
  </widget>
