@@ -72,7 +72,7 @@ void MainWindow::init(){
 
     // add table List to ToolBar before delete
     tableList = new QComboBox(this);
-//    ui->tableTB->insertWidget(ui->action_Delete_Table, tableList);
+    //    ui->tableTB->insertWidget(ui->action_Delete_Table, tableList);
     ui->entriesTB->insertWidget(ui->action_Add_Entry, tableList);
     connect(tableList, SIGNAL(currentIndexChanged(QString)), SLOT(tableList_currentIndexChanged(QString)));
 
@@ -92,6 +92,7 @@ void MainWindow::init(){
     ui->action_Fit_Table->setEnabled(false);
 
     displayWalletName = new QLabel;
+    displayWalletName->setStyleSheet("font-weight: bold; color: #000088");
     displayWalletName->setAlignment(Qt::AlignRight);
     statusBar()->addWidget(displayWalletName,1);
 
@@ -133,7 +134,25 @@ void MainWindow::init(){
 
 /// New wallet button clicked: start an in-memory database so the user can add tables/entries. do not save in disk yet
 void MainWindow::on_action_New_Wallet_triggered(){
-    //TODO: Before starting a new wallet check if there are not saved changes.
+
+    if(ui->action_Save_Wallet->isEnabled()){//there are unsaved changes.
+        SaveConfirmation * conf = new SaveConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected){
+            QD << "cancel";
+            return;//if error or cancel, do nothing
+        }
+        else if (conf->result()==QDialog::Accepted){
+            if (conf->getResult()==SAVE){
+                QD << "save";
+                if( !on_action_Save_Wallet_triggered())// call save
+                    return; // save gone wrong, dont do anything
+                //TODO: check saving goes ok before continuing.
+            }
+            else if(conf->getResult()==DISCARD)//continue without saving
+                QD << "discard";
+        }
+    }
 
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
@@ -168,9 +187,10 @@ void MainWindow::on_action_New_Wallet_triggered(){
     ui->action_Delete_Table->setEnabled(true);
     ui->action_Save_Wallet->setEnabled(true);
 
-    displayWalletName->setText("Unsaved Wallet");
+    walletName = "Unnamed Wallet";
+    displayWalletName->setText(walletName);
 
-//    dirty = true;   //Signal the data base needs to be saved
+    //    dirty = true;   //Signal the data base needs to be saved
     fileName.clear();//reset filename variable
     tableList->clear();
 
@@ -202,29 +222,22 @@ void MainWindow::on_action_Add_Table_triggered(){
     if (!query.exec()){
         //TODO: prompt error dialog name may be invalid. see more. and link
         qWarning() << "Couldn't create the table " << tableName << query.lastError();
-        statusBar()->setStyleSheet("color: red");
-        statusBar()->showMessage("Couldn't create the table", 3000);
+        statusBar()->setStyleSheet("font-weight: bold; color: maroon");
+        statusBar()->showMessage(QStringLiteral("Couldn't create the table '%1', maybe already exists, or is a reserved sqlite command").arg(tableName), 4000);
         return;
     }
     QD << "query exec on addtable ok";
 
     query.finish();
 
-
-
     tableList->setEnabled(true);
     if(tableList->findText(tableName) == -1) //Check if item already in the list
         tableList->addItem(tableName); //if not, add it
     tableList->setCurrentText(tableName);
 
-    //TODO: as there is a new table-> enable save
-
     // Finally, update the tableView to reflect the new/opened table
     if (filters==NULL)
         createTableView(tableName);
-    //    else{
-    //        UpdateTableView(tableName);// not necessary, done by tableList combobox
-    //    }
 
     //As we now have a table, we can enable the buttons
     ui->action_Add_Entry->setEnabled(true);
@@ -234,6 +247,9 @@ void MainWindow::on_action_Add_Table_triggered(){
     ui->action_Show_Passwords->setEnabled(true);
     ui->action_Show_Passwords->setChecked(false);
     ui->action_Save_Wallet->setEnabled(true);
+    ui->action_Fit_Table->setEnabled(true);
+
+    displayWalletName->setText(walletName.remove("*").append("*"));
 }
 
 
@@ -259,7 +275,9 @@ void MainWindow::createTableView(const QString &tableName ){
     ui->tableView->verticalHeader()->hide();
 
 
-    ui->tableView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
+//    ui->tableView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
+    ui->tableView->setColumnHidden(DESC_COL, true);//Hide Identification column, not important for user, only for sqlite.
+
     ui->tableView->setItemDelegateForColumn(PASS_COL, passDelegate);//Hide passwords initially
 
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);// To make the table view not edditable
@@ -280,8 +298,6 @@ void MainWindow::createTableView(const QString &tableName ){
     connect(filters->descFilter, SIGNAL(textChanged(QString)), SLOT(DescFilter_textChanged(QString)));
     connect(filters->dateFilter, SIGNAL(textChanged(QString)), SLOT(dateFilter_textChanged(QString)));
     connect(filters->dateUnit,   SIGNAL(currentIndexChanged(int)), SLOT(dateUnit_currentIndexChanged(int)));
-
-    //TODO: to have some spacing btwn filters, put each filter inside a widget with a layout, and put margins.
 
     ui->filtersWidget->setLayout(filters);
     filters->setTableColumnsToTrack(ui->tableView->horizontalHeader());
@@ -324,7 +340,9 @@ void MainWindow::UpdateTableView(const QString &tableName){
 
     for (col=USER_COL;col<=DESC_COL; col++)
         ui->tableView->horizontalHeader()->resizeSection(col, widths[col]);
-    ui->tableView->setColumnHidden(IDENT_COL, true);
+//    ui->tableView->setColumnHidden(IDENT_COL, true);
+    ui->tableView->setColumnHidden(DESC_COL, true);//Hide Identification column, not important for user, only for sqlite.
+
 }
 
 /// When user changes table we need to modify the tableview
@@ -350,12 +368,25 @@ void MainWindow::on_action_Delete_Table_triggered(){
         if (!query.exec()){
             qWarning() << "Couldn't delete table" << tableName;
             qWarning() << "ERROR: " << query.lastError();
+            query.first();
             return;
         }
         query.finish();
         tableList->removeItem(tableList->currentIndex());
+        ui->action_Save_Wallet->setEnabled(true);
+        displayWalletName->setText(walletName.remove("*").append("*"));
+        if (tableList->count()==0){
+            //As we do not have tables, we have to disable the buttons
+            ui->action_Add_Entry->setEnabled(false);
+            ui->action_Edit_Entry->setEnabled(false);
+            ui->action_Delete_Entry->setEnabled(false);
+            ui->action_Launch_Domain->setEnabled(false);
+            ui->action_Show_Passwords->setEnabled(false);
+            ui->action_Save_Wallet->setEnabled(false);
+            ui->action_Fit_Table->setEnabled(false);
+        }
+
     }
-    ui->action_Save_Wallet->setEnabled(true);
     return;
 }
 
@@ -377,10 +408,13 @@ void MainWindow::on_action_Add_Entry_triggered(){
     rec.setValue("Date", QDate::currentDate());
 
     int newRecNo = model->rowCount(); //Where to insert the new record?: at the end of the table
-    if (model->insertRecord(newRecNo, rec))
-        model->submitAll();// if insert ok, submit changes.
+    if (!model->insertRecord(newRecNo, rec)){
+        return;
+    }
+    model->submitAll();// if insert ok, submit changes.
 
     ui->action_Save_Wallet->setEnabled(true);
+    displayWalletName->setText(walletName.remove("*").append("*"));
     return;
 }
 
@@ -420,6 +454,7 @@ void MainWindow::on_action_Edit_Entry_triggered()
             qDebug() << "Error: " << model->lastError();
     }
     ui->action_Save_Wallet->setEnabled(true);
+    displayWalletName->setText(walletName.remove("*").append("*"));
     return;
 }
 
@@ -439,10 +474,13 @@ void MainWindow::on_action_Delete_Entry_triggered(){
 
         QModelIndex index = selection.at(i);
         proxyModel->removeRow(index.row());
-        if(!model->submitAll()) //Submit changes if no errors
+        if(!model->submitAll()){ //Submit changes if no errors
             qDebug() << "Error: " << model->lastError();
+            return;
+        }
     }
     ui->action_Save_Wallet->setEnabled(true);
+    displayWalletName->setText(walletName.remove("*").append("*"));
     return;
 }
 
@@ -512,7 +550,7 @@ void MainWindow::on_action_Set_Environment_triggered(){
 }
 
 //// ************ if user wants to write to disk ***************
-void MainWindow::on_action_Save_Wallet_triggered(){
+bool MainWindow::on_action_Save_Wallet_triggered(){
 
     ////  ask for a filename to save changes the first time the button is clicked after a new wallet
 
@@ -520,37 +558,52 @@ void MainWindow::on_action_Save_Wallet_triggered(){
         SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 ); //option 1 means we are creating new file
         fileDialog->exec();
         if(fileDialog->result()==QDialog::Rejected){
-            return; // Error in Dialog or Cancel button, do nothing
+            return 0; // Error in Dialog or Cancel button, do nothing
         }
         fileName = fileDialog->getChosenFile();
+
+        if(fileName.isEmpty()) // if no valid file name => do nothing
+            return 0;
+
+        //// Check if file already exists
+#ifdef SECUBE        //Get name of file in disk (encrypted) and delete.
+        //prepare vars
+        char enc_filename[65];
+        uint16_t enc_len = 0;
+        memset(enc_filename, 0, 65);
+        crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+#else
+        QString enc_filename=fileName;
+#endif
+
+        if (QFile::exists(enc_filename)){
+            statusBar()->setStyleSheet("font-weight: bold; color: maroon");
+            statusBar()->showMessage("File already exists, not saving", 2000);
+            return 0;
+            //TODO: use the open file version of filedialog to display db in the directory so user can choose a different name. Prompt: file already exists, you want to overwrite it?
+        }
     }
-    if(fileName.isEmpty()) // if no valid file name => do nothing
-        return;
-
-    //// Check if file already exists
-
-    //prepare vars
-    char enc_filename[65];
-    uint16_t enc_len = 0;
-    memset(enc_filename, 0, 65);
-
-    //Get name of file in disk (encrypted) and delete.
-    crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
-    if (QFile::exists(enc_filename)){
-        return;
-        //TODO: use the open file version of filedialog to display db in the directory so user can choose a different     name. Prompt: file already exists
+    else{
+        #ifdef SECUBE
+         //Get name of file in disk (encrypted) and delete.
+        char enc_filename[65];
+        uint16_t enc_len = 0;
+        memset(enc_filename, 0, 65);
+        crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
+        QFile::remove(enc_filename);
+        #else
+            QFile::remove(fileName); //sec sqlite3_open overwrites, not sec does not, thus we need to delete the file
+        #endif
     }
 
     //// * Create a secure Sqlite using securesqlite3 functions
 #ifdef SECUBE
     sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
-#else
-    QFile::remove(fileName); //sec sqlite3_open overwrites, not sec does not, thus we need to delete the file
 #endif
 
-    if( sqlite3_open (fileName.toUtf8(), &dbSec) ){ //create a new database using the filename specified by the user before. sqlite3_open overwrites any existing file.
+    if( sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE , NULL ) ){ //create a new database using the filename specified by the user before. sqlite3_open overwrites any existing file.
         qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
-        return;
+        return 0;
     }
     else
         qDebug() << "Opened database successfully";
@@ -579,7 +632,7 @@ void MainWindow::on_action_Save_Wallet_triggered(){
         if ( sqlite3_exec(dbSec, sql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//create the table
             qDebug() << "SQL error: %s\n"<< zErrMsg;
             sqlite3_free(zErrMsg);
-            return;//TODO delete createrd sqlite file that was not used.
+            return 0;//TODO delete createrd sqlite file that was not used.
         } else
             qDebug() << table << "created successfully";
 
@@ -598,21 +651,33 @@ void MainWindow::on_action_Save_Wallet_triggered(){
 
     if ( sqlite3_exec(dbSec, finalSql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//execute the statement
         qDebug() << "SQL error "<< zErrMsg;
+        statusBar()->setStyleSheet("font-weight: bold; color: maroon");
         statusBar()->showMessage("Error saving", 2000);
         sqlite3_free(zErrMsg);
+        sqlite3_close (dbSec);
+#ifdef SECUBE
+        sqlite3_os_end();
+#endif
+        query.finish();
+
+        return 0;
     } else{
         qDebug() <<"Saved successfully";
-        statusBar()->showMessage("Saved successfully", 3000);
-        displayWalletName->setText(QFileInfo(QFile(fileName)).absoluteFilePath().remove(".sqlite"));
+        statusBar()->setStyleSheet("font-weight: bold; color: black");
+        statusBar()->showMessage("Saved successfully", 2000);
+        walletName=QFileInfo(QFile(fileName)).absoluteFilePath().remove(".sqlite");
+        displayWalletName->setText(walletName);
     }
 
     //// Close secure database connection
     sqlite3_close (dbSec);
+#ifdef SECUBE
     sqlite3_os_end();
-
+#endif
     query.finish();
     ui->action_Save_Wallet->setEnabled(false);//wallet is not dirty anymore, no save allowed until some change is made
-    return;
+
+    return 1;
 }
 
 int MainWindow::callback_createTableList(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
@@ -650,8 +715,23 @@ int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){
 
 ////Open Cyphered database and display it
 void MainWindow::on_action_Open_Wallet_triggered(){
+#ifdef SECUBE //display files only works with secube connected
+    if(ui->action_Save_Wallet->isEnabled()){//there are unsaved changes.
+        SaveConfirmation * conf = new SaveConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected){
+            return;//if error or cancel, do nothing
+        }
+        else if (conf->result()==QDialog::Accepted){
+            if (conf->getResult()==SAVE){
+                if( !on_action_Save_Wallet_triggered())// call save
+                    return; // save gone wrong, dont do anything
+                //TODO: check saving goes ok before continuing.
+            }
+            else if(conf->getResult()==DISCARD){}//continue without saving
+        }
+    }
 
-    //TODO check dirty flag before opening another db
 
     //// Open Secure database
 
@@ -666,6 +746,11 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     fileName = QFileInfo(QFile(path)).fileName();
 
     sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+#else
+    path = "/home/walter/nosecube.sqlite";
+    fileName = QFileInfo(QFile(path)).fileName();
+#endif
+
     if( sqlite3_open_v2(fileName.toUtf8(), &dbSec, SQLITE_OPEN_READONLY, NULL) ){ //open the database for read using the filename specified by the user before.
         qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
         return;
@@ -685,15 +770,22 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     } else
         qDebug() <<" Get table names successfully";
 
-
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
         exit (1); // as the application does not work without Sqlite, exit.
     }
 
     if (dbMem.open()){ //close any prev. opened connections and database
-        model->clear();
-        proxyModel->clear();
+
+        int col;
+        for (col=USER_COL;col<=DESC_COL; col++) // save table geometry before closing
+            widths[col] =  ui->tableView->horizontalHeader()->sectionSize(col);
+
+        if (model!=NULL){
+            model->clear();
+            model=NULL;
+            proxyModel->clear();
+        }
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
         dbMem = QSqlDatabase();
@@ -724,14 +816,48 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         else
             qDebug() << table << "created successfully";
         currentTable = table;
+        int rc=sqlite3_exec(dbSec, QString("SELECT * FROM [%1]").arg(table).toUtf8(), c_callback_populateTable, this, &zErrMsg);
+        QD << rc;
 
-        if ( sqlite3_exec(dbSec, QString("SELECT * FROM [%1]").arg(table).toUtf8(), c_callback_populateTable, this, &zErrMsg) != SQLITE_OK){
-            qDebug() << "SQL error"<< zErrMsg;
+        if ( rc != SQLITE_OK){
+            qDebug() << "SQL error in reading info from table"<< table << zErrMsg;
             sqlite3_free(zErrMsg);
         } else
             qDebug() <<" Get all from " << table <<" successfully";
     }
+    sqlite3_close (dbSec);
+#ifdef SECUBE
+    sqlite3_os_end();
+#endif
+
     query.finish();
+
+    ui->action_Add_Table->setEnabled(true);
+    ui->action_Delete_Table->setEnabled(true);
+
+    statusBar()->setStyleSheet("font-weight: bold; color: black");
+    statusBar()->showMessage("Opened successfully", 2000);
+    walletName=QFileInfo(QFile(fileName)).absoluteFilePath().remove(".sqlite");
+    displayWalletName->setText(walletName);
+
+
+    tableList->clear();
+    QStringList tablesDBMem = dbMem.tables(QSql::Tables);
+
+    if (!tablesDBMem.isEmpty()){
+        if (filters==NULL)
+            createTableView(tablesDBMem.last());
+        tableList->setEnabled(true);
+        tableList->addItems(tablesDBMem);
+
+        ui->action_Add_Entry->setEnabled(true);
+        ui->action_Edit_Entry->setEnabled(true);
+        ui->action_Delete_Entry->setEnabled(true);
+        ui->action_Launch_Domain->setEnabled(true);
+        ui->action_Show_Passwords->setEnabled(true);
+        ui->action_Show_Passwords->setChecked(false);
+        ui->action_Fit_Table->setEnabled(true);
+    }
 }
 
 //// ****** Search/Filters  *****
@@ -769,5 +895,3 @@ void MainWindow::on_action_About_triggered(){
 void MainWindow::on_action_Delete_Wallet_triggered(){
     //TODO: show select dialog to delete table, but if a table is opened, delete it instead
 }
-
-

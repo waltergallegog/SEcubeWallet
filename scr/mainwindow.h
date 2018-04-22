@@ -19,6 +19,7 @@
 #include "deleteconfirmation.h"
 #include "helpwindow.h"
 #include "newtable.h"
+#include "saveconfirmation.h"
 
 
 //SEcure related
@@ -65,7 +66,8 @@ public:
 private slots:
     void on_action_New_Wallet_triggered();
     void on_action_Open_Wallet_triggered();
-    void on_action_Save_Wallet_triggered();
+    bool on_action_Save_Wallet_triggered();
+    void on_action_Delete_Wallet_triggered();
 
     void on_action_Add_Table_triggered();
     void on_action_Delete_Table_triggered();
@@ -75,6 +77,7 @@ private slots:
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_action_Delete_Entry_triggered();
     void on_action_Show_Passwords_toggled(bool show);
+    void on_action_Fit_Table_triggered();
     void on_action_Launch_Domain_triggered();
 
     void on_action_Set_Environment_triggered();
@@ -89,10 +92,6 @@ private slots:
 
     void invalidateAlignedLayout();
     void tableList_currentIndexChanged(const QString &arg1);
-
-    void on_action_Delete_Wallet_triggered();
-
-    void on_action_Fit_Table_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -109,6 +108,7 @@ private:
     QStringList tables;
     QString currentTable;
     QString path, fileName; // To store database filename
+    QString walletName;
 
     sqlite3 *dbSec;    
 
