@@ -26,6 +26,7 @@ static int c_callback_createTableList(void *mainwindowP, int argc, char **argv, 
 }
 
 static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, char **azColName){ //Populate Table
+    qDebug() << "in c_callback_populateTable";
     MainWindow* main = reinterpret_cast<MainWindow*>(mainwindowP);
     return main->callback_populateTable(argc, argv, azColName);
 }
@@ -45,7 +46,7 @@ MainWindow::~MainWindow()
     // if (ui->CipherClose->isEnabled()) // if there is an opened database the button is enabled
     // on_CipherClose_clicked(); //Call cipher before closing
 
-    sqlite3_os_end(); //Release the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //sqlite3_os_end(); //Release the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
     secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
     if(s.logged_in)
         L1_logout(&s);
@@ -126,7 +127,7 @@ void MainWindow::init(){
          * is connected and if the user has successfully logged in.*/
     }
 
-    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #endif
     return;
 }
@@ -275,7 +276,7 @@ void MainWindow::createTableView(const QString &tableName ){
     ui->tableView->verticalHeader()->hide();
 
 
-//    ui->tableView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
+    //    ui->tableView->setColumnHidden(IDENT_COL, true);//Hide Identification column, not important for user, only for sqlite.
     ui->tableView->setColumnHidden(DESC_COL, true);//Hide Identification column, not important for user, only for sqlite.
 
     ui->tableView->setItemDelegateForColumn(PASS_COL, passDelegate);//Hide passwords initially
@@ -340,7 +341,7 @@ void MainWindow::UpdateTableView(const QString &tableName){
 
     for (col=USER_COL;col<=DESC_COL; col++)
         ui->tableView->horizontalHeader()->resizeSection(col, widths[col]);
-//    ui->tableView->setColumnHidden(IDENT_COL, true);
+    //    ui->tableView->setColumnHidden(IDENT_COL, true);
     ui->tableView->setColumnHidden(DESC_COL, true);//Hide Identification column, not important for user, only for sqlite.
 
 }
@@ -584,21 +585,21 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
         }
     }
     else{
-        #ifdef SECUBE
-         //Get name of file in disk (encrypted) and delete.
+#ifdef SECUBE
+        //Get name of file in disk (encrypted) and delete.
         char enc_filename[65];
         uint16_t enc_len = 0;
         memset(enc_filename, 0, 65);
         crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
         QFile::remove(enc_filename);
-        #else
-            QFile::remove(fileName); //sec sqlite3_open overwrites, not sec does not, thus we need to delete the file
-        #endif
+#else
+        QFile::remove(fileName); //sec sqlite3_open overwrites, not sec does not, thus we need to delete the file
+#endif
     }
 
     //// * Create a secure Sqlite using securesqlite3 functions
 #ifdef SECUBE
-    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #endif
 
     if( sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE , NULL ) ){ //create a new database using the filename specified by the user before. sqlite3_open overwrites any existing file.
@@ -616,10 +617,15 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     QStringList values;
     QSqlRecord record;
     QString finalSql;
-    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2); "); //Insert statement
+    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES(%2);"); //Insert statement
 
     // Read from in mem database
-    QStringList tables = dbMem.tables(QSql::Tables); // Get a list of the tables in dbMem
+    QStringList tables;
+    tables << dbMem.tables(QSql::Tables); // Get a list of the tables in dbMem
+
+    //BUG: workaround for first table always corrupted problem: have a dummy table, that ensures database is not empty
+    tables.removeAll("NoEmpty");
+    tables.prepend("NoEmpty");
     foreach (const QString table, tables) {
         QString sql = "create table "+table+
                 "(id integer primary key, "
@@ -641,9 +647,11 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
         while (query.next()){
             values.clear();
             record = query.record();
-            for (int i = 0; i < record.count(); i++)
+            values << record.value(0).toString();//the index does not goes in ''
+            for (int i = 1; i < record.count(); i++)
                 values << "'"+record.value(i).toString()+"'";//value needs to be inside ''
             finalSql += insert.arg(table).arg(values.join(", "));//create a single sql statement from all the inserts
+
         }
     }
     // write into sec database
@@ -672,7 +680,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     //// Close secure database connection
     sqlite3_close (dbSec);
 #ifdef SECUBE
-    sqlite3_os_end();
+    //sqlite3_os_end();
 #endif
     query.finish();
     ui->action_Save_Wallet->setEnabled(false);//wallet is not dirty anymore, no save allowed until some change is made
@@ -691,8 +699,6 @@ int MainWindow::callback_createTableList(int argc, char **argv, char **azColName
 int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
     int i;
     UNUSED(azColName);
-
-    qDebug() << "in callback_populateTable";
 
     static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2);"); //Insert statement
     QStringList values;
@@ -745,7 +751,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     path = fileDialog->getChosenFile();
     fileName = QFileInfo(QFile(path)).fileName();
 
-    sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
+    //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #else
     path = "/home/walter/nosecube.sqlite";
     fileName = QFileInfo(QFile(path)).fileName();
@@ -813,21 +819,24 @@ void MainWindow::on_action_Open_Wallet_triggered(){
             qWarning() << "Couldn't create the table" << table <<" one might already exist";
             return;
         }
-        else
-            qDebug() << table << "created successfully";
+        qDebug() << table << "created successfully";
+
         currentTable = table;
-        int rc=sqlite3_exec(dbSec, QString("SELECT * FROM [%1]").arg(table).toUtf8(), c_callback_populateTable, this, &zErrMsg);
+        QString SqlStatement = QStringLiteral("SELECT * FROM %1;").arg(table);
+
+
+        int rc=sqlite3_exec(dbSec, SqlStatement.toUtf8(), c_callback_populateTable, this, &zErrMsg);
         QD << rc;
 
         if ( rc != SQLITE_OK){
-            qDebug() << "SQL error in reading info from table"<< table << zErrMsg;
+            qDebug() << "SQL error in reading info from table"<< SqlStatement << zErrMsg;
             sqlite3_free(zErrMsg);
         } else
-            qDebug() <<" Get all from " << table <<" successfully";
+            qDebug() <<" Get all from " << SqlStatement <<" successfully";
     }
     sqlite3_close (dbSec);
 #ifdef SECUBE
-    sqlite3_os_end();
+    //sqlite3_os_end();
 #endif
 
     query.finish();
@@ -843,6 +852,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
 
     tableList->clear();
     QStringList tablesDBMem = dbMem.tables(QSql::Tables);
+    tablesDBMem.removeAll("NoEmpty");
 
     if (!tablesDBMem.isEmpty()){
         if (filters==NULL)
@@ -857,7 +867,9 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         ui->action_Show_Passwords->setEnabled(true);
         ui->action_Show_Passwords->setChecked(false);
         ui->action_Fit_Table->setEnabled(true);
+        //TODO: check what if user saves an empty wallet. Solve it by using non_empty table and drop it. more in sqlitebrowser.
     }
+
 }
 
 //// ****** Search/Filters  *****
