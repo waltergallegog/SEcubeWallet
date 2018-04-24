@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     scr \
-    SEfile
+    SEfile \
+    securesqlite3

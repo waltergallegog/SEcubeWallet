@@ -3,11 +3,10 @@
 
 LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 {
-    dev.opened = false;    //private: se3_device dev ;
-
+    dev.opened = false;
     setUpGUI();
     setWindowTitle( tr("Login") );
-    setModal( true ); //When an application modal dialog is opened, the user must finish interacting with the dialog and close it before they can access any other window in the application
+    setModal( true );
 }
 LoginDialog::~LoginDialog(){
 
@@ -29,7 +28,7 @@ void LoginDialog::setUpGUI(){
     // initialize the labels
 
     labelPassword = new QLabel( this );
-    labelPassword->setText( tr( "Pin/Password" ) );
+    labelPassword->setText( tr( "Password" ) );
     labelPassword->setBuddy( editPassword );
 
     // initialize buttons
@@ -58,7 +57,7 @@ void LoginDialog::setUpGUI(){
              this,
              SLOT (refreshDevice())
              );
-    connect( this, //what is his for?
+    connect( this,
              SIGNAL (acceptLogin(QString&)),
              this,
              SLOT (slotAcceptLogin())
@@ -77,7 +76,7 @@ void LoginDialog::setUpGUI(){
 void LoginDialog::setPassword(QString &password){
     editPassword->setText( password );
 }
-se3_session *LoginDialog::getSession(){ // called from main window to get session
+se3_session *LoginDialog::getSession(){
     return &s;
 }
 

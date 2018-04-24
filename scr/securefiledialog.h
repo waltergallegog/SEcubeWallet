@@ -32,6 +32,7 @@ private:
 
     QLabel* labelCurrentPath;
     QLabel* labelFileView;
+    QLabel* labelFileView2;
 
     QGridLayout* formGridLayout;
 
@@ -63,11 +64,12 @@ signals:
 //    void acceptLogin( QString& password );
 //    void abortSignal();
 
-public slots:
+private slots:
 
     void slotAbortFile();
     void slotAcceptFile();
     void refreshFileView();
+    void updateNewFile();
 };
 
 #endif // SECUREFILEDIALOG_H

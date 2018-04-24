@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>17</x>
@@ -26,7 +26,7 @@
     <item>
      <widget class="QLineEdit" name="walletName">
       <property name="placeholderText">
-       <string>Enter Wallet Name</string>
+       <string>Enter Table Name</string>
       </property>
      </widget>
     </item>

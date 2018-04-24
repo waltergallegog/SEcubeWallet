@@ -3,8 +3,8 @@
 
 int main(int argc, char *argv[])
 {
-//    QApplication::setDesktopSettingsAware(false);
-//    QApplication::setStyle("Plastique");
+    QApplication::setDesktopSettingsAware(false);
+    QApplication::setStyle("QtCurve");
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

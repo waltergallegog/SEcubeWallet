@@ -34,7 +34,13 @@ SOURCES += main.cpp\
     zxcvbn.cpp \
     mysortfilterproxymodel.cpp \
     helpwindow.cpp \
-    newtable.cpp
+    newtable.cpp \
+    myqtableview.cpp \
+    passworditemdelegate.cpp \
+    filtersaligned.cpp \
+    saveconfirmation.cpp \
+    overwritedialog.cpp
+    co
 
 HEADERS  += mainwindow.h \
     environmentdialog.h \
@@ -46,13 +52,20 @@ HEADERS  += mainwindow.h \
     zxcvbn.h \
     mysortfilterproxymodel.h \
     helpwindow.h \
-    newtable.h
+    newtable.h \
+    myqtableview.h \
+    passworditemdelegate.h \
+    filtersaligned.h \
+    saveconfirmation.h \
+    overwritedialog.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
     deleteconfirmation.ui \
     helpwindow.ui \
-    newtable.ui
+    newtable.ui \
+    saveconfirmation.ui \
+    overwritedialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile
@@ -66,3 +79,43 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfi
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfile/release/SEfile.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfile/debug/SEfile.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../SEfile/libSEfile.a
+
+CONFIG(NO_SECUBE){ # if no se_cube connected, use non encrypted sqlite3
+    LIBS += -lsqlite3
+
+} else {
+    DEFINES += SECUBE
+    DEFINES += SQLITE_OS_SECURE # used for secuereqlite files
+    # Added secureSQLite installation path variables, matching our setup guide
+    win32 {
+        SECURESQLPATH = "$$OUT_PWD/../securesqlite3"
+        SEFILEPATH  = "$$OUT_PWD/../SEfile"
+        CONFIG(debug,debug|release){
+            SECURESQLPATH = $$SECURESQLPATH/debug
+            SEFILEPATH = $$SEFILEPATH/debug
+        }
+        CONFIG(release,debug|release){
+            SECURESQLPATH = $$SECURESQLPATH/release
+            SEFILEPATH = $$SEFILEPATH/release
+        }
+    }
+    !win32 {
+        SECURESQLPATH = "../securesqlite3"
+        SEFILEPATH  = "../SEfile"
+    }
+
+    LIBS += -L$$SECURESQLPATH \
+        -L$$SEFILEPATH
+
+    LIBS += -lsecuresqlite3 -lSEfile
+
+    INCLUDEPATH += "$$PWD/../securesqlite3" \
+        "$$PWD/../SEfile"
+    DEPENDPATH += "$$PWD/../securesqlite3"\
+        "$$PWD/../SEfile" \
+        $$SECURESQLPATH \
+        $$SEFILEPATH
+}
+
+RESOURCES += \
+    ../icons/icons.qrc

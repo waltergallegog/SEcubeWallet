@@ -2,6 +2,13 @@
 #define MAINWINDOW_H
 
 
+#define IDENT_COL   0
+#define USER_COL    1
+#define DOM_COL     2
+#define PASS_COL    3
+#define DATE_COL    4
+#define DESC_COL    5
+
 #include <QMainWindow>
 
 //other windows, dialogs
@@ -12,6 +19,9 @@
 #include "deleteconfirmation.h"
 #include "helpwindow.h"
 #include "newtable.h"
+#include "saveconfirmation.h"
+#include "overwritedialog.h"
+
 
 //SEcure related
 #include "SEfile.h"
@@ -24,15 +34,21 @@
 #include <QSqlTableModel>
 #include <QSqlRecord>
 
+#include "../securesqlite3/sqlite3.h"
+
+
 //Miscellaneous
-#include <QTableView>
 #include <QObject>
 #include <QFile>
 #include <QDebug>
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
+#include <QLineEdit>
+#include <QScrollBar>
+#include <QCloseEvent>
 #include "mysortfilterproxymodel.h"
-
+#include "filtersaligned.h"
+#include "passworditemdelegate.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,32 +61,43 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    int callback_createTableList(int argc, char **argv, char **azColName); //Build TableList from ciphered db
+    int callback_populateTable(int argc, char **argv, char **azColName); //Build TableList from ciphered db
 
 private slots:
+    void on_action_New_Wallet_triggered();
+    void on_action_Open_Wallet_triggered();
+    bool on_action_Save_Wallet_triggered();
+    void on_action_Delete_Wallet_triggered();
+    void on_action_Close_Wallet_triggered();
 
-    void on_NewWallet_clicked();
-    void on_AddEntry_clicked();
-    void on_CipherClose_clicked();
-    void on_OpenCyphered_clicked();
-    void on_DeleteEntry_clicked();
-    void on_LaunchEntry_clicked();
-    void on_EnvironmentBut_clicked();
-    void on_EditEntry_clicked();
-    void on_Showpass_toggled(bool checked);
-    //void onTableClicked(const QModelIndex &index);
-    void on_DomainFilter_textChanged(const QString &arg1);
-    void on_UserFilter_textChanged(const QString &arg1);
-    void on_DescFilter_textChanged(const QString &arg1);
-    void on_WalletView_doubleClicked(const QModelIndex &index);
-    void on_Months_currentIndexChanged(int index);
-    void on_CustomMonths_textChanged(const QString &arg1);
-    void on_Help_clicked();
 
-    void on_NewTable_clicked();
+    void on_action_Add_Table_triggered();
+    void on_action_Delete_Table_triggered();
 
-    void on_WalletList_currentIndexChanged(const QString &arg1);
+    void on_action_Add_Entry_triggered();
+    void on_action_Edit_Entry_triggered();
+    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_action_Delete_Entry_triggered();
+    void on_action_Show_Passwords_toggled(bool show);
+    void on_action_Fit_Table_triggered();
+    void on_action_Launch_Domain_triggered();
 
-    void on_DeleteWallet_clicked();
+    void on_action_Set_Environment_triggered();
+    void on_action_About_triggered();
+
+    void DomainFilter_textChanged(const QString &arg1);
+    void UserFilter_textChanged(const QString &arg1);
+    void PassFilter_textChanged(const QString &arg1);
+    void DescFilter_textChanged(const QString &arg1);
+    void dateUnit_currentIndexChanged(int index);
+    void dateFilter_textChanged(const QString &arg1);
+
+    void invalidateAlignedLayout();
+    void tableList_currentIndexChanged(const QString &arg1);
+
+
+    void on_action_Save_Wallet_As_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -80,17 +107,36 @@ private:
     SEFILE_FHANDLE sefile_file; // Encrypted file
 
     // Database related
-    QSqlDatabase db;        // The database
+    QSqlDatabase dbMem;        // The database
+    QSqlQuery query;
     QSqlTableModel *model;  // Model to handle tables in the database easily
     MySortFilterProxyModel *proxyModel;
+    QStringList tables;
+    QString currentTable;
     QString path, fileName; // To store database filename
+    QString saveAsAbort=NULL;
+    QString walletName;
 
-    helpWindow *help;
+    sqlite3 *dbSec;
 
-    //Methods
-     void init();           //initialization. Call LoginDialog and configure UI
-     bool OpenDataBase();   //Create/Open Data base and create table, connections
-     void CreateViewTable(const QString &WalletName);//Create the table model and display the data in the UI.
+    //bool dirty; // true if in-memory database has been modified and needs to be saved.
+
+    /// ****** GUI elements ****
+    FiltersAligned *filters;
+    QComboBox *tableList;
+    QLabel* displayWalletName;
+    PasswordItemDelegate * passDelegate=new PasswordItemDelegate(this);
+    int widths [DESC_COL-USER_COL+1] = {0};
+
+    //// ***** Methods
+    void init();           //initialization. Call LoginDialog and configure UI
+    bool OpenDataBase();   //Create/Open Data base and create table, connections
+    void createTableView(const QString &tableName);//Create the table model and display the data in the UI.
+    void UpdateTableView(const QString &tableName);
+    void setAllEnabled(bool enabled);
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

@@ -6,303 +6,296 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>389</height>
+    <width>936</width>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>650</x>
-      <y>80</y>
-      <width>131</width>
-      <height>141</height>
-     </rect>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>5</number>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item alignment="Qt::AlignBottom">
-      <widget class="QPushButton" name="AddEntry">
-       <property name="text">
-        <string>Add To Wallet</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="EditEntry">
-       <property name="text">
-        <string>Edit Entry</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="DeleteEntry">
-       <property name="text">
-        <string>Delete entry</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="LaunchEntry">
-       <property name="text">
-        <string>Launch Domain</string>
-       </property>
-      </widget>
-     </item>
-     <item alignment="Qt::AlignHCenter">
-      <widget class="QCheckBox" name="Showpass">
-       <property name="text">
-        <string>Show Passwords</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>621</width>
-      <height>31</height>
-     </rect>
+    <property name="topMargin">
+     <number>5</number>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item alignment="Qt::AlignVCenter">
-      <widget class="QPushButton" name="NewWallet">
-       <property name="text">
-        <string>Create New DB</string>
-       </property>
-      </widget>
-     </item>
-     <item alignment="Qt::AlignVCenter">
-      <widget class="QPushButton" name="CipherClose">
-       <property name="text">
-        <string>Cipher and Close</string>
-       </property>
-      </widget>
-     </item>
-     <item alignment="Qt::AlignVCenter">
-      <widget class="QPushButton" name="OpenCyphered">
-       <property name="text">
-        <string>Open Cyphered</string>
-       </property>
-      </widget>
-     </item>
-     <item alignment="Qt::AlignVCenter">
-      <widget class="QPushButton" name="EnvironmentBut">
-       <property name="text">
-        <string>Set Environment</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="Help">
-       <property name="text">
-        <string>Help</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>621</width>
-      <height>321</height>
-     </rect>
+    <property name="rightMargin">
+     <number>5</number>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QTableView" name="WalletView">
-       <property name="sortingEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-      <widget class="QLabel" name="TableTitle">
-       <property name="text">
-        <string>Title</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QLineEdit" name="UserFilter">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>290</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
+    <property name="bottomMargin">
+     <number>2</number>
     </property>
-    <property name="text">
-     <string/>
+    <property name="horizontalSpacing">
+     <number>2</number>
     </property>
-    <property name="placeholderText">
-     <string>Filter by User</string>
+    <property name="verticalSpacing">
+     <number>0</number>
     </property>
-    <property name="clearButtonEnabled">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="DomainFilter">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>320</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>125</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>Filter by Domain</string>
-    </property>
-    <property name="clearButtonEnabled">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="DescFilter">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>350</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="placeholderText">
-     <string>Filter by Description</string>
-    </property>
-    <property name="clearButtonEnabled">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="Months">
-    <property name="geometry">
-     <rect>
-      <x>710</x>
-      <y>250</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="layoutDirection">
-     <enum>Qt::LeftToRight</enum>
-    </property>
-    <item>
-     <property name="text">
-      <string>-</string>
-     </property>
+    <item row="1" column="0">
+     <widget class="QWidget" name="filtersWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
     </item>
-    <item>
-     <property name="text">
-      <string>Days</string>
-     </property>
+    <item row="2" column="0">
+     <widget class="MyQTableView" name="tableView">
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
+     </widget>
     </item>
-    <item>
-     <property name="text">
-      <string>Weeks</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Months</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Years</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QLineEdit" name="CustomMonths">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>250</y>
-      <width>61</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="olderText">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>230</y>
-      <width>151</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Passwords older than</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="WalletList">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>40</y>
-      <width>151</width>
-      <height>23</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>10</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QPushButton" name="NewTable">
-       <property name="text">
-        <string>New Wallet</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="DeleteWallet">
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
+   </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>936</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Wallet"/>
+    <addaction name="action_Open_Wallet"/>
+    <addaction name="separator"/>
+    <addaction name="action_Save_Wallet"/>
+    <addaction name="action_Save_Wallet_As"/>
+    <addaction name="separator"/>
+    <addaction name="action_Close_Wallet"/>
+    <addaction name="action_Delete_Wallet"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Add_Table"/>
+    <addaction name="action_Delete_Table"/>
+    <addaction name="separator"/>
+    <addaction name="action_Add_Entry"/>
+    <addaction name="action_Edit_Entry"/>
+    <addaction name="action_Delete_Entry"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_Website"/>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="action_Set_Environment"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="action_Launch_Domain"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action_Fit_Table"/>
+    <addaction name="action_Show_Passwords"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuView"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="dataBaseTB">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_New_Wallet"/>
+   <addaction name="action_Open_Wallet"/>
+   <addaction name="action_Save_Wallet"/>
+   <addaction name="action_Save_Wallet_As"/>
+   <addaction name="action_Close_Wallet"/>
+   <addaction name="action_Delete_Wallet"/>
+  </widget>
+  <widget class="QToolBar" name="tableTB">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Add_Table"/>
+   <addaction name="action_Delete_Table"/>
+  </widget>
+  <widget class="QToolBar" name="entriesTB">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Add_Entry"/>
+   <addaction name="action_Edit_Entry"/>
+   <addaction name="action_Delete_Entry"/>
+   <addaction name="separator"/>
+   <addaction name="action_Show_Passwords"/>
+   <addaction name="action_Fit_Table"/>
+   <addaction name="separator"/>
+   <addaction name="action_Launch_Domain"/>
+  </widget>
+  <action name="action_New_Wallet">
+   <property name="icon">
+    <iconset resource="../icons/icons.qrc">
+     <normaloff>:/icons/NewWallet.svg</normaloff>:/icons/NewWallet.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New Wallet</string>
+   </property>
+  </action>
+  <action name="action_Open_Wallet">
+   <property name="text">
+    <string>&amp;Open Wallet</string>
+   </property>
+  </action>
+  <action name="action_Save_Wallet">
+   <property name="text">
+    <string>&amp;Save Wallet</string>
+   </property>
+  </action>
+  <action name="action_Save_Wallet_As">
+   <property name="text">
+    <string>&amp;Save Wallet As...</string>
+   </property>
+  </action>
+  <action name="action_Delete_Wallet">
+   <property name="text">
+    <string>&amp;Delete Wallet</string>
+   </property>
+  </action>
+  <action name="action_Add_Table">
+   <property name="text">
+    <string>&amp;Add Table</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Table</string>
+   </property>
+  </action>
+  <action name="action_Delete_Table">
+   <property name="text">
+    <string>&amp;Delete Table</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Table</string>
+   </property>
+  </action>
+  <action name="action_Website">
+   <property name="text">
+    <string>&amp;Website</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Set_Environment">
+   <property name="text">
+    <string>&amp;Set Environment</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Environment</string>
+   </property>
+  </action>
+  <action name="action_Add_Entry">
+   <property name="text">
+    <string>Add Entry</string>
+   </property>
+  </action>
+  <action name="action_Delete_Entry">
+   <property name="text">
+    <string>Delete Entry</string>
+   </property>
+  </action>
+  <action name="action_Launch_Domain">
+   <property name="text">
+    <string>&amp;Launch Domain</string>
+   </property>
+   <property name="toolTip">
+    <string>Launch Domain</string>
+   </property>
+  </action>
+  <action name="action_Show_Passwords">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Passwords</string>
+   </property>
+  </action>
+  <action name="action_Edit_Entry">
+   <property name="text">
+    <string>Edit Entry</string>
+   </property>
+  </action>
+  <action name="action_Fit_Table">
+   <property name="text">
+    <string>&amp;Fit Table</string>
+   </property>
+  </action>
+  <action name="action_Close_Wallet">
+   <property name="text">
+    <string>&amp;Close Wallet</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>MyQTableView</class>
+   <extends>QTableView</extends>
+   <header location="global">myqtableview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
