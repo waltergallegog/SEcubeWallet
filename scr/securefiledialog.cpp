@@ -7,9 +7,9 @@ SecureFileDialog::SecureFileDialog(QWidget *parent, int newFile) : QDialog(paren
     this->newFile=newFile;
     setUpGUI();
     if (!newFile)
-        setWindowTitle( tr("Choose DB to open") );
+        setWindowTitle( tr("Choose Wallet") );
     else
-        setWindowTitle( tr("Create New DB") );
+        setWindowTitle( tr("Create New Wallet") );
 
     setModal( true );
 }
@@ -23,6 +23,14 @@ void SecureFileDialog::setUpGUI(){
     //QGridLayout* formGridLayout = new QGridLayout( this );
     formGridLayout = new QGridLayout( this );
 
+    // initialize buttons
+    buttons = new QDialogButtonBox( this );
+    buttons->addButton( QDialogButtonBox::Ok );
+    buttons->addButton( QDialogButtonBox::Cancel );
+    buttons->button( QDialogButtonBox::Ok )->setText( tr("Ok") );
+    buttons->button( QDialogButtonBox::Cancel )->setText( tr("Abort") );
+    buttons->setCenterButtons(true);
+
     choosePath = new QLineEdit ( this );
     labelCurrentPath = new QLabel ( this );
     labelFileView = new QLabel ( this );
@@ -35,12 +43,27 @@ void SecureFileDialog::setUpGUI(){
 
     browsePath->setFileMode(QFileDialog::DirectoryOnly);
     if( newFile ){
-        labelFileView->setText( tr("DB name:"));
+        labelFileView->setText( tr("Wallet name:"));
         chooseNewFile = new QLineEdit ( this );
         labelFileView->setBuddy( chooseNewFile );
         formGridLayout->addWidget( chooseNewFile, 1, 1 );
+
+        chooseFile = new QListView ( this );
+        chooseFile->setViewMode(QListView::ListMode);
+        chooseFile->setEditTriggers(QListView::NoEditTriggers);
+        connect (chooseFile,
+                 SIGNAL(clicked(QModelIndex)),
+                 this,
+                 SLOT(updateNewFile())
+                 );
+        labelFileView2=new QLabel(this);
+        labelFileView2->setText(tr("Wallets:"));
+        labelFileView2->setBuddy(chooseFile);
+        formGridLayout->addWidget(labelFileView2,2,0);
+        formGridLayout->addWidget(chooseFile,2,1);
+        formGridLayout->addWidget( buttons, 3, 0, 1, 3);
     }else{
-        labelFileView->setText( tr("Files:"));
+        labelFileView->setText( tr("Wallets:"));
         chooseFile = new QListView ( this );
         chooseFile->setViewMode(QListView::ListMode);
         labelFileView->setBuddy( chooseFile );
@@ -50,16 +73,12 @@ void SecureFileDialog::setUpGUI(){
                  SLOT(slotAcceptFile())
                  );
         formGridLayout->addWidget( chooseFile, 1, 1 );
+        formGridLayout->addWidget( buttons, 2, 0, 2, 2 );
     }
     //todo choose which and how many column we want
     refreshFileView();
 
-    // initialize buttons
-    buttons = new QDialogButtonBox( this );
-    buttons->addButton( QDialogButtonBox::Ok );
-    buttons->addButton( QDialogButtonBox::Cancel );
-    buttons->button( QDialogButtonBox::Ok )->setText( tr("Ok") );
-    buttons->button( QDialogButtonBox::Cancel )->setText( tr("Abort") );
+
 
     // connects slots
     connect( buttons->button( QDialogButtonBox::Cancel ),
@@ -94,7 +113,7 @@ void SecureFileDialog::setUpGUI(){
     formGridLayout->addWidget( choosePath, 0, 1 );
     formGridLayout->addWidget( openBrowse, 0, 2 );
     formGridLayout->addWidget( labelFileView, 1, 0 );
-    formGridLayout->addWidget( buttons, 2, 0, 2, 2 );
+
 
     setLayout( formGridLayout );
 
@@ -146,27 +165,41 @@ void SecureFileDialog::refreshFileView(){
         choosePath->setText(QDir::currentPath());
     }
 
-    if( !newFile ){
 
-        if( secure_ls(choosePath->text().toUtf8().data(), fileList, &filelistLength) ){
-            
-            exit(1);
-        }
+    if( secure_ls(choosePath->text().toUtf8().data(), fileList, &filelistLength) ){
 
-        listFiles = new QStringList ();
-
-        pFile = fileList;
-        cnt = (size_t)filelistLength;
-        while(cnt > 0){
-            listFiles->append(QString::fromUtf8(pFile, (int)strlen(pFile)));
-            cnt-=(strlen(pFile)+1);
-            pFile+=(strlen(pFile)+1);
-        }
-
-        QStringListModel* model = new QStringListModel( *listFiles );
-        chooseFile->setModel((QAbstractItemModel *)model);
-        updateGeometry();
+        exit(1);
     }
+
+    listFiles = new QStringList ();
+
+    pFile = fileList;
+    cnt = (size_t)filelistLength;
+    while(cnt > 0){
+        listFiles->append(QString::fromUtf8(pFile, (int)strlen(pFile)));
+        cnt-=(strlen(pFile)+1);
+        pFile+=(strlen(pFile)+1);
+    }
+
+    QStringListModel* model = new QStringListModel( *listFiles );
+    chooseFile->setModel((QAbstractItemModel *)model);
+    updateGeometry();
+}
+
+void SecureFileDialog::updateNewFile(){
+    QString aux;
+    if( chooseFile->currentIndex().row() == -1){
+        reject();
+        return;
+    }
+    //        chosenFile = listFiles->at(chooseFile->currentIndex().row());
+    if(choosePath->text().indexOf("/") != -1)
+        aux = choosePath->text() +"/" + listFiles->at(chooseFile->currentIndex().row());
+    else if (choosePath->text().indexOf("\\") != -1)
+        aux = choosePath->text() +"\\" + listFiles->at(chooseFile->currentIndex().row());
+    else
+        aux = listFiles->at(chooseFile->currentIndex().row());
+    chooseNewFile->setText(QFileInfo(QFile(aux)).fileName().remove(".sqlite"));
 }
 
 void SecureFileDialog::slotAbortFile(){

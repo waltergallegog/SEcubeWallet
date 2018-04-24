@@ -70,9 +70,13 @@
     </property>
     <addaction name="action_New_Wallet"/>
     <addaction name="action_Open_Wallet"/>
+    <addaction name="separator"/>
     <addaction name="action_Save_Wallet"/>
     <addaction name="action_Save_Wallet_As"/>
+    <addaction name="separator"/>
+    <addaction name="action_Close_Wallet"/>
     <addaction name="action_Delete_Wallet"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -97,7 +101,6 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="action_Set_Environment"/>
-    <addaction name="action_Show_Passwords"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -110,6 +113,7 @@
      <string>&amp;View</string>
     </property>
     <addaction name="action_Fit_Table"/>
+    <addaction name="action_Show_Passwords"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
@@ -135,6 +139,8 @@
    <addaction name="action_New_Wallet"/>
    <addaction name="action_Open_Wallet"/>
    <addaction name="action_Save_Wallet"/>
+   <addaction name="action_Save_Wallet_As"/>
+   <addaction name="action_Close_Wallet"/>
    <addaction name="action_Delete_Wallet"/>
   </widget>
   <widget class="QToolBar" name="tableTB">
@@ -272,6 +278,11 @@
   <action name="action_Fit_Table">
    <property name="text">
     <string>&amp;Fit Table</string>
+   </property>
+  </action>
+  <action name="action_Close_Wallet">
+   <property name="text">
+    <string>&amp;Close Wallet</string>
    </property>
   </action>
  </widget>

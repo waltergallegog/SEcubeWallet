@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     myqtableview.cpp \
     passworditemdelegate.cpp \
     filtersaligned.cpp \
-    saveconfirmation.cpp
+    saveconfirmation.cpp \
+    overwritedialog.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -55,14 +56,16 @@ HEADERS  += mainwindow.h \
     myqtableview.h \
     passworditemdelegate.h \
     filtersaligned.h \
-    saveconfirmation.h
+    saveconfirmation.h \
+    overwritedialog.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
     deleteconfirmation.ui \
     helpwindow.ui \
     newtable.ui \
-    saveconfirmation.ui
+    saveconfirmation.ui \
+    overwritedialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

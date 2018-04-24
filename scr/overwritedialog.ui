@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DeleteConfirmation</class>
- <widget class="QDialog" name="DeleteConfirmation">
+ <class>OverwriteDialog</class>
+ <widget class="QDialog" name="OverwriteDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>224</width>
-    <height>88</height>
+    <width>321</width>
+    <height>108</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Are you sure you want to delete this item?</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;There already is a Wallet with the choosen name. &lt;/p&gt;&lt;p&gt;Do you want to &lt;span style=&quot; font-weight:600;&quot;&gt;overwrite&lt;/span&gt; it?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -33,7 +33,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::No|QDialogButtonBox::Yes</set>
      </property>
      <property name="centerButtons">
       <bool>true</bool>
@@ -47,7 +47,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DeleteConfirmation</receiver>
+   <receiver>OverwriteDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -63,7 +63,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DeleteConfirmation</receiver>
+   <receiver>OverwriteDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
