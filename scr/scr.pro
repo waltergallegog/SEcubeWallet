@@ -31,7 +31,6 @@ SOURCES += main.cpp\
     securefiledialog.cpp \
     addentry.cpp \
     deleteconfirmation.cpp \
-    zxcvbn.cpp \
     mysortfilterproxymodel.cpp \
     helpwindow.cpp \
     newtable.cpp \
@@ -39,7 +38,8 @@ SOURCES += main.cpp\
     passworditemdelegate.cpp \
     filtersaligned.cpp \
     saveconfirmation.cpp \
-    overwritedialog.cpp
+    overwritedialog.cpp \
+    zxcvbn.cpp
     co
 
 HEADERS  += mainwindow.h \

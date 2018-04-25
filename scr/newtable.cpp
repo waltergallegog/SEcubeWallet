@@ -19,3 +19,4 @@ NewTable::~NewTable()
 QString NewTable::getName(){
     return ui->walletName->text();
 }
+//TODO: allow Ok button only when something in text field

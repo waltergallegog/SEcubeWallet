@@ -35,6 +35,7 @@
 #include <fstream>
 #endif
 
+
 /* Minimum number of characters in a incrementing/decrementing sequence match */
 #define MIN_SEQUENCE_LEN 3
 
@@ -124,7 +125,8 @@ static int Cardinality(const uint8_t *Str, int Len)
     int c;
     while(Len > 0)
     {
-        c = *Str++ & 0xFF;
+        c = *Str & 0xFF;
+        *Str++;
         if (!c)
             break;
         if (islower(c))      Types |= 1;    /* Lowercase letter */
@@ -921,7 +923,7 @@ typedef struct
 } SpatialMatchInfo_t;
 
 /* Shift mapping, characters in pairs: first is shifted, second un-shifted. */
-static const uint8_t UK_Shift[] = "!1\"2$4%5&7(9)0*8:;<,>.?/@'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz^6_-{[|\\}]~#�4�3�`";
+static const uint8_t UK_Shift[] = "!1\"2$4%5&7(9)0*8:;<,>.?/@'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz^6_-{[|\\}]~`";
 static const uint8_t US_Shift[] = "!1\"'#3$4%5&7(9)0*8:;<,>.?/@2AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz^6_-{[|\\}]~`";
 
 

@@ -32,20 +32,23 @@ public:
 
 
 private slots:
-    //void on_InUser_textChanged(QString arg1);
-    //void on_InDomain_textChanged(QString arg1);
-    void on_InPass_textChanged(QString text);
-    void on_InPass2_textChanged(QString text);
-    void on_sh_pass_stateChanged(int value);
+    void on_InUser_textChanged(const QString &arg1);
+    void on_InDomain_textChanged(const QString &arg1);
+    void on_InPass_textChanged(const QString &text);
+    void on_InPass2_textChanged(const QString &text);
+    void on_sh_pass_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
 
 private:
     Ui::AddEntry *ui;
 
-    //void EnableOkButton();
-    //void PasswordWarning();
+    void EnableOkButton();
+    void PasswordWarning();
 
-    //bool EqPass;
+    bool EqPass;
+
+    //const char*  Line;
+    //QString textCopy;
 };
 
 #endif // ADDENTRY_H

@@ -1,13 +1,12 @@
 #include "addentry.h"
 #include "ui_addentry.h"
 
-#include "zxcvbn.h"
-
 #include <QLineEdit>
 #include <QString>
 #include <QDebug>
 
 #include <QAbstractButton>
+#include "zxcvbn.h"
 
 #define OK_BUTTON 0
 #define UNUSED(expr) (void)(expr)
@@ -18,19 +17,25 @@ AddEntry::AddEntry(QWidget *parent) :
     ui(new Ui::AddEntry){
 
     ui->setupUi(this);
-    ui->buttonBox->buttons()[0]->setEnabled(false); //Ok button initially disabled, as user has not entered any data
+    ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(false); //Ok button initially disabled, as user has not entered any data
     ui->InPass->setEnabled(true);
     ui->InPass2->setEnabled(false);
     ui->InPass->setEchoMode(QLineEdit::Password);
     ui->InPass2->setEchoMode(QLineEdit::Password);
     ui->sh_pass->setEnabled(false);
-    ui->score->setTextVisible(false);
+    ui->match_pass->setVisible(false);
     ui->score->setValue(0);
 
     setWindowTitle( tr("Fillout the new entry") );
     setModal(true); //Modal, so user cannot access main window without first closing this one
 
-    //connect(ui->InPass,SIGNAL(textChanged(QString)),this,SLOT(InPass_textChanged(QString)));
+    //open dictionry. Only once
+
+    if (!ZxcvbnInit()){
+        qDebug() << "Failed Open Dictionary File";
+    }else{
+        qDebug() << "Dictionary File Opened Correctly";
+    }
 }
 
 // Second constructor, called from eddit entry
@@ -46,12 +51,12 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InPass2->setText(EditPassIn);
     ui->InDesc->setText(EditDescIn);
 
+
     if (!ZxcvbnInit()){
         qDebug() << "Failed Open Dictionary File";
     }else{
         qDebug() << "Dictionary File Opened Correctly";
     }
-    //----------------------
 
     ui->InPass2->setEnabled(true);
     ui->sh_pass->setEnabled(true);
@@ -60,31 +65,26 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     double e = ZxcvbnMatch(Line, NULL, 0);
     //qDebug() << "Pass: " << text << " ; " << "Entropy: " << QString::number(e);
 
-    ui->entropy->setText(QString::number(e));
+    ui->score->setValue(e);
 
     if(e <= 20.0){
         ui->complex->setText("shortPass");
         ui->complex2->setText("The password is too short");
-        ui->score->setValue(25);
 
     }else if(e > 20.0 && e <= 30.0){
         ui->complex->setText("badPass");
         ui->complex2->setText("Weak; try combining letters & numbers");
-        ui->score->setValue(50);
 
     }else if(e > 30.0 && e <= 40.0){
         ui->complex->setText("goodPass");
         ui->complex2->setText("Medium; try using special charecters");
-        ui->score->setValue(75);
 
     }else if(e > 40.0){
         ui->complex->setText("strongPass");
         ui->complex2->setText("Strong password, good job!");
-        ui->score->setValue(100);
     }
 
-    //----------------------
-    ZxcvbnUnInit();
+    //    ZxcvbnUnInit();//Finally call ZxcvbnUninit() to free the dictionary data from read from file. This can be omitted when dictionary data is included in the executable.
 
 
     ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(true);
@@ -112,115 +112,109 @@ QString AddEntry::getPassword(){
 QString AddEntry::getDescription(){
     return ui->InDesc->text();
 }
-/*void AddEntry::on_InUser_textChanged(const QString &arg1){
+
+
+/// Text changed in fields.
+
+void AddEntry::on_InUser_textChanged(const QString &arg1){
     EnableOkButton();
     UNUSED(arg1);
-}*/
+}
 
-/*void AddEntry::on_InDomain_textChanged(const QString &arg1){
+void AddEntry::on_InDomain_textChanged(const QString &arg1){
     EnableOkButton();
     UNUSED(arg1);
-}*/
+}
 
-void AddEntry::on_InPass_textChanged(QString text){
-    /*EnableOkButton();
+void AddEntry::on_InPass2_textChanged(const QString &text){
+
+    EnableOkButton();
     PasswordWarning();
-    UNUSED(arg1);*/
+    UNUSED(text);
+}
 
-//BUG when password1 changes after pass2, doesnot allow to enter
+void AddEntry::on_InPass_textChanged(const QString &text){
 
+    EnableOkButton();
+    PasswordWarning();
 
+    // aditionally, we need to call strength meter
     if(!text.isEmpty()){
-        if (!ZxcvbnInit()){
-            qDebug() << "Failed Open Dictionary File";
-        }else{
-            qDebug() << "Dictionary File Opened Correctly";
-        }
-        //----------------------
-
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
 
-        const char* Line = text.toLatin1().constData();
-        double e = ZxcvbnMatch(Line, NULL, 0);
-        //qDebug() << "Pass: " << text << " ; " << "Entropy: " << QString::number(e);
+        QByteArray byteArray = text.toLatin1();
+        const char *Line = byteArray.constData();
 
-        ui->entropy->setText(QString::number(e));
+        double e = ZxcvbnMatch(Line, NULL, 0);
+
+        ui->score->setValue(e);
 
         if(e <= 20.0){
             ui->complex->setText("shortPass");
             ui->complex2->setText("The password is too short");
-            ui->score->setValue(25);
+
 
         }else if(e > 20.0 && e <= 30.0){
             ui->complex->setText("badPass");
             ui->complex2->setText("Weak; try combining letters & numbers");
-            ui->score->setValue(50);
+
 
         }else if(e > 30.0 && e <= 40.0){
             ui->complex->setText("goodPass");
             ui->complex2->setText("Medium; try using special charecters");
-            ui->score->setValue(75);
+
 
         }else if(e > 40.0){
             ui->complex->setText("strongPass");
             ui->complex2->setText("Strong password, good job!");
-            ui->score->setValue(100);
-        }
 
-        //----------------------
-        ZxcvbnUnInit();
+        }
+        //ZxcvbnUnInit();//Finally call ZxcvbnUninit() to free the dictionary data from read from file. This can be omitted when dictionary data is included in the executable.
     }else{
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
         ui->score->setValue(0);
-        ui->entropy->setText("");
     }
 }
 
-void AddEntry::on_InPass2_textChanged(QString text){
-    /*EnableOkButton();
-    PasswordWarning();
-    UNUSED(arg1);*/
 
-    if(!text.isEmpty()){
-        if(ui->InPass->text() == ui->InPass2->text()){
-            ui->match_pass->setText("The Passwords Match");
-            ui->buttonBox->buttons()[0]->setEnabled(true);
-        }else{
-            ui->match_pass->setText("The Passwords Do Not Match");
-            ui->buttonBox->buttons()[0]->setEnabled(false);
-        }
 
-    }else{
-        ui->match_pass->setText("");
-        ui->buttonBox->buttons()[0]->setEnabled(false);
-    }
+// Each time the user modifies one of the text fields, we check if all of them have data, so we can enable Ok button
+void AddEntry::EnableOkButton(){
+    bool ok = !ui->InUser->text().isEmpty()
+           && !ui->InDomain->text().isEmpty()
+           && !ui->InPass->text().isEmpty()
+           && !ui->InPass2->text().isEmpty();
+
+    ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(ok);
 }
 
-void AddEntry::on_sh_pass_stateChanged(int value){
-    /*if (EqPass)
-        this->accept(); //Only emith accept() when passwords are equal
-    UNUSED(button);*/
+// If passwords are not equal, warning message
+void AddEntry::PasswordWarning(){
+    if (ui->InPass->text() == ui->InPass2->text())
+        EqPass=true; // Flag, to allow ok button
+    else
+        EqPass=false;
+    ui->match_pass->setVisible(!EqPass && ui->InPass2->isEnabled());
+}
 
-    if(value){
+// If the user wants to show the passwords, change EchoMode
+void AddEntry::on_sh_pass_toggled(bool checked){
+    if (checked){
         ui->InPass->setEchoMode(QLineEdit::Normal);
         ui->InPass2->setEchoMode(QLineEdit::Normal);
-    }else{
+    }
+    else{
         ui->InPass->setEchoMode(QLineEdit::Password);
         ui->InPass2->setEchoMode(QLineEdit::Password);
     }
 }
 
-void AddEntry::on_buttonBox_clicked(QAbstractButton* button){
-    //if (EqPass)
-        //this->accept(); //Only emith accept() when passwords are equal
-    UNUSED(button);
-    //qDebug() << button;
 
-    if(!ui->InUser->text().isEmpty() && !ui->InDomain->text().isEmpty() && !ui->InPass->text().isEmpty() && !ui->InPass2->text().isEmpty()){
-        if(ui->InPass->text() == ui->InPass2->text()){
-            this->accept();
-        }
-    }
+void AddEntry::on_buttonBox_clicked(QAbstractButton* button){
+    if (EqPass)
+        this->accept(); //Only emith accept() when passwords are equal
+    UNUSED(button);
 }
+

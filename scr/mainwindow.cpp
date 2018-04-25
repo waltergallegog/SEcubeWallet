@@ -679,6 +679,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     QSqlRecord record;
     QString finalSql;
     static const QString insert = QStringLiteral("INSERT INTO %1 VALUES(%2);"); //Insert statement
+    //TODO: check if empty desc field (as it is optional), breaks the INSERT
 
     // Read from in mem database
     QStringList tables;
@@ -1055,6 +1056,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
         char enc_filename[65];
         uint16_t enc_len = 0;
         memset(enc_filename, 0, 65);
+        //TODO: dont do the single line conversion: dangerous!!
         crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
         QFile::remove(enc_filename);
 
