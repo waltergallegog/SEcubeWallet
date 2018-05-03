@@ -61,31 +61,9 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InPass2->setEnabled(true);
     ui->sh_pass->setEnabled(true);
 
-    const char* Line = EditPassIn.toLatin1().constData();
-    double e = ZxcvbnMatch(Line, NULL, 0);
-    //qDebug() << "Pass: " << text << " ; " << "Entropy: " << QString::number(e);
+    double e = ZxcvbnMatch(EditPassIn.toLatin1().constData(), NULL, 0);
 
     ui->score->setValue(e);
-
-    if(e <= 20.0){
-        ui->complex->setText("shortPass");
-        ui->complex2->setText("The password is too short");
-
-    }else if(e > 20.0 && e <= 30.0){
-        ui->complex->setText("badPass");
-        ui->complex2->setText("Weak; try combining letters & numbers");
-
-    }else if(e > 30.0 && e <= 40.0){
-        ui->complex->setText("goodPass");
-        ui->complex2->setText("Medium; try using special charecters");
-
-    }else if(e > 40.0){
-        ui->complex->setText("strongPass");
-        ui->complex2->setText("Strong password, good job!");
-    }
-
-    //    ZxcvbnUnInit();//Finally call ZxcvbnUninit() to free the dictionary data from read from file. This can be omitted when dictionary data is included in the executable.
-
 
     ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(true);
     setWindowTitle( tr("Edit the entry") );
@@ -138,39 +116,13 @@ void AddEntry::on_InPass_textChanged(const QString &text){
     EnableOkButton();
     PasswordWarning();
 
-    // aditionally, we need to call strength meter
     if(!text.isEmpty()){
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
 
-        QByteArray byteArray = text.toLatin1();
-        const char *Line = byteArray.constData();
-
-        double e = ZxcvbnMatch(Line, NULL, 0);
-
+        double e = ZxcvbnMatch(text.toLatin1().constData(), NULL, 0);
         ui->score->setValue(e);
 
-        if(e <= 20.0){
-            ui->complex->setText("shortPass");
-            ui->complex2->setText("The password is too short");
-
-
-        }else if(e > 20.0 && e <= 30.0){
-            ui->complex->setText("badPass");
-            ui->complex2->setText("Weak; try combining letters & numbers");
-
-
-        }else if(e > 30.0 && e <= 40.0){
-            ui->complex->setText("goodPass");
-            ui->complex2->setText("Medium; try using special charecters");
-
-
-        }else if(e > 40.0){
-            ui->complex->setText("strongPass");
-            ui->complex2->setText("Strong password, good job!");
-
-        }
-        //ZxcvbnUnInit();//Finally call ZxcvbnUninit() to free the dictionary data from read from file. This can be omitted when dictionary data is included in the executable.
     }else{
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
