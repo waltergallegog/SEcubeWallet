@@ -230,6 +230,14 @@
   <zorder>verticalSpacer</zorder>
   <zorder>verticalSpacer_2</zorder>
  </widget>
+ <tabstops>
+  <tabstop>InUser</tabstop>
+  <tabstop>InDomain</tabstop>
+  <tabstop>InDesc</tabstop>
+  <tabstop>InPass</tabstop>
+  <tabstop>InPass2</tabstop>
+  <tabstop>sh_pass</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

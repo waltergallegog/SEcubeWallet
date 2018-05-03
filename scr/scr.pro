@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     filtersaligned.cpp \
     saveconfirmation.cpp \
     overwritedialog.cpp \
-    zxcvbn.cpp
+    zxcvbn.cpp \
+    myapplication.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -57,7 +58,8 @@ HEADERS  += mainwindow.h \
     passworditemdelegate.h \
     filtersaligned.h \
     saveconfirmation.h \
-    overwritedialog.h
+    overwritedialog.h \
+    myapplication.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \

@@ -1,4 +1,5 @@
 #include "logindialog.h"
+#include <QDebug>
 
 
 LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
@@ -92,9 +93,9 @@ void LoginDialog::slotAcceptLogin(){
     it = device_found.at(device_index);
     if(!dev.opened){
         if((ret = L0_open(&dev, &(it.device_info), SE3_TIMEOUT))!= SE3_OK){
-
             exit(1);
         }
+        qDebug()<<"L0_open ok";
     }
 
     //if ( (ret = L1_login(&s, &dev, (uint8_t *)password.toUtf8().data(), SE3_ACCESS_USER)) != SE3_OK ){
@@ -107,10 +108,12 @@ void LoginDialog::slotAcceptLogin(){
             formGridLayout->addWidget( buttons, 3, 0, 3, 3 );
             updateGeometry();
         }else{
+            qDebug() << "error: " << ret;
 
             exit(1);
         }
     }else{
+        qDebug()<<"L1 login ok";
         accept();
     }
 }

@@ -36,7 +36,6 @@
 
 #include "../securesqlite3/sqlite3.h"
 
-
 //Miscellaneous
 #include <QObject>
 #include <QFile>

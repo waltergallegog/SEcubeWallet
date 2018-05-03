@@ -134,6 +134,7 @@ void MainWindow::init(){
         qDebug() << "User aborted, terminating";
         exit(1);
     }
+    qDebug() << "Login ok";
 
     // Get opened session in LoginDialog
     se3_session* tmp=loginDialog->getSession();
@@ -142,6 +143,8 @@ void MainWindow::init(){
         qDebug () << "Error during L1_crypto_set_time, terminating";
         exit(1);
     }
+    qDebug() << "copy session ok";
+
 
     if(secure_init(&s, -1, SE3_ALGO_MAX+1)){
         qDebug () << "Error during initialization, terminating";
@@ -150,6 +153,7 @@ void MainWindow::init(){
          * The parameter se3_session *s contains all the information that let the system acknowledge which board
          * is connected and if the user has successfully logged in.*/
     }
+    qDebug() << "init ok";
 
     //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #endif
