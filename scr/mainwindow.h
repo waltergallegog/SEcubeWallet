@@ -34,6 +34,9 @@
 #include <QSqlTableModel>
 #include <QSqlRecord>
 
+#include <QSharedMemory>
+
+
 #include "../securesqlite3/sqlite3.h"
 
 //Miscellaneous
@@ -45,6 +48,7 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QCloseEvent>
+
 #include "mysortfilterproxymodel.h"
 #include "filtersaligned.h"
 #include "passworditemdelegate.h"
@@ -102,7 +106,7 @@ private:
     Ui::MainWindow *ui;
 
     // SeCube related
-    se3_session s;              // session variable
+    se3_session* s;              // session variable
     SEFILE_FHANDLE sefile_file; // Encrypted file
 
     // Database related
@@ -133,6 +137,8 @@ private:
     void createTableView(const QString &tableName);//Create the table model and display the data in the UI.
     void UpdateTableView(const QString &tableName);
     void setAllEnabled(bool enabled);
+    QSharedMemory shaMemSession, shaMemReq, shaMemRes, shaMemDevBuf;
+
 
 protected:
     void closeEvent(QCloseEvent *event) override;

@@ -2,12 +2,16 @@
 #include <QDebug>
 
 
-LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
+LoginDialog::LoginDialog(QWidget *parent, se3_session* session, uint8_t *request, uint8_t *response, void * devBuf) : QDialog(parent)
 {
     dev.opened = false;
     setUpGUI();
     setWindowTitle( tr("Login") );
     setModal( true );
+    s=session;
+    req=request;
+    res=response;
+    buf=devBuf;
 }
 LoginDialog::~LoginDialog(){
 
@@ -78,7 +82,7 @@ void LoginDialog::setPassword(QString &password){
     editPassword->setText( password );
 }
 se3_session *LoginDialog::getSession(){
-    return &s;
+    return s;
 }
 
 void LoginDialog::slotAcceptLogin(){
@@ -96,10 +100,19 @@ void LoginDialog::slotAcceptLogin(){
             exit(1);
         }
         qDebug()<<"L0_open ok";
+
     }
 
+    ///******** workaround for request response
+    dev.request=req; // req and res are shared memory
+    dev.response=res;
+
+    /// ******* workaround for buffer
+    memcpy(buf, dev.f.buf, SE3_COMM_BLOCK); // first, copy the data to shared memory
+    dev.f.buf = buf; // then make the device buffer point to the shared mem segment
+
     //if ( (ret = L1_login(&s, &dev, (uint8_t *)password.toUtf8().data(), SE3_ACCESS_USER)) != SE3_OK ){
-    if ( (ret = L1_login(&s, &dev, pin, SE3_ACCESS_USER)) != SE3_OK ){
+    if ( (ret = L1_login(s, &dev, pin, SE3_ACCESS_USER)) != SE3_OK ){
          if(ret == SE3_ERR_PIN){ //If the password is wrong, a message will appear in the dialog
             QLabel* labelError = new QLabel ( this );
             labelError->setText(tr("Invalid Password"));
@@ -109,13 +122,27 @@ void LoginDialog::slotAcceptLogin(){
             updateGeometry();
         }else{
             qDebug() << "error: " << ret;
-
             exit(1);
         }
-    }else{
-        qDebug()<<"L1 login ok";
-        accept();
     }
+
+    qDebug()<<"L1 login ok";
+    if(L1_crypto_set_time(s, (uint32_t)time(0))){
+        qDebug () << "Error during L1_crypto_set_time, terminating";
+        exit(1);
+    }
+    qDebug() << "copy session ok";
+
+//    if(secure_init(s, -1, SE3_ALGO_MAX+1)){
+//        qDebug () << "Error during initialization, terminating";
+//        exit(1);
+//        /*After the board is connected and the user is correctly logged in, the secure_init() should be issued.
+//         * The parameter se3_session *s contains all the information that let the system acknowledge which board
+//         * is connected and if the user has successfully logged in.*/
+//    }
+//    qDebug() << "init ok";
+    accept();
+
 }
 
 void LoginDialog::refreshDevice(){
@@ -139,9 +166,6 @@ void LoginDialog::refreshDevice(){
 
 }
 
-
 void LoginDialog::slotAbortLogin(){
     reject();
 }
-
-

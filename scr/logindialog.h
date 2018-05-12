@@ -20,8 +20,11 @@ class LoginDialog : public QDialog
 
 private:
     QList<se3_disco_it> device_found;
-    se3_session s;
+    se3_session* s;
     se3_device dev;
+    uint8_t* req;
+    uint8_t* res;
+    void* buf;
 
     QLabel* labelDevice;
     QLabel* labelAlgorithm;
@@ -64,7 +67,7 @@ private:
     void setUpGUI();
 
 public:
-    explicit LoginDialog(QWidget *parent = 0);
+    explicit LoginDialog(QWidget *parent = 0, se3_session* session=NULL, uint8_t* request=NULL, uint8_t*  response=NULL, void *devBuf=NULL);
     ~LoginDialog();
 
     /*!

@@ -9,10 +9,13 @@
 #include <QDate>
 #include <QSqlDriver>
 #include <QComboBox>
-
+#include <QBuffer>
+#include <QDataStream>
 
 #define UNUSED(expr) (void)(expr)
 #define QD qDebug()
+#define QD2(print) qDebug() << #print << "                              "<< print
+
 
 
 #define DRIVER "QSQLITE"
@@ -35,7 +38,12 @@ static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, ch
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow ){
+    ui(new Ui::MainWindow ),
+    shaMemSession("sessionSharing"),
+    shaMemReq("requestSharing"),
+    shaMemRes("responseSharing"),
+    shaMemDevBuf("devBufSharing"){
+
     init();
 }
 
@@ -44,9 +52,9 @@ MainWindow::~MainWindow(){
     QD <<"destructor";
 
 #ifdef SECUBE
-    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
-    if(s.logged_in)
-        L1_logout(&s);
+        secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+//    if(s->logged_in)
+//        L1_logout(s);
 #endif
 
     if(dbMem.open()){ // close any existent connections and in memory database
@@ -59,6 +67,10 @@ MainWindow::~MainWindow(){
         QSqlDatabase::removeDatabase(DRIVER);
         dbMem = QSqlDatabase();
     }
+
+
+    if(shaMemSession.isAttached())
+        shaMemSession.detach();
 
     delete ui;
 }
@@ -76,7 +88,7 @@ void MainWindow::closeEvent(QCloseEvent *event){
             if (conf->getResult()==SAVE){
                 QD << "save";
                 if(!on_action_Save_Wallet_triggered())// call save
-                   event->ignore();
+                    event->ignore();
             }
             else if(conf->getResult()==DISCARD)//continue without saving
                 QD << "discard";
@@ -90,6 +102,8 @@ void MainWindow::closeEvent(QCloseEvent *event){
 /// initialiaze dialogs
 /// launch login dialog
 void MainWindow::init(){
+
+    qDebug()<< "wallet starts";
 
     ui->setupUi(this);
     setWindowTitle(tr("SEcube Wallet"));
@@ -127,7 +141,63 @@ void MainWindow::init(){
 
 #ifdef SECUBE
     //SEcube Password login dialog
-    LoginDialog* loginDialog = new LoginDialog( this );
+
+    if(shaMemSession.isAttached()){
+        QD << "detaching sess";
+        shaMemSession.detach();
+    }
+
+    if(shaMemReq.isAttached()){
+        QD << "detaching req";
+        shaMemReq.detach();
+    }
+
+    if(shaMemRes.isAttached()){
+        QD << "detaching res";
+        shaMemRes.detach();
+    }
+
+    if(shaMemDevBuf.isAttached()){
+        QD << "detaching buf";
+        shaMemDevBuf.detach();
+    }
+
+    if (!shaMemSession.attach()) {
+        qDebug()<<"Unable to attach to shared memory segment sess.\n";
+        exit(1);
+    }
+    if (!shaMemReq.attach()) {
+        qDebug()<<"Unable to attach to shared memory segment req.\n";
+        exit(1);
+    }
+    if (!shaMemRes.attach()) {
+        qDebug()<<"Unable to attach to shared memory segment res.\n";
+        exit(1);
+    }
+
+    if (!shaMemDevBuf.attach()) {
+        qDebug()<<"Unable to attach to shared memory segment buf.\n";
+        exit(1);
+    }
+    qDebug()<<"attach on child proc ok";
+
+
+    //    QBuffer buffer;
+    //    QDataStream in(&buffer);
+//    shaMemSession.lock();
+//    shaMemReq.lock();
+//    shaMemRes.lock();
+
+    //    buffer.setData((char*)sharedMemory.constData(), sharedMemory.size());
+    //    buffer.open(QBuffer::ReadOnly);
+    s = (se3_session*)shaMemSession.data();
+//    shaMemSession.unlock();
+
+    LoginDialog* loginDialog = new LoginDialog( this,
+                                                s,
+                                                (uint8_t*)shaMemReq.data(),
+                                                (uint8_t* )shaMemRes.data(),
+                                                shaMemDevBuf.data() );
     loginDialog->exec();
 
     if(loginDialog->result() == QDialog::Rejected){
@@ -137,16 +207,16 @@ void MainWindow::init(){
     qDebug() << "Login ok";
 
     // Get opened session in LoginDialog
-    se3_session* tmp=loginDialog->getSession();
-    memcpy(&s, tmp, sizeof(se3_session));
-    if(L1_crypto_set_time(&s, (uint32_t)time(0))){
-        qDebug () << "Error during L1_crypto_set_time, terminating";
-        exit(1);
-    }
-    qDebug() << "copy session ok";
+
+    //memcpy(&s, tmp, sizeof(se3_session));
+//    if(L1_crypto_set_time(s, (uint32_t)time(0))){
+//        qDebug () << "Error during L1_crypto_set_time, terminating";
+//        exit(1);
+//    }
+//    qDebug() << "copy session ok";
 
 
-    if(secure_init(&s, -1, SE3_ALGO_MAX+1)){
+    if(secure_init(s, -1, SE3_ALGO_MAX+1)){
         qDebug () << "Error during initialization, terminating";
         exit(1);
         /*After the board is connected and the user is correctly logged in, the secure_init() should be issued.
@@ -595,7 +665,7 @@ void MainWindow::on_action_Fit_Table_triggered(){
 
 ///To change envirolment, key ID and encryption
 void MainWindow::on_action_Set_Environment_triggered(){
-    EnvironmentDialog *envDialog = new EnvironmentDialog(this, &s);
+    EnvironmentDialog *envDialog = new EnvironmentDialog(this, s);
     envDialog->exec();
     return;
 }
@@ -778,7 +848,6 @@ void MainWindow::on_action_Open_Wallet_triggered(){
             else if(conf->getResult()==DISCARD){}//continue without saving
         }
     }
-
     //// Open Secure database
 
     //call securefileDialog. Option 0 displays the cyphered files in the current directory
@@ -823,6 +892,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
 
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
+        //BUG: exit does not call destructor
         exit (1); // as the application does not work without Sqlite, exit.
     }
 
@@ -1012,7 +1082,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
     ui->action_Fit_Table->setEnabled(false);
 
     tableList->clear();
-//    filters->setEnabled(false);
+    //    filters->setEnabled(false);
 }
 
 
