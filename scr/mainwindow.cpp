@@ -68,9 +68,20 @@ MainWindow::~MainWindow(){
         dbMem = QSqlDatabase();
     }
 
+    shaMemSession.unlock();
+    shaMemReq.unlock();
+    shaMemRes.unlock();
+    shaMemDevBuf.unlock();
 
     if(shaMemSession.isAttached())
         shaMemSession.detach();
+    if(shaMemReq.isAttached())
+        shaMemReq.detach();
+    if(shaMemRes.isAttached())
+        shaMemRes.detach();
+    if(shaMemDevBuf.isAttached())
+        shaMemDevBuf.detach();
+
 
     delete ui;
 }
@@ -181,15 +192,12 @@ void MainWindow::init(){
     }
     qDebug()<<"attach on child proc ok";
 
+    shaMemSession.lock();
+    shaMemReq.lock();
+    shaMemRes.lock();
+    shaMemDevBuf.lock();
 
-    //    QBuffer buffer;
-    //    QDataStream in(&buffer);
-//    shaMemSession.lock();
-//    shaMemReq.lock();
-//    shaMemRes.lock();
 
-    //    buffer.setData((char*)sharedMemory.constData(), sharedMemory.size());
-    //    buffer.open(QBuffer::ReadOnly);
     s = (se3_session*)shaMemSession.data();
 //    shaMemSession.unlock();
 
@@ -206,14 +214,6 @@ void MainWindow::init(){
     }
     qDebug() << "Login ok";
 
-    // Get opened session in LoginDialog
-
-    //memcpy(&s, tmp, sizeof(se3_session));
-//    if(L1_crypto_set_time(s, (uint32_t)time(0))){
-//        qDebug () << "Error during L1_crypto_set_time, terminating";
-//        exit(1);
-//    }
-//    qDebug() << "copy session ok";
 
 
     if(secure_init(s, -1, SE3_ALGO_MAX+1)){
