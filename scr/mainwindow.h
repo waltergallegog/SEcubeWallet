@@ -64,6 +64,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void init();
     int callback_createTableList(int argc, char **argv, char **azColName); //Build TableList from ciphered db
     int callback_populateTable(int argc, char **argv, char **azColName); //Build TableList from ciphered db
 
@@ -106,7 +107,7 @@ private:
     Ui::MainWindow *ui;
 
     // SeCube related
-    se3_session* s;              // session variable
+    se3_session s;              // session variable
     SEFILE_FHANDLE sefile_file; // Encrypted file
 
     // Database related
@@ -132,12 +133,17 @@ private:
     int widths [DESC_COL-USER_COL+1] = {0};
 
     //// ***** Methods
-    void init();           //initialization. Call LoginDialog and configure UI
+//    void init();           //initialization. Call LoginDialog and configure UI
     bool OpenDataBase();   //Create/Open Data base and create table, connections
     void createTableView(const QString &tableName);//Create the table model and display the data in the UI.
     void UpdateTableView(const QString &tableName);
     void setAllEnabled(bool enabled);
-    QSharedMemory shaMemSession, shaMemReq, shaMemRes, shaMemDevBuf;
+    bool attach_to_mems();
+    QSharedMemory *shaMemSession, *shaMemReq, *shaMemRes, *shaMemDevBuf; // Shared memory segments
+    //pointers to those shared memories
+    se3_session* pshaMemSession;
+    uint8_t *pshaMemReq, *pshaMemRes;
+    void* pshaMemDevBuf;
 
 
 protected:

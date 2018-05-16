@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "sessionwrapper.h"
 #include <QApplication>
 #include <QDebug>
 #include "myapplication.h"
@@ -7,21 +8,38 @@ int main(int argc, char *argv[]){
     QApplication::setDesktopSettingsAware(false);
     QApplication::setStyle("QtCurve");
     MyApplication a(argc, argv);
-    MainWindow w;
-    qWarning()<<"start the app";
-    w.show();
+
+    int n = 0;
+    if (argc > 1) n = QByteArray(argv[1]).toInt();
+
+    MainWindow wallet;
+    SessionWrapper session(n+1);
+
+
+    if(n==0){
+        session.init();
+    }
+    else if (n==1){
+        wallet.init();
+        wallet.show();
+    }
+
+    return a.exec();
+
+
+
 
 //    return a.exec();
 
-    try {
-        a.exec();
-    } catch (...) {
-        // clean up here, e.g. save the session
-        // and close all config files.
-        qDebug() <<"Something went wrong";
-        return 0; // exit the application
-    }
+//    try {
+//        a.exec();
+//    } catch (...) {
+//        // clean up here, e.g. save the session
+//        // and close all config files.
+//        qDebug() <<"Something went wrong";
+//        return 0; // exit the application
+//    }
 
-    qDebug() <<"everything ok";
-    return 0;
+//    qDebug() <<"everything ok";
+//    return 0;
 }

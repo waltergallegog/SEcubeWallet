@@ -7,6 +7,7 @@
 
 #include <QAbstractButton>
 #include "zxcvbn.h"
+//TODO: put zxcvbn in a subdir
 
 #define OK_BUTTON 0
 #define UNUSED(expr) (void)(expr)

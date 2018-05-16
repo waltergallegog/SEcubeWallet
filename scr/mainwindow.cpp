@@ -39,50 +39,55 @@ static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, ch
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow ),
-    shaMemSession("sessionSharing"),
-    shaMemReq("requestSharing"),
-    shaMemRes("responseSharing"),
-    shaMemDevBuf("devBufSharing"){
+    shaMemSession(0),
+    shaMemReq(0),
+    shaMemRes(0),
+    shaMemDevBuf(0){
 
-    init();
+    //    init();
 }
 
 ////  Destructor: ensure last changes were written, close database connections and SECube connection.
 MainWindow::~MainWindow(){
-    QD <<"destructor";
+    QD <<"WALLET: destructor";
 
 #ifdef SECUBE
-        secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
-//    if(s->logged_in)
-//        L1_logout(s);
+    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+    //    if(s->logged_in)
+    //        L1_logout(s);
 #endif
 
-    if(dbMem.open()){ // close any existent connections and in memory database
-        if (model!=NULL){
-            model->clear();
-            model=NULL;
-            proxyModel->clear();
+    if (shaMemSession){
+        QD << "WALLET real: destructor ";
+        if(dbMem.open()){ // close any existent connections and in memory database
+            if (model!=NULL){
+                model->clear();
+                model=NULL;
+                proxyModel->clear();
+            }
+            dbMem.close();
+            QSqlDatabase::removeDatabase(DRIVER);
+            dbMem = QSqlDatabase();
         }
-        dbMem.close();
-        QSqlDatabase::removeDatabase(DRIVER);
-        dbMem = QSqlDatabase();
+
+
+        shaMemSession->unlock();
+        shaMemReq->unlock();
+        shaMemRes->unlock();
+        shaMemDevBuf->unlock();
+
+        if(shaMemSession->isAttached())
+            shaMemSession->detach();
+        if(shaMemReq->isAttached())
+            shaMemReq->detach();
+        if(shaMemRes->isAttached())
+            shaMemRes->detach();
+        if(shaMemDevBuf->isAttached())
+            shaMemDevBuf->detach();
+
     }
-
-    shaMemSession.unlock();
-    shaMemReq.unlock();
-    shaMemRes.unlock();
-    shaMemDevBuf.unlock();
-
-    if(shaMemSession.isAttached())
-        shaMemSession.detach();
-    if(shaMemReq.isAttached())
-        shaMemReq.detach();
-    if(shaMemRes.isAttached())
-        shaMemRes.detach();
-    if(shaMemDevBuf.isAttached())
-        shaMemDevBuf.detach();
-
-
+    else
+        QD << "WALLET dummy: destructor";
     delete ui;
 }
 
@@ -153,81 +158,127 @@ void MainWindow::init(){
 #ifdef SECUBE
     //SEcube Password login dialog
 
-    if(shaMemSession.isAttached()){
-        QD << "detaching sess";
-        shaMemSession.detach();
+
+    //TODO: only works on unix, then check ifndf WIND32
+    shaMemSession = new QSharedMemory("sessionSharing");
+    shaMemReq = new QSharedMemory("requestSharing");
+    shaMemRes = new QSharedMemory("responseSharing");
+    shaMemDevBuf =  new QSharedMemory("devBufSharing");
+
+
+    if(attach_to_mems()){
+        QD << "could not attach to one or more of the shared memory segments";
+        QApplication::quit();// this goes to destructor
+        //TODO: do not go to destructor, just continue without attached mems and do nothing in wrapper
     }
 
-    if(shaMemReq.isAttached()){
-        QD << "detaching req";
-        shaMemReq.detach();
-    }
-
-    if(shaMemRes.isAttached()){
-        QD << "detaching res";
-        shaMemRes.detach();
-    }
-
-    if(shaMemDevBuf.isAttached()){
-        QD << "detaching buf";
-        shaMemDevBuf.detach();
-    }
-
-    if (!shaMemSession.attach()) {
-        qDebug()<<"Unable to attach to shared memory segment sess.\n";
-        exit(1);
-    }
-    if (!shaMemReq.attach()) {
-        qDebug()<<"Unable to attach to shared memory segment req.\n";
-        exit(1);
-    }
-    if (!shaMemRes.attach()) {
-        qDebug()<<"Unable to attach to shared memory segment res.\n";
-        exit(1);
-    }
-
-    if (!shaMemDevBuf.attach()) {
-        qDebug()<<"Unable to attach to shared memory segment buf.\n";
-        exit(1);
-    }
-    qDebug()<<"attach on child proc ok";
-
-    shaMemSession.lock();
-    shaMemReq.lock();
-    shaMemRes.lock();
-    shaMemDevBuf.lock();
-
-
-    s = (se3_session*)shaMemSession.data();
-//    shaMemSession.unlock();
-
-    LoginDialog* loginDialog = new LoginDialog( this,
-                                                s,
-                                                (uint8_t*)shaMemReq.data(),
-                                                (uint8_t* )shaMemRes.data(),
-                                                shaMemDevBuf.data() );
+    LoginDialog* loginDialog = new LoginDialog( this/*,
+                                                                                                                                                                                                                                s,
+                                                                                                                                                                                                                                (uint8_t*)shaMemReq.data(),
+                                                                                                                                                                                                                                (uint8_t* )shaMemRes.data(),
+                                                                                                                                                                                                                                shaMemDevBuf.data() */);
     loginDialog->exec();
 
     if(loginDialog->result() == QDialog::Rejected){
         qDebug() << "User aborted, terminating";
-        exit(1);
+        QApplication::quit();
     }
     qDebug() << "Login ok";
 
+    se3_session* tmp = loginDialog->getSession();
+    memcpy(&s, tmp, sizeof(se3_session));
 
+    if(L1_crypto_set_time(&s, (uint32_t)time(0))){
+        qDebug () << "Error during L1_crypto_set_time, terminating";
+        QApplication::quit();
+    }
+    qDebug() << "copy session ok";
 
-    if(secure_init(s, -1, SE3_ALGO_MAX+1)){
+    if(secure_init(&s, -1, SE3_ALGO_MAX+1)){
         qDebug () << "Error during initialization, terminating";
-        exit(1);
+        QApplication::quit();
         /*After the board is connected and the user is correctly logged in, the secure_init() should be issued.
          * The parameter se3_session *s contains all the information that let the system acknowledge which board
          * is connected and if the user has successfully logged in.*/
     }
     qDebug() << "init ok";
 
+
+    /// at this point the session is ready and we can copy its contents to the shared memory so sessionwrapper can close
+    /// the communication in case of crash
+
+    shaMemSession->unlock(); shaMemReq->unlock(); shaMemRes->unlock(); shaMemDevBuf-> unlock();
+
+    pshaMemSession = (se3_session*)shaMemSession->data();
+    pshaMemReq = (uint8_t*)shaMemReq->data();
+    pshaMemRes = (uint8_t*)shaMemRes->data();
+    pshaMemDevBuf = shaMemDevBuf->data();
+
+    memcpy(pshaMemSession, &s, sizeof(se3_session));
+    memcpy(pshaMemReq, s.device.request, SE3_COMM_N*SE3_COMM_BLOCK);
+    memcpy(pshaMemRes, s.device.response, SE3_COMM_N*SE3_COMM_BLOCK);
+    memcpy(pshaMemDevBuf, s.device.f.buf, SE3_COMM_BLOCK);
+
+    pshaMemSession->device.request=pshaMemReq;
+    pshaMemSession->device.response=pshaMemRes;
+    pshaMemSession->device.f.buf=pshaMemDevBuf;
+
+    // at this point the shared memory segments hold all the info necessary, so we can detach from this side
+    shaMemSession->unlock(); shaMemReq->unlock(); shaMemRes->unlock(); shaMemDevBuf->unlock();
+    shaMemSession->detach();
+    shaMemReq->detach();
+    shaMemRes->detach();
+    shaMemDevBuf->detach();
+
+
+
     //sqlite3_os_init(); // assign the data structure made up by pointers to the rest of VFS interfaces that has been associated with common I/O operations.
 #endif
     return;
+}
+
+bool MainWindow::attach_to_mems(){
+
+    if(shaMemSession->isAttached()){
+        QD << "detaching sess";
+        shaMemSession->detach();
+    }
+
+    if(shaMemReq->isAttached()){
+        QD << "detaching req";
+        shaMemReq->detach();
+    }
+
+    if(shaMemRes->isAttached()){
+        QD << "detaching res";
+        shaMemRes->detach();
+    }
+
+    if(shaMemDevBuf->isAttached()){
+        QD << "detaching buf";
+        shaMemDevBuf->detach();
+    }
+
+    if (!shaMemSession->attach()) {
+        qDebug()<<"Unable to attach to shared memory segment sess.\n";
+        return 1;
+    }
+    if (!shaMemReq->attach()) {
+        qDebug()<<"Unable to attach to shared memory segment req.\n";
+        return 1;
+    }
+    if (!shaMemRes->attach()) {
+        qDebug()<<"Unable to attach to shared memory segment res.\n";
+        return 1;
+    }
+
+    if (!shaMemDevBuf->attach()) {
+        qDebug()<<"Unable to attach to shared memory segment buf.\n";
+        return 1;
+    }
+    qDebug()<<"attach on child proc ok";
+
+    return 0;
 }
 
 
@@ -665,7 +716,7 @@ void MainWindow::on_action_Fit_Table_triggered(){
 
 ///To change envirolment, key ID and encryption
 void MainWindow::on_action_Set_Environment_triggered(){
-    EnvironmentDialog *envDialog = new EnvironmentDialog(this, s);
+    EnvironmentDialog *envDialog = new EnvironmentDialog(this, &s);
     envDialog->exec();
     return;
 }

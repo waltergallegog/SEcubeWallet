@@ -6,10 +6,10 @@
 #endif
 
 enum {
-	SE3C_OK = 0,
-	SE3C_ERR_NOT_FOUND = 1,
-	SE3C_ERR_TIMEOUT = 2,
-	SE3C_ERR_NO_DEVICE = 3
+    SE3C_OK = 0,
+    SE3C_ERR_NOT_FOUND = 1,
+    SE3C_ERR_TIMEOUT = 2,
+    SE3C_ERR_NO_DEVICE = 3
 };
 
 #ifndef ERROR_FILE_CHECKED_OUT
@@ -53,23 +53,23 @@ static bool se3c_win32_disk_in_drive(wchar_t* path)
     Source: https://social.msdn.microsoft.com/Forums/vstudio/en-US/18ef7c0b-2dab-40e6-aae8-9fbf55cb8686/how-to-detect-if-there-is-a-disk-in-the-drive?forum=vcgeneral
     */
     wchar_t volume[MAX_PATH];
-	DWORD bytesReturned; // ignored
-	BOOL devSuccess;
-	HANDLE h;
-	DWORD lastError;
-	
+    DWORD bytesReturned; // ignored
+    BOOL devSuccess;
+    HANDLE h;
+    DWORD lastError;
+
     wcscpy(volume, L"\\\\.\\");
     wcsncat(volume, path, 2);
 
     h = CreateFileW(
-        volume,
-        GENERIC_READ,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL
-    );
+                volume,
+                GENERIC_READ,
+                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                NULL,
+                OPEN_EXISTING,
+                0,
+                NULL
+                );
 
     if (h == INVALID_HANDLE_VALUE)
     {
@@ -200,11 +200,11 @@ bool se3c_read(uint8_t* buf, se3_file hfile, size_t block, size_t nblocks, uint3
 }
 
 void se3c_close(se3_file hfile) {
-	if (hfile.h != INVALID_HANDLE_VALUE && hfile.h != 0) {
-		CloseHandle(hfile.ol.hEvent);
-		CloseHandle(hfile.h);
-		hfile.h = INVALID_HANDLE_VALUE;
-	}
+    if (hfile.h != INVALID_HANDLE_VALUE && hfile.h != 0) {
+        CloseHandle(hfile.ol.hEvent);
+        CloseHandle(hfile.h);
+        hfile.h = INVALID_HANDLE_VALUE;
+    }
 }
 
 #else
@@ -304,20 +304,20 @@ static void se3c_make_path(se3_char* dest, se3_char* src)
 
 
 static bool se3c_read_info(uint8_t* buf, se3_discover_info* info) {
-	uint8_t magic_inv[SE3_MAGIC_SIZE];
+    uint8_t magic_inv[SE3_MAGIC_SIZE];
 
-	// Magic number is reversed on file; Swap High with Low and store in magic_inv
-	memcpy(magic_inv + SE3_MAGIC_SIZE/2, buf, SE3_MAGIC_SIZE/2);
-	memcpy(magic_inv, buf + SE3_MAGIC_SIZE/2, SE3_MAGIC_SIZE/2);
+    // Magic number is reversed on file; Swap High with Low and store in magic_inv
+    memcpy(magic_inv + SE3_MAGIC_SIZE/2, buf, SE3_MAGIC_SIZE/2);
+    memcpy(magic_inv, buf + SE3_MAGIC_SIZE/2, SE3_MAGIC_SIZE/2);
 
-	if (memcmp(magic_inv, se3_magic, SE3_MAGIC_SIZE)) {
-		return(false);
-	}
-	if (info != NULL) {   // Copy SEcube information
-		memcpy(info->serialno, buf + SE3_DISCO_OFFSET_SERIAL, SE3_SN_SIZE);   // Serial number
-		memcpy(info->hello_msg, buf + SE3_DISCO_OFFSET_HELLO, SE3_HELLO_SIZE);   // Hello message
-		SE3_GET16(buf, SE3_DISCO_OFFSET_STATUS, info->status);   // Device status 
-	}
+    if (memcmp(magic_inv, se3_magic, SE3_MAGIC_SIZE)) {
+        return(false);
+    }
+    if (info != NULL) {   // Copy SEcube information
+        memcpy(info->serialno, buf + SE3_DISCO_OFFSET_SERIAL, SE3_SN_SIZE);   // Serial number
+        memcpy(info->hello_msg, buf + SE3_DISCO_OFFSET_HELLO, SE3_HELLO_SIZE);   // Hello message
+        SE3_GET16(buf, SE3_DISCO_OFFSET_STATUS, info->status);   // Device status
+    }
 
     return true;
 }
@@ -346,12 +346,12 @@ static bool se3c_magic_init(se3_char* path, uint8_t* disco_buf, se3_discover_inf
     se3c_make_path(mfpath, path);
     // eclusive open r/w, create if not exists
     hfile.h = CreateFileW(mfpath,
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_ALWAYS,
-        FILE_FLAG_WRITE_THROUGH | FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED,
-        0);
+                          GENERIC_READ | GENERIC_WRITE,
+                          0,
+                          NULL,
+                          OPEN_ALWAYS,
+                          FILE_FLAG_WRITE_THROUGH | FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED,
+                          0);
     se3_trace(("se3c_magic_init %ls\n", mfpath));
     if (hfile.h == INVALID_HANDLE_VALUE) {
         // cannot open
@@ -399,12 +399,12 @@ static int se3c_open_existing(se3_char* path, bool rw, uint64_t deadline, se3_fi
     do
     {
         h = CreateFileW(mfpath,
-            (rw) ? (GENERIC_READ | GENERIC_WRITE) : (GENERIC_READ),
-            (rw) ? (FILE_SHARE_READ) : (FILE_SHARE_READ | FILE_SHARE_WRITE),
-            NULL,
-            OPEN_EXISTING,
-            (rw) ? (FILE_FLAG_WRITE_THROUGH | FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED) : (FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED),
-            NULL);
+                        (rw) ? (GENERIC_READ | GENERIC_WRITE) : (GENERIC_READ),
+                        (rw) ? (FILE_SHARE_READ) : (FILE_SHARE_READ | FILE_SHARE_WRITE),
+                        NULL,
+                        OPEN_EXISTING,
+                        (rw) ? (FILE_FLAG_WRITE_THROUGH | FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED) : (FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED),
+                        NULL);
         if (h != INVALID_HANDLE_VALUE) {
             break;
         }
@@ -621,7 +621,7 @@ bool se3c_open(se3_char* path, uint64_t deadline, se3_file* phfile, se3_discover
     }
 
     if (!discover_info_read) {
-		if (!se3c_read(buf, hfile, 15, 1, SE3C_MAGIC_TIMEOUT)) {
+        if (!se3c_read(buf, hfile, 15, 1, SE3C_MAGIC_TIMEOUT)) {
             se3c_close(hfile);
             return false;
         }
@@ -668,3 +668,22 @@ uint64_t se3c_clock()
 
 #endif
 
+int fix_fd (se3_char* path, se3_file* phfile){
+    int ret = SE3C_OK;
+    int fd = -1;
+    se3_char mfpath[SE3_MAX_PATH];
+    se3c_make_path(mfpath, path);
+    fd = open(mfpath, O_SYNC | O_RDWR | O_DIRECT, S_IWUSR | S_IRUSR);
+    if (fd<0) {
+        if (errno == ENOENT) {
+            return SE3C_ERR_NOT_FOUND;
+        }
+        else {
+            return SE3C_ERR_NO_DEVICE;
+        }
+    }
+    if (ret == SE3C_OK) {
+        phfile->fd = fd;
+    }
+    return ret;
+}

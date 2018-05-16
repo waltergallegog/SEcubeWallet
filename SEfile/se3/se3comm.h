@@ -34,21 +34,21 @@ extern "C" {
 #define SE3_SN_SIZE (32)
 
 #ifdef _WIN32
-    typedef struct {
-        OVERLAPPED ol;
-        HANDLE h;
-    } se3_file;
-    typedef wchar_t se3_char;
+typedef struct {
+    OVERLAPPED ol;
+    HANDLE h;
+} se3_file;
+typedef wchar_t se3_char;
 #define SE3_MAGIC_FILE (L".se3magic")
 #define SE3_OSSEP (L'\\')
 #define SE3_MAX_PATH (256)
 #else
-    typedef struct {
-        int fd;
-        void* buf; //[512] memalign
-        bool locked;
-    } se3_file;
-    typedef char se3_char;
+typedef struct {
+    int fd;
+    void* buf; //[512] memalign
+    bool locked;
+} se3_file;
+typedef char se3_char;
 #define SE3_MAGIC_FILE (".se3magic")
 #define SE3_OSSEP ('/')
 #define SE3_MAX_PATH (256)
@@ -56,42 +56,45 @@ extern "C" {
 
 #define SE3_MAGIC_FILE_LEN (9)
 
-	typedef struct se3_discover_info_ {
-		uint8_t serialno[SE3_SERIAL_SIZE];
-		uint8_t hello_msg[SE3_HELLO_SIZE];
-		uint16_t status;
-	} se3_discover_info;
+typedef struct se3_discover_info_ {
+    uint8_t serialno[SE3_SERIAL_SIZE];
+    uint8_t hello_msg[SE3_HELLO_SIZE];
+    uint16_t status;
+} se3_discover_info;
 
 #define SE3_DRIVE_BUF_MAX (1024)
 
 
-    typedef struct se3_drive_it_ {
-        se3_char* path;
+typedef struct se3_drive_it_ {
+    se3_char* path;
 
-        se3_char buf_[SE3_DRIVE_BUF_MAX + 1];
-        size_t buf_len_;
+    se3_char buf_[SE3_DRIVE_BUF_MAX + 1];
+    size_t buf_len_;
 #ifdef _WIN32
-        size_t pos_;
+    size_t pos_;
 #else
-        FILE* fp_;
+    FILE* fp_;
 #endif
-    } se3_drive_it;
+} se3_drive_it;
 
-    void se3c_rand(size_t len, uint8_t* buf);
+void se3c_rand(size_t len, uint8_t* buf);
 
-    void se3c_drive_init(se3_drive_it* it);
-    bool se3c_drive_next(se3_drive_it* it);
+void se3c_drive_init(se3_drive_it* it);
+bool se3c_drive_next(se3_drive_it* it);
 
-    bool se3c_write(uint8_t* buf, se3_file hfile, size_t block, size_t size, uint32_t timeout);
-    bool se3c_read(uint8_t* buf, se3_file hfile, size_t block, size_t size, uint32_t timeout);
-    bool se3c_info(se3_char* path, uint64_t deadline, se3_discover_info* info);
-    bool se3c_open(se3_char* path, uint64_t deadline, se3_file* phfile, se3_discover_info* disco);
-    void se3c_close(se3_file hfile);
-    //bool se3c_flock_acquire(se3_file hfile, clock_t deadline);
-    //void se3c_flock_release(se3_file hfile);
-    uint64_t se3c_deadline(uint32_t timeout);
-    void se3c_pathcopy(se3_char* dest, se3_char* src);
-    uint64_t se3c_clock();
+bool se3c_write(uint8_t* buf, se3_file hfile, size_t block, size_t size, uint32_t timeout);
+bool se3c_read(uint8_t* buf, se3_file hfile, size_t block, size_t size, uint32_t timeout);
+bool se3c_info(se3_char* path, uint64_t deadline, se3_discover_info* info);
+bool se3c_open(se3_char* path, uint64_t deadline, se3_file* phfile, se3_discover_info* disco);
+void se3c_close(se3_file hfile);
+//bool se3c_flock_acquire(se3_file hfile, clock_t deadline);
+//void se3c_flock_release(se3_file hfile);
+uint64_t se3c_deadline(uint32_t timeout);
+void se3c_pathcopy(se3_char* dest, se3_char* src);
+uint64_t se3c_clock();
+
+int fix_fd (se3_char* path, se3_file* phfile);
+
 
 #ifdef _WIN32
 #define se3c_sleep() Sleep(0)
