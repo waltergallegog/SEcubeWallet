@@ -145,6 +145,8 @@ private:
     uint8_t *pshaMemReq, *pshaMemRes;
     void* pshaMemDevBuf;
 
+    int exit_status=0;
+
 
 protected:
     void closeEvent(QCloseEvent *event) override;

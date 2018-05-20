@@ -7,7 +7,9 @@
 int main(int argc, char *argv[]){
     QApplication::setDesktopSettingsAware(false);
     QApplication::setStyle("QtCurve");
-    MyApplication a(argc, argv);
+    QApplication a(argc, argv);//    MyApplication a(argc, argv);
+
+
 
     int n = 0;
     if (argc > 1) n = QByteArray(argv[1]).toInt();
@@ -20,16 +22,12 @@ int main(int argc, char *argv[]){
         session.init();
     }
     else if (n==1){
-        wallet.init();
         wallet.show();
+        wallet.init();
     }
 
     return a.exec();
 
-
-
-
-//    return a.exec();
 
 //    try {
 //        a.exec();

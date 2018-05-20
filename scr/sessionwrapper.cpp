@@ -1,18 +1,12 @@
 #include "sessionwrapper.h"
 
-//#include "se3/se3comm.h"
-//#include "SEfile.h"
-
 #include <QApplication>
 #include <QDebug>
-#include <QBuffer>
-#include <QDataStream>
 #include <QString>
 
 #define QD(print) qDebug() << "WRAPPER: " << print
-#define QD2(print) qDebug() << #print << "                              "<< print
 
-SessionWrapper::SessionWrapper(int no) : QObject(){
+SessionWrapper::SessionWrapper(int no) : QObject(){ // this class does not have any GUI, so qobject is ok
     n=no;
     walletProc=0;
 }
@@ -23,6 +17,7 @@ SessionWrapper::~SessionWrapper(){
 
 void SessionWrapper::init()
 {
+    // define shared memory segments used to comunicate with wallet process
     shaMemSession = new QSharedMemory("sessionSharing");
     shaMemReq = new QSharedMemory("requestSharing");
     shaMemRes = new QSharedMemory("responseSharing");
@@ -45,13 +40,14 @@ void SessionWrapper::init()
             qDebug() << "WRAPPER: Unable to detach from shared memory buf";
 
 
+    /// create segment used to send session
     if (!shaMemSession->create(sizeof(se3_session))) {
         qDebug() << "WRAPPER: Unable to create session, try attach, detach method";
         QD(shaMemSession->attach());
         QD(shaMemSession->detach());
         if (!shaMemSession->create(sizeof(se3_session))) {
             qDebug() << "WRAPPER: attach detach did not work";
-            exit(0);
+            QCoreApplication::exit(1);//could not create sharedmem TODO:instead of exit, work without shared.
         }
     }
 
@@ -62,7 +58,7 @@ void SessionWrapper::init()
         QD(shaMemReq->detach());
         if (!shaMemReq->create(SE3_COMM_N*SE3_COMM_BLOCK)) {
             qDebug() << "WRAPPER: attach detach did not work";
-            exit(0);
+             QCoreApplication::exit(1);
         }
     }
     if (!shaMemRes->create(SE3_COMM_N*SE3_COMM_BLOCK)) {
@@ -71,37 +67,34 @@ void SessionWrapper::init()
         QD(shaMemRes->detach());
         if (!shaMemRes->create((SE3_COMM_N*SE3_COMM_BLOCK))) {
             qDebug() << "WRAPPER: attach detach did not work";
-            exit(0);
+            QCoreApplication::exit(1);
         }
     }
 
-    /// device has a void pointer which is later initialized as memalign 512
+    /// device has a void pointer which is later initialized as memalign SE3_COMM_BLOCK
     if (!shaMemDevBuf->create(SE3_COMM_BLOCK)) {
         qDebug() << "WRAPPER: Unable to create buf, try attach, detach method";
         QD(shaMemDevBuf->attach());
         QD(shaMemDevBuf->detach());
         if (!shaMemDevBuf->create((SE3_COMM_BLOCK))) {
             qDebug() << "WRAPPER: attach detach did not work";
-            exit(0);
+            QCoreApplication::exit(1);
         }
     }
 
-    s = (se3_session*)shaMemSession->data();
+    ///after shared mem segments are created, we start the wallet process
 
-    QStringList args;
-    args << QString::number(n);
     walletProc = new QProcess(this);
-
-//    QString folder = "../../build-SEcubeWallet-Desktop_Qt_5_8_0_GCC_64bit-Debug/scr/scr";
     walletProc->setProcessChannelMode(QProcess::ForwardedChannels);
 
     connect(walletProc,
             SIGNAL(finished(int,QProcess::ExitStatus)),
             this,
-            SLOT(processFinished(int, QProcess::ExitStatus)));
+            SLOT(processFinished(int, QProcess::ExitStatus))); //when wallet proc finishes, we call slot
 
+    QStringList args;
+    args << QString::number(n);
 
-//    walletProc->start(folder, QStringList() << "");
     walletProc->start(QCoreApplication::applicationFilePath(), args);
 }
 
@@ -109,11 +102,18 @@ void SessionWrapper::init()
 void SessionWrapper::processFinished(int code , QProcess::ExitStatus status){
     qDebug()<< "WRAPPER: on process finished";
     qDebug() << code <<status;
-    clean();
+    if (status==QProcess::NormalExit){// && code == 0){
+        // destructor was called in wallet, so logout was already performed, regardless code
+    }
+    else {// crash exit,
+        secubeLogout();
+    }
+    clean(); // dettach from shared mems
+    QApplication::quit();
 }
 
-void SessionWrapper::clean(){
-    qDebug() << "WRAPPER: clean";
+void SessionWrapper::secubeLogout(){
+    QD ("logout");
     int ret;
 
     shaMemSession->lock();
@@ -121,55 +121,51 @@ void SessionWrapper::clean(){
     shaMemRes->lock();
     shaMemDevBuf->lock();
 
-
+    s = (se3_session*)shaMemSession->data();
     if(s->logged_in){
         QD ("s is logged in");
+        // inside s there are 3 pointers, pointing to the other shared mem segments. But from the wallet, the shared mem
+        //adresses are diferent, so we need to fix them first.
         s->device.request = (uint8_t*)shaMemReq->data();
         s->device.response = (uint8_t* )shaMemRes->data();
         s->device.f.buf = shaMemDevBuf->data();
 
-        if( (ret=fix_fd(s->device.info.path, &(s->device.f))) !=SE3_OK)
+        //s->device.f is a int representing a file descriptor. File descriptors make sense only inside the process that
+        //created them, so we need to open the file again from this process. The file to open is in info.path
+        if( (ret = fix_fd(s->device.info.path, &(s->device.f))) != SE3_OK )
             QD("error fixing file descriptor");
-
-        else{
-            L1_logout(s);
-            qDebug ()<<"WRAPPER: logged out";
-        }
+        else if ( (ret = L1_logout(s)) == SE3_OK )
+            QD("logged out succesfully");
+        else
+            QD("error logging out");
     }
 
     shaMemSession->unlock();
     shaMemReq->unlock();
     shaMemRes->unlock();
     shaMemDevBuf->unlock();
+}
 
-
+void SessionWrapper::clean(){
+    QD ("clean");
 
     if (shaMemSession->isAttached()){
-        qDebug()<<"WRAPPER: going to detach";
         if (!shaMemSession->detach())
             qDebug() << "WRAPPER: Unable to detach from shared memory sess";
     }
 
     if (shaMemReq->isAttached()){
-        qDebug()<<"WRAPPER: going to detach";
         if (!shaMemReq->detach())
             qDebug() << "WRAPPER: Unable to detach from shared memory req";
     }
 
     if (shaMemRes->isAttached()){
-        qDebug()<<"WRAPPER: going to detach";
         if (!shaMemRes->detach())
             qDebug() << "WRAPPER: Unable to detach from shared memory res";
     }
 
     if (shaMemDevBuf->isAttached()){
-        qDebug()<<"WRAPPER: going to detach";
         if (!shaMemDevBuf->detach())
             qDebug() << "WRAPPER: Unable to detach from shared memory buf";
     }
-
-    QApplication::quit();
-    //TODO: check if quit or exit call destr
 }
-
-

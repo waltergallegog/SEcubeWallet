@@ -44,81 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
     shaMemRes(0),
     shaMemDevBuf(0){
 
-    //    init();
-}
-
-////  Destructor: ensure last changes were written, close database connections and SECube connection.
-MainWindow::~MainWindow(){
-    QD <<"WALLET: destructor";
-
-#ifdef SECUBE
-    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
-    //    if(s->logged_in)
-    //        L1_logout(s);
-#endif
-
-    if (shaMemSession){
-        QD << "WALLET real: destructor ";
-        if(dbMem.open()){ // close any existent connections and in memory database
-            if (model!=NULL){
-                model->clear();
-                model=NULL;
-                proxyModel->clear();
-            }
-            dbMem.close();
-            QSqlDatabase::removeDatabase(DRIVER);
-            dbMem = QSqlDatabase();
-        }
-
-
-        shaMemSession->unlock();
-        shaMemReq->unlock();
-        shaMemRes->unlock();
-        shaMemDevBuf->unlock();
-
-        if(shaMemSession->isAttached())
-            shaMemSession->detach();
-        if(shaMemReq->isAttached())
-            shaMemReq->detach();
-        if(shaMemRes->isAttached())
-            shaMemRes->detach();
-        if(shaMemDevBuf->isAttached())
-            shaMemDevBuf->detach();
-
-    }
-    else
-        QD << "WALLET dummy: destructor";
-    delete ui;
-}
-
-/// When user closes app, check if there are unsaved changes.
-void MainWindow::closeEvent(QCloseEvent *event){
-    if(ui->action_Save_Wallet->isEnabled()){//there are unsaved changes.
-        SaveConfirmation * conf = new SaveConfirmation;
-        conf->exec();
-        if(conf->result()==QDialog::Rejected){
-            QD << "cancel";
-            event->ignore();
-        }
-        else if (conf->result()==QDialog::Accepted){
-            if (conf->getResult()==SAVE){
-                QD << "save";
-                if(!on_action_Save_Wallet_triggered())// call save
-                    event->ignore();
-            }
-            else if(conf->getResult()==DISCARD)//continue without saving
-                QD << "discard";
-        }
-    }
-}
-
-
-//// init(): Configure GUI initial state
-/// add elements not possible to add in qtcreator's design mode
-/// initialiaze dialogs
-/// launch login dialog
-void MainWindow::init(){
-
     qDebug()<< "wallet starts";
 
     ui->setupUi(this);
@@ -154,6 +79,81 @@ void MainWindow::init(){
     filters=NULL;//only initi Table once
     model=NULL;
     //ui->WalletView->hide();
+    this->setAttribute(Qt::WA_DeleteOnClose);
+    //    init();
+}
+
+////  Destructor: ensure last changes were written, close database connections and SECube connection.
+MainWindow::~MainWindow(){
+#ifdef SECUBE
+    secure_finit(); /*Once the user has finished all the operations it is strictly required to call the secure_finit() to avoid memory leakege*/
+    if(s.logged_in)
+        L1_logout(&s);
+#endif
+
+    if (shaMemSession){
+        QD << "WALLET real: destructor ";
+//        if(dbMem.open()){ // close any existent connections and in memory database
+//            if (model!=NULL){
+//                model->clear();
+//                model=NULL;
+//                proxyModel->clear();
+//            }
+//            dbMem.close();
+//            QSqlDatabase::removeDatabase(DRIVER);
+//            dbMem = QSqlDatabase();
+//        }
+
+
+        shaMemSession->unlock();
+        shaMemReq->unlock();
+        shaMemRes->unlock();
+        shaMemDevBuf->unlock();
+
+        if(shaMemSession->isAttached())
+            shaMemSession->detach();
+        if(shaMemReq->isAttached())
+            shaMemReq->detach();
+        if(shaMemRes->isAttached())
+            shaMemRes->detach();
+        if(shaMemDevBuf->isAttached())
+            shaMemDevBuf->detach();
+
+    }
+    else
+        QD << "WALLET dummy: destructor";
+    delete ui;
+    exit(exit_status);
+
+}
+
+/// When user closes app, check if there are unsaved changes.
+void MainWindow::closeEvent(QCloseEvent *event){
+    if(ui->action_Save_Wallet->isEnabled()){//there are unsaved changes.
+        SaveConfirmation * conf = new SaveConfirmation;
+        conf->exec();
+        if(conf->result()==QDialog::Rejected){
+            QD << "cancel";
+            event->ignore();
+        }
+        else if (conf->result()==QDialog::Accepted){
+            if (conf->getResult()==SAVE){
+                QD << "save";
+                if(!on_action_Save_Wallet_triggered())// call save
+                    event->ignore();
+            }
+            else if(conf->getResult()==DISCARD)//continue without saving
+                QD << "discard";
+        }
+    }
+}
+
+
+//// init(): Configure GUI initial state
+/// add elements not possible to add in qtcreator's design mode
+/// initialiaze dialogs
+/// launch login dialog
+void MainWindow::init(){
 
 #ifdef SECUBE
     //SEcube Password login dialog
@@ -172,16 +172,17 @@ void MainWindow::init(){
         //TODO: do not go to destructor, just continue without attached mems and do nothing in wrapper
     }
 
-    LoginDialog* loginDialog = new LoginDialog( this/*,
-                                                                                                                                                                                                                                s,
-                                                                                                                                                                                                                                (uint8_t*)shaMemReq.data(),
-                                                                                                                                                                                                                                (uint8_t* )shaMemRes.data(),
-                                                                                                                                                                                                                                shaMemDevBuf.data() */);
+    LoginDialog* loginDialog = new LoginDialog( this);
     loginDialog->exec();
 
     if(loginDialog->result() == QDialog::Rejected){
+//        qApp->processEvents(); // otherwise the repaint take place after this function finishes
         qDebug() << "User aborted, terminating";
-        QApplication::quit();
+        this->close();
+        exit_status=3;
+//        qApp->processEvents(); // otherwise the repaint take place after this function finishes
+
+        return;
     }
     qDebug() << "Login ok";
 
@@ -207,7 +208,7 @@ void MainWindow::init(){
     /// at this point the session is ready and we can copy its contents to the shared memory so sessionwrapper can close
     /// the communication in case of crash
 
-    shaMemSession->unlock(); shaMemReq->unlock(); shaMemRes->unlock(); shaMemDevBuf-> unlock();
+    shaMemSession->lock(); shaMemReq->lock(); shaMemRes->lock(); shaMemDevBuf->lock();
 
     pshaMemSession = (se3_session*)shaMemSession->data();
     pshaMemReq = (uint8_t*)shaMemReq->data();

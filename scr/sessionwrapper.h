@@ -20,6 +20,7 @@ private:
     QSharedMemory *shaMemSession, *shaMemReq, *shaMemRes, *shaMemDevBuf;
 
     void clean();
+    void secubeLogout();
 
 private slots:
     void processFinished(int code , QProcess::ExitStatus status);
