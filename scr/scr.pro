@@ -82,13 +82,21 @@ else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PW
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../SEfile/debug/SEfile.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../SEfile/libSEfile.a
 
+#LIBS += -ldl
+
+
 CONFIG(NO_SECUBE){ # if no se_cube connected, use non encrypted sqlite3
     LIBS += -lsqlite3
+#    DEFINES += SQLITE_OS_UNIX
+#    LIBS += -ldl
 
 } else {
     DEFINES += SECUBE
     DEFINES += SQLITE_OS_SECURE # used for secuereqlite files
+    DEFINES += SQLITE_OS_OTHER
+
     # Added secureSQLite installation path variables, matching our setup guide
+
     win32 {
         SECURESQLPATH = "$$OUT_PWD/../securesqlite3"
         SEFILEPATH  = "$$OUT_PWD/../SEfile"

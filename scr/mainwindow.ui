@@ -83,6 +83,7 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="action_Add_Table"/>
+    <addaction name="action_Edit_Table"/>
     <addaction name="action_Delete_Table"/>
     <addaction name="separator"/>
     <addaction name="action_Add_Entry"/>
@@ -161,6 +162,7 @@
    </attribute>
    <addaction name="action_Add_Table"/>
    <addaction name="action_Delete_Table"/>
+   <addaction name="action_Edit_Table"/>
   </widget>
   <widget class="QToolBar" name="entriesTB">
    <property name="windowTitle">
@@ -283,6 +285,11 @@
   <action name="action_Close_Wallet">
    <property name="text">
     <string>&amp;Close Wallet</string>
+   </property>
+  </action>
+  <action name="action_Edit_Table">
+   <property name="text">
+    <string>Edit Table</string>
    </property>
   </action>
  </widget>

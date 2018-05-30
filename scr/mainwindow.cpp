@@ -32,6 +32,13 @@ static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, ch
     return main->callback_populateTable(argc, argv, azColName);
 }
 
+static int just_print(void *null, int argc, char **argv, char **azColName){ //create Table List
+
+    int i;
+    for(i = 0; i<argc; i++)
+        qDebug() << argv[i];
+    return 0;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -76,7 +83,7 @@ void MainWindow::closeEvent(QCloseEvent *event){
             if (conf->getResult()==SAVE){
                 QD << "save";
                 if(!on_action_Save_Wallet_triggered())// call save
-                   event->ignore();
+                    event->ignore();
             }
             else if(conf->getResult()==DISCARD)//continue without saving
                 QD << "discard";
@@ -606,6 +613,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     ////  ask for a filename to save changes the first time the button is clicked after a new wallet
 
     if (fileName.isEmpty()){
+#ifdef SECUBE
         SecureFileDialog *fileDialog = new SecureFileDialog( this, 1 ); //option 1 means we are creating new file
         fileDialog->exec();
         if(fileDialog->result()==QDialog::Rejected){
@@ -618,26 +626,21 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
         fileName = fileDialog->getChosenFile();
 
         if(fileName.isEmpty()){ // if no valid file name => do nothing
-            return 0;
             if(!saveAsAbort.isEmpty()){ //if it was a SaveAs, and was aborted, recover fileName
                 fileName=saveAsAbort;
                 saveAsAbort.clear();
             }
+            return 0;
         }
-
         //// Check if file already exists
-#ifdef SECUBE        //Get name of file in disk (encrypted) and delete.
+        //Get name of file in disk (encrypted) and delete.
         //prepare vars
         char enc_filename[65];
         uint16_t enc_len = 0;
         memset(enc_filename, 0, 65);
         crypto_filename(fileName.toUtf8().data(), enc_filename, &enc_len );
-#else
-        QString enc_filename=fileName;
-#endif
+
         if (QFile::exists(enc_filename)){
-            statusBar()->setStyleSheet("font-weight: bold; color: maroon");
-            statusBar()->showMessage("File already exists, not saving", 2000);
             OverwriteDialog * over = new OverwriteDialog;
             over->exec();
             if(over->result()==QDialog::Rejected){
@@ -649,6 +652,9 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
                 return 0;//if error or cancel, do nothing
             }
         }
+#else
+        fileName = QFileDialog::getSaveFileName(this, "select filename", QCoreApplication::applicationDirPath(), "Sqlite files(*.sqlite *.db)");
+#endif
     }//end fileName.isEmpty()
     else{
 #ifdef SECUBE
@@ -667,7 +673,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     qApp->processEvents(); // otherwise the repaint take place after this function finishes
 
     //// * Create an in file Sqlite db using sqlite3 functions. If SECUBE is connected, the resulting file is a secSqlite
-    if( sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE , NULL ) ){ //create a new database using the filename specified by the user before. sqlite3_open overwrites any existing file.
+    if( sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE , NULL ) ){ //create a new database using the filename specified by the user before.
         qDebug() << "Can't open database" << sqlite3_errmsg(dbSec);
         setAllEnabled(true);
         return 0;
@@ -682,8 +688,8 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     QStringList values;
     QSqlRecord record;
     QString finalSql;
-    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES(%2);"); //Insert statement
-    //TODO: check if empty desc field (as it is optional), breaks the INSERT
+    static const QString insert = QStringLiteral("INSERT INTO '%1' VALUES(%2);"); //Insert statement
+    //TODO: check if empty description field (as it is optional), breaks the INSERT
 
     // Read from in mem database
     QStringList tables;
@@ -691,7 +697,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
 
     //BUG: workaround for first table always corrupted problem: have a dummy table, that ensures database is not empty
     tables.prepend("NoEmpty");
-    foreach (const QString table, tables) {// loop al the tables
+    foreach (const QString table, tables) {// loop all the tables
         QString sql = "create table "+table+
                 "(id integer primary key, "
                 "Username TEXT, "
@@ -709,36 +715,62 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
 
         qDebug() << table << "created successfully";
 
-        if (table=="NoEmpty")// table "NoEmpty" does not exists in in-memory DB, therefore skip to next.
-            continue;
+        if (table=="NoEmpty"){// table "NoEmpty" does not exists in in-memory DB, therefore skip to next.
+           values.clear();
+           values << "1";
+           values << "'empty'";
+           values << "'empty'";
+           values << "'empty'";
+           values << "'empty'";
+           values << "'empty'";
+           finalSql += insert.arg(table).arg(values.join(", "));//create a single sql statement from all the inserts
 
-        query.prepare(QString("SELECT * FROM [%1]").arg(table)); //prepare select
-        if(!query.exec()){
-            QD << "Error selecting all from" << table << query.lastError();
+        }
+        else{
+
+            query.prepare(QString("SELECT * FROM [%1]").arg(table)); //prepare select
+            if(!query.exec()){
+                QD << "Error selecting all from" << table << query.lastError();
+                setAllEnabled(true);
+                return 0;
+            }
+            while (query.next()){
+                values.clear();
+                record = query.record();
+                values << record.value(0).toString();//the index does not goes in ''
+                for (int i = 1; i < record.count(); i++)
+                    values << "'"+record.value(i).toString()+"'";//value needs to be inside ''
+                finalSql += insert.arg(table).arg(values.join(", "));//create a single sql statement from all the inserts
+            }
+        }
+
+    // after all tables have been read, do a single write into secure database
+        qDebug() << finalSql;
+
+        if ( sqlite3_exec(dbSec, finalSql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//execute the statement
+            qDebug() << "SQL error "<< zErrMsg;
+            statusBar()->setStyleSheet("font-weight: bold; color: maroon");
+            statusBar()->showMessage("Error saving", 2000);
+            sqlite3_free(zErrMsg);
+            sqlite3_close (dbSec);
+            query.finish();
             setAllEnabled(true);
             return 0;
         }
-        while (query.next()){
-            values.clear();
-            record = query.record();
-            values << record.value(0).toString();//the index does not goes in ''
-            for (int i = 1; i < record.count(); i++)
-                values << "'"+record.value(i).toString()+"'";//value needs to be inside ''
-            finalSql += insert.arg(table).arg(values.join(", "));//create a single sql statement from all the inserts
-        }
-    }
-    // after all tables have been read, do a single write into secure database
-    qDebug() << finalSql;
+        finalSql.clear();
 
-    if ( sqlite3_exec(dbSec, finalSql.toUtf8(), NULL, 0, &zErrMsg) != SQLITE_OK ){//execute the statement
-        qDebug() << "SQL error "<< zErrMsg;
-        statusBar()->setStyleSheet("font-weight: bold; color: maroon");
-        statusBar()->showMessage("Error saving", 2000);
-        sqlite3_free(zErrMsg);
-        sqlite3_close (dbSec);
-        query.finish();
-        setAllEnabled(true);
-        return 0;
+        QString SqlStatement2 = QStringLiteral("SELECT * FROM '%1';").arg(table);
+        int rc=sqlite3_exec(dbSec, SqlStatement2.toUtf8(), just_print, this, &zErrMsg);
+        QD << rc;
+
+        if ( rc != SQLITE_OK){
+            qDebug() << "SQL error in reading info from table"<< SqlStatement2 << zErrMsg;
+            sqlite3_free(zErrMsg);
+            // do not return, as the first table will always fail, but the rest won't
+        } else
+            qDebug() << SqlStatement2 <<" successfully";
+
+
     }
     setAllEnabled(true);
     qDebug() <<"Saved successfully";
@@ -748,10 +780,31 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     displayWalletName->setText(walletName);
 
     //// Close secure database connection
-    sqlite3_close (dbSec);
+    int rc=sqlite3_close (dbSec);
+    qDebug() << "close result"<<rc;
     query.finish();
     ui->action_Save_Wallet->setEnabled(false);//wallet is not dirty anymore, no save allowed until some change is made
-    return 1;
+
+    rc=sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READONLY , NULL);
+    qDebug() << "open result"<<rc;
+
+    foreach (const QString table, tables) {
+
+        QString SqlStatement2 = QStringLiteral("SELECT * FROM '%1';").arg(table);
+        int rc=sqlite3_exec(dbSec, SqlStatement2.toUtf8(), just_print, this, &zErrMsg);
+        QD <<"table result"<< rc;
+        if ( rc != SQLITE_OK){
+            qDebug() << "SQL error in reading info from table"<< SqlStatement2 << zErrMsg;
+            sqlite3_free(zErrMsg);
+            // do not return, as the first table will always fail, but the rest won't
+        } else
+            qDebug() << SqlStatement2 <<" successfully";
+
+    }
+
+
+
+    return 1;//everything ok; TODO: change 1 to 0
 }
 
 void MainWindow::on_action_Save_Wallet_As_triggered(){
@@ -792,8 +845,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     fileName = QFileInfo(QFile(path)).fileName();
 
 #else
-    path = "/home/walter/nosecube.sqlite";
-    fileName = QFileInfo(QFile(path)).fileName();
+        fileName = QFileDialog::getOpenFileName(this, "select filename", QCoreApplication::applicationDirPath(), "Sqlite files(*.sqlite *.db)");
 #endif
 
     setAllEnabled(false);//open process takes a while, so disable all buttons.
@@ -823,6 +875,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
 
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
+        //BUG: exit does not call destructor
         exit (1); // as the application does not work without Sqlite, exit.
     }
 
@@ -876,7 +929,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         }
 
         currentTable = table;
-        QString SqlStatement = QStringLiteral("SELECT * FROM %1;").arg(table);
+        QString SqlStatement = QStringLiteral("SELECT * FROM '%1';").arg(table);
         int rc=sqlite3_exec(dbSec, SqlStatement.toUtf8(), c_callback_populateTable, this, &zErrMsg);
         QD << rc;
 
@@ -885,7 +938,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
             sqlite3_free(zErrMsg);
             // do not return, as the first table will always fail, but the rest won't
         } else
-            qDebug() <<" Get all from " << SqlStatement <<" successfully";
+            qDebug() << SqlStatement <<" successfully";
     }
     sqlite3_close (dbSec);
     query.finish();
@@ -1012,7 +1065,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
     ui->action_Fit_Table->setEnabled(false);
 
     tableList->clear();
-//    filters->setEnabled(false);
+    //    filters->setEnabled(false);
 }
 
 

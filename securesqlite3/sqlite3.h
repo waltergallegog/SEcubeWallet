@@ -1380,6 +1380,7 @@ SQLITE_API int SQLITE_STDCALL sqlite3_os_end(void);
 /*
 ** CAPI3REF: Configuring The SQLite Library
 **
+**
 ** The sqlite3_config() interface is used to make global configuration
 ** changes to SQLite in order to tune SQLite to the specific needs of
 ** the application.  The default configuration is recommended for most

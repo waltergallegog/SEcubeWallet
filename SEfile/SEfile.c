@@ -598,7 +598,7 @@ uint16_t secure_write(SEFILE_FHANDLE *hFile, uint8_t * dataIn, uint32_t dataIn_l
 
         return SEFILE_WRITE_ERROR;
     }
-    current_position = lseek(hTmp->fd,((int32_t)(absOffset/SEFILE_SECTOR_SIZE))*SEFILE_SECTOR_SIZE, SEEK_SET);
+    current_position = lseek(hTmp->fd,(int32_t)(((int32_t)(absOffset/SEFILE_SECTOR_SIZE))*SEFILE_SECTOR_SIZE), SEEK_SET);
 #elif _WIN32
     if((absOffset=SetFilePointer(hTmp->fd, 0, NULL, FILE_CURRENT))<0 || absOffset!=hTmp->log_offset){
 
@@ -638,7 +638,7 @@ uint16_t secure_write(SEFILE_FHANDLE *hFile, uint8_t * dataIn, uint32_t dataIn_l
 
 
 #if defined(__linux__) || defined(__APPLE__)
-        lseek(hTmp->fd, (-1)*SEFILE_SECTOR_SIZE, SEEK_CUR);
+        lseek(hTmp->fd, (int32_t)((-1)*SEFILE_SECTOR_SIZE), SEEK_CUR);
 #elif _WIN32
         SetFilePointer(hTmp->fd, (-1)*SEFILE_SECTOR_SIZE, NULL, FILE_CURRENT);
 #endif
@@ -706,7 +706,7 @@ uint16_t secure_write(SEFILE_FHANDLE *hFile, uint8_t * dataIn, uint32_t dataIn_l
     //move the pointer inside the last sector written
     if(sectOffset!=0){
 #if defined(__linux__) || defined(__APPLE__)
-        hTmp->log_offset=lseek(hTmp->fd, (sectOffset - SEFILE_SECTOR_SIZE), SEEK_CUR);
+        hTmp->log_offset=lseek(hTmp->fd, (int32_t)(sectOffset - SEFILE_SECTOR_SIZE), SEEK_CUR);
 #elif _WIN32
         hTmp->log_offset = SetFilePointer(hTmp->fd, (LONG)(sectOffset - SEFILE_SECTOR_SIZE), NULL, FILE_CURRENT);
 #endif
@@ -755,7 +755,7 @@ uint16_t secure_read(SEFILE_FHANDLE *hFile,  uint8_t * dataOut, uint32_t dataOut
 
         return SEFILE_READ_ERROR;
     }
-    current_position = lseek(hTmp->fd,((int32_t)(absOffset/SEFILE_SECTOR_SIZE))*SEFILE_SECTOR_SIZE, SEEK_SET);
+    current_position = lseek(hTmp->fd,(int32_t)(((int32_t)(absOffset/SEFILE_SECTOR_SIZE))*SEFILE_SECTOR_SIZE), SEEK_SET);
 #elif _WIN32
     if((absOffset=SetFilePointer(hTmp->fd, 0, NULL, FILE_CURRENT))<0 || absOffset!=hTmp->log_offset){
 
@@ -813,7 +813,7 @@ uint16_t secure_read(SEFILE_FHANDLE *hFile,  uint8_t * dataOut, uint32_t dataOut
     //move the pointer inside the last sector read
     if(sectOffset!=0){
 #if defined(__linux__) || defined(__APPLE__)
-        hTmp->log_offset=lseek(hTmp->fd, (-1)*(SEFILE_SECTOR_SIZE-sectOffset), SEEK_CUR);//todo check sectoffset
+        hTmp->log_offset=lseek(hTmp->fd, (int32_t)((-1)*(int32_t)(SEFILE_SECTOR_SIZE-sectOffset)), SEEK_CUR);//todo check sectoffset
 #elif _WIN32
         hTmp->log_offset=SetFilePointer(hTmp->fd,(-1)*(SEFILE_SECTOR_SIZE-sectOffset), NULL, FILE_CURRENT);
 #endif
@@ -830,12 +830,28 @@ uint16_t secure_read(SEFILE_FHANDLE *hFile,  uint8_t * dataOut, uint32_t dataOut
     return 0;
 }
 
+/* This function has a Temporal fix/workaround (for linux only) by Walter Gallego (waltergallegog@gmail.com) 26/05/2018
+ *
+ * Problem: When using the securesqlite library, it is not possible to save into a FAT32 location, like a disk formated to fat32 (for windows-linux sharing), sd-card or a pendrive.  It only occurs in fat32 and not in ext4.
+ *
+ * The origin of the error was traced to a call made by this function to the linux library
+ * lseek, so it was fixed here, but it is possible the error actually comes from the securesqlite library
+ *
+ * Why I think is temporal?: Because I do not fully understand the origin of the problem and why it only
+ * affects fat32 partitions.
+ * More details on the error are given below. (ctr+f: Temporal fix Walter)
+ */
 uint16_t secure_seek(SEFILE_FHANDLE *hFile, int32_t offset, int32_t *position, uint8_t whence){
     int32_t dest=0, tmp=0, buffer_size=0;
     int32_t overhead=0, absOffset=0, sectOffset=0;
     uint8_t * buffer=NULL;
     uint32_t file_length=0;
     SEFILE_FHANDLE hTmp=NULL;
+
+    //Temporal fix walter
+    int32_t start_zeros=0; //variable to store the negative offset we want to use when writing zeros to the end of the file
+    int error; //just to capture the errno given by lseek
+
     if(check_env() || hFile==NULL){
         return SEFILE_SEEK_ERROR;
     }
@@ -923,7 +939,52 @@ uint16_t secure_seek(SEFILE_FHANDLE *hFile, int32_t offset, int32_t *position, u
         }
         if((file_length%SEFILE_LOGIC_DATA)){
 #if defined(__linux__) || defined(__APPLE__)
-            hTmp->log_offset=lseek(hTmp->fd, ((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), SEEK_END);
+
+            //hTmp->log_offset=lseek(hTmp->fd, ((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), SEEK_END);
+
+            /*Temporal fix Walter (Walter Gallego)
+            * The error occurs in the previous line (commented).
+            *
+            * what the line is trying to do is to move the file pointer to the last LOGIC_DATA byte, because
+            * want to write zeros after this position (end of the file)
+            *
+            * To do so, starting from the end of the file, using SEEK_END, move backwards
+            * (file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE is always negative) a number of bytes equal to
+            * the number of empty bytes in the last sector.
+            *
+            * My fix was simply to move the calculation of the new position on a separate line and store it in
+            * an int32_t variable called start_zeros
+            *
+            * What led me to think of this solution?: When debbuging, saving in ext4 or fat32 both leed to this
+            * calling to lseek, and both with the same values for all the variables, but for fat 32 the return
+            * from lseek was (off-1) (which means error, see official documentation of lseek) and errno was set
+            * to 22 (EINVAL whence is not valid.  Or: the resulting file offset would be negative, or beyond the end
+            * of a seekable device).
+            * I wanted to be sure what value lseek was receving, so I moved the operation outside in an off_t
+            * type variable (off_t is the official type for meassuring offset bytes). The resulting value in
+            * the qt debugger was a very large positive number and not the small negative one we need.
+            * The value in binary was the correct one, but was not interpreted as negative (in two's complement)
+            * Initially I thought it was just a qt creator display issue, but changing start_zeros type to
+            * int32_t solved the issue.
+            *
+            * However I'm not sure if this is actually the origin of the problem, and why it does not affect
+            * ext4 partitions.
+            *
+            * Also, I dont know why using SEfile in the demo applications, like SEfile_TXT, never gave
+            * any problems, and only securesqlite does. Maybe the above condition if(buffer_size>0) is only
+            * meet in rare ocations, and the way sqlite journaling is one of them.
+            *
+            */
+
+            errno=0; //clear errno
+            start_zeros = (file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE; //int32_t variable storing the negative buffer
+            hTmp->log_offset=lseek(hTmp->fd, (int32_t)((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), SEEK_END);
+            error=errno;//capture errno
+
+            if(hTmp->log_offset==4294967295){ // lseek returns (off_t)-1 when error. in this case off_t is 32 bits, so 2^32-1=4294967295
+                printf("lseek error: %s\n", strerror(error));
+                return SEFILE_SEEK_ERROR; // this value of log_offset would make the upcoming secure_write call fail anyway
+            }
 #elif _WIN32
             hTmp->log_offset=SetFilePointer(hTmp->fd, ((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), NULL, FILE_END);
 #endif
@@ -985,7 +1046,7 @@ uint16_t secure_truncate(SEFILE_FHANDLE *hFile, uint32_t size){
         nSector = (size / SEFILE_LOGIC_DATA) + 1; //Number of sectors in a file (including header)
 
 #if defined(__linux__) || defined(__APPLE__)
-        hTmp->log_offset = lseek(hTmp->fd, nSector*SEFILE_SECTOR_SIZE, SEEK_SET);
+        hTmp->log_offset = lseek(hTmp->fd, (int32_t)(nSector*SEFILE_SECTOR_SIZE), SEEK_SET);
         if(hTmp->log_offset < 0){
 
             return SEFILE_TRUNCATE_ERROR;
@@ -1007,7 +1068,7 @@ uint16_t secure_truncate(SEFILE_FHANDLE *hFile, uint32_t size){
             return SEFILE_TRUNCATE_ERROR;
         }
 #if defined(__linux__) || defined(__APPLE__)
-        hTmp->log_offset = lseek(hTmp->fd, nSector*SEFILE_SECTOR_SIZE, SEEK_SET);
+        hTmp->log_offset = lseek(hTmp->fd, (int32_t)(nSector*SEFILE_SECTOR_SIZE), SEEK_SET);
         if(hTmp->log_offset < 0){
 
             return SEFILE_TRUNCATE_ERROR;
@@ -1493,7 +1554,7 @@ uint16_t get_filesize(SEFILE_FHANDLE *hFile, uint32_t * length){
 
 #if defined(__linux__) || defined(__APPLE__)
     orig_off=lseek(hTmp->fd, 0, SEEK_CUR);
-    total_size=lseek(hTmp->fd, (-1)*(SEFILE_SECTOR_SIZE), SEEK_END);
+    total_size=lseek(hTmp->fd, (int32_t)((-1)*(SEFILE_SECTOR_SIZE)), SEEK_END);
 
     if(orig_off==-1 || total_size==-1){
         free(crypt_buffer);
@@ -1765,7 +1826,7 @@ uint16_t crypt_dirname(char *dirpath, char *encDirname, uint32_t* enc_len){
         sprintf(pDir+(i*2), "%02x", (uint8_t)buffEnc[i]);
     }
     if(enc_len != NULL){
-      *enc_len = maxLen + (filename-dirpath);
+        *enc_len = maxLen + (filename-dirpath);
     }
     pDir[i*2]='\0';
     free(buffDec);
