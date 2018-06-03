@@ -88,3 +88,24 @@ NOTE: delete the previous (if any) filters, easier but ugly?
 #define SQLITE_WARNING     28   /* Warnings from sqlite3_log() */
 #define SQLITE_ROW         100  /* sqlite3_step() has another row ready */
 #define SQLITE_DONE        101  /* sqlite3_step() has finished executing */
+
+/** L1 errors */
+enum {
+    SE3_ERR_ACCESS = 100,  ///< insufficient privileges
+    SE3_ERR_PIN = 101,  ///< pin rejected
+    SE3_ERR_RESOURCE = 200,  ///< resource not found
+    SE3_ERR_EXPIRED = 201,  ///< resource expired
+    SE3_ERR_MEMORY = 400,  ///< no more space to allocate resource
+    SE3_ERR_AUTH =  401    ///< SHA256HMAC Authentication failed
+};
+
+/** L0 error codes */
+enum {
+    SE3_OK = 0,  ///< success
+    SE3_ERR_HW = 0xF001,  ///< hardware failure
+    SE3_ERR_COMM = 0xF002,  ///< communication error
+    SE3_ERR_BUSY = 0xF003,  ///< device locked by another process
+    SE3_ERR_STATE = 0xF004,  ///< invalid state for this operation
+    SE3_ERR_CMD = 0xF005,  ///< command does not exist
+    SE3_ERR_PARAMS = 0xF006,  ///< parameters are not valid
+};

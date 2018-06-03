@@ -34,6 +34,8 @@ static int c_callback_populateTable(void *mainwindowP, int argc, char **argv, ch
 
 static int just_print(void *null, int argc, char **argv, char **azColName){ //create Table List
 
+    UNUSED (null);
+    UNUSED (azColName);
     int i;
     for(i = 0; i<argc; i++)
         qDebug() << argv[i];
@@ -785,22 +787,22 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     query.finish();
     ui->action_Save_Wallet->setEnabled(false);//wallet is not dirty anymore, no save allowed until some change is made
 
-    rc=sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READONLY , NULL);
-    qDebug() << "open result"<<rc;
+//    rc=sqlite3_open_v2 (fileName.toUtf8(), &dbSec, SQLITE_OPEN_READONLY , NULL);
+//    qDebug() << "open result"<<rc;
 
-    foreach (const QString table, tables) {
+//    foreach (const QString table, tables) {
 
-        QString SqlStatement2 = QStringLiteral("SELECT * FROM '%1';").arg(table);
-        int rc=sqlite3_exec(dbSec, SqlStatement2.toUtf8(), just_print, this, &zErrMsg);
-        QD <<"table result"<< rc;
-        if ( rc != SQLITE_OK){
-            qDebug() << "SQL error in reading info from table"<< SqlStatement2 << zErrMsg;
-            sqlite3_free(zErrMsg);
-            // do not return, as the first table will always fail, but the rest won't
-        } else
-            qDebug() << SqlStatement2 <<" successfully";
+//        QString SqlStatement2 = QStringLiteral("SELECT * FROM '%1';").arg(table);
+//        int rc=sqlite3_exec(dbSec, SqlStatement2.toUtf8(), just_print, this, &zErrMsg);
+//        QD <<"table result"<< rc;
+//        if ( rc != SQLITE_OK){
+//            qDebug() << "SQL error in reading info from table"<< SqlStatement2 << zErrMsg;
+//            sqlite3_free(zErrMsg);
+//            // do not return, as the first table will always fail, but the rest won't
+//        } else
+//            qDebug() << SqlStatement2 <<" successfully";
 
-    }
+//    }
 
 
 
