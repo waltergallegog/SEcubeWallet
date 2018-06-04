@@ -9,6 +9,7 @@
 #include <QDate>
 #include <QSqlDriver>
 #include <QComboBox>
+#include <QSettings>
 
 
 #define UNUSED(expr) (void)(expr)
@@ -133,6 +134,11 @@ void MainWindow::init(){
     filters=NULL;//only initi Table once
     model=NULL;
     //ui->WalletView->hide();
+
+    QCoreApplication::setOrganizationName("WalterGallego");
+    QCoreApplication::setApplicationName("SECubeWallet");
+    QSettings settings;
+
 
 #ifdef SECUBE
     //SEcube Password login dialog
@@ -1178,6 +1184,15 @@ void MainWindow::on_action_About_triggered(){
     help->show();
 }
 
+//// ***** Preferences Dialogue *****
+void MainWindow::on_action_Preferences_triggered(){
+
+    PreferencesDialog *pref = new PreferencesDialog(this);
+    pref->exec();
+
+}
+
+
 void MainWindow::setAllEnabled(bool enabled){
     ui->centralWidget->setEnabled(enabled);
     ui->menuBar->setEnabled(enabled);
@@ -1185,4 +1200,6 @@ void MainWindow::setAllEnabled(bool enabled){
     ui->tableTB->setEnabled(enabled);
     ui->entriesTB->setEnabled(enabled);
 }
+
+
 

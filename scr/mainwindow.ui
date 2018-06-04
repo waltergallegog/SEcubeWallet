@@ -101,6 +101,7 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
+    <addaction name="action_Preferences"/>
     <addaction name="action_Set_Environment"/>
    </widget>
    <widget class="QMenu" name="menuTools">
@@ -290,6 +291,11 @@
   <action name="action_Edit_Table">
    <property name="text">
     <string>Edit Table</string>
+   </property>
+  </action>
+  <action name="action_Preferences">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

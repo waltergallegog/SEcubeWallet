@@ -4,6 +4,8 @@
 #include <QLineEdit>
 #include <QString>
 #include <QDebug>
+#include <QProcess>
+#include <QSettings>
 
 #include <QAbstractButton>
 #include "zxcvbn.h"
@@ -171,3 +173,25 @@ void AddEntry::on_buttonBox_clicked(QAbstractButton* button){
     UNUSED(button);
 }
 
+
+// if user wants to generate a password using one of the installed password generators.
+void AddEntry::on_gen_pass_clicked(){
+
+    QSettings settings;
+    if (!settings.contains("passGen/current")){// no passgen has been configured and enabled
+        return;
+    }
+
+    QProcess process;
+    process.start(settings.value("passGen/current").toString());
+    process.waitForFinished();
+    QString output(process.readAllStandardOutput());
+
+    //TODO: parse output correctly
+    output.remove(QRegExp("[\\n\\t\\r]"));
+    qDebug()<<output;
+
+    ui->InPass->setText(output);
+    ui->InPass2->setText(output);
+
+}

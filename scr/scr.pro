@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     saveconfirmation.cpp \
     overwritedialog.cpp \
     zxcvbn.cpp \
-    myapplication.cpp
+    myapplication.cpp \
+    preferencesdialog.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -59,7 +60,8 @@ HEADERS  += mainwindow.h \
     filtersaligned.h \
     saveconfirmation.h \
     overwritedialog.h \
-    myapplication.h
+    myapplication.h \
+    preferencesdialog.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
@@ -67,7 +69,8 @@ FORMS    += mainwindow.ui \
     helpwindow.ui \
     newtable.ui \
     saveconfirmation.ui \
-    overwritedialog.ui
+    overwritedialog.ui \
+    preferencesdialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

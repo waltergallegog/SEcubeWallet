@@ -38,6 +38,7 @@ private slots:
     void on_InPass2_textChanged(const QString &text);
     void on_sh_pass_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_gen_pass_clicked();
 
 private:
     Ui::AddEntry *ui;

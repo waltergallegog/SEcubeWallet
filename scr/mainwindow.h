@@ -18,6 +18,7 @@
 #include "environmentdialog.h"
 #include "deleteconfirmation.h"
 #include "helpwindow.h"
+#include "preferencesdialog.h"
 #include "newtable.h"
 #include "saveconfirmation.h"
 #include "overwritedialog.h"
@@ -67,6 +68,7 @@ private slots:
     void on_action_New_Wallet_triggered();
     void on_action_Open_Wallet_triggered();
     bool on_action_Save_Wallet_triggered();
+    void on_action_Save_Wallet_As_triggered();
     void on_action_Delete_Wallet_triggered();
     void on_action_Close_Wallet_triggered();
 
@@ -82,6 +84,7 @@ private slots:
     void on_action_Fit_Table_triggered();
     void on_action_Launch_Domain_triggered();
 
+    void on_action_Preferences_triggered();
     void on_action_Set_Environment_triggered();
     void on_action_About_triggered();
 
@@ -94,9 +97,6 @@ private slots:
 
     void invalidateAlignedLayout();
     void tableList_currentIndexChanged(const QString &arg1);
-
-
-    void on_action_Save_Wallet_As_triggered();
 
 private:
     Ui::MainWindow *ui;
