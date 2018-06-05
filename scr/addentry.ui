@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>335</height>
+    <width>390</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -46,7 +46,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="label_pass2">
      <property name="text">
-      <string>Repeat Passphrase</string>
+      <string/>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -123,6 +123,9 @@
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
      </property>
+     <property name="placeholderText">
+      <string>Confirm password</string>
+     </property>
      <property name="clearButtonEnabled">
       <bool>true</bool>
      </property>
@@ -141,7 +144,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label_pass">
      <property name="text">
-      <string>Passphrase</string>
+      <string>Password</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -218,6 +221,18 @@
        <widget class="QPushButton" name="gen_pass">
         <property name="text">
          <string>Generate Password</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pb_confgen">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normalon>:/icons/config.png</normalon>
+         </iconset>
         </property>
        </widget>
       </item>

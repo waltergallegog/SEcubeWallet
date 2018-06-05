@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>370</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,9 +27,17 @@
        <item row="0" column="1">
         <widget class="QToolBox" name="toolBox">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>508</width>
+            <height>333</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>General</string>
           </attribute>
@@ -76,83 +84,164 @@
             <x>0</x>
             <y>0</y>
             <width>508</width>
-            <height>189</height>
+            <height>333</height>
            </rect>
           </property>
           <attribute name="label">
            <string>PwGen: Generate Pronounceable Passwords </string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="cb_noCap">
              <property name="text">
-              <string>Executable</string>
+              <string/>
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_2">
+           <item row="3" column="6">
+            <widget class="ClickableLabel" name="l_noNum">
              <property name="text">
-              <string>Pronounceable passwords are easier to memorize, Random are more secure</string>
+              <string>Don't include numbers in the generated passwords. </string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QComboBox" name="cb_randOrPron">
+           <item row="0" column="6">
+            <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <property name="text">
-               <string>Random</string>
-              </property>
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>Password Length</string>
+               </property>
+              </widget>
              </item>
              <item>
-              <property name="text">
-               <string>Pronounceable</string>
-              </property>
+              <widget class="QLineEdit" name="le_pwgenLen">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>16</string>
+               </property>
+              </widget>
              </item>
-            </widget>
+            </layout>
            </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="le_pwgenpath">
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="cb_noNum">
              <property name="text">
-              <string>/usr/bin/pwgen</string>
+              <string/>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_3">
+           <item row="7" column="0">
+            <widget class="QCheckBox" name="cb_1num">
              <property name="text">
-              <string>Length of password</string>
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QCheckBox" name="cb_1cap">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="0">
+            <widget class="QCheckBox" name="cb_1spec">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QCheckBox" name="cb_noAmb">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="6">
+            <widget class="ClickableLabel" name="l_1spec">
+             <property name="text">
+              <string>Include at least one special character in the password.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="6">
+            <widget class="ClickableLabel" name="l_noAmb">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Don't use characters that could be confused by the user when printed, such as 'l' and '1', or '0' or 'O'. This reduces significantly the quality of the passwords. It may be useful for users who have bad vision.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="6">
+            <widget class="ClickableLabel" name="l_noCap">
+             <property name="text">
+              <string>Don't bother to include any capital letters in the generated passwords. </string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <widget class="QCheckBox" name="cb_noVow">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="6">
+            <widget class="ClickableLabel" name="l_random">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate &lt;span style=&quot; font-weight:600;&quot;&gt;completely random&lt;/span&gt;, hard-to-memorize passwords. These should only be used for machine passwords, since otherwise it's almost guaranteed that users will simply write the password on a piece of paper taped to the monitor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLineEdit" name="le_pwgenLen">
+            <widget class="QCheckBox" name="cb_random">
              <property name="text">
-              <string>16</string>
+              <string/>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLineEdit" name="le_pwgenCustom">
+           <item row="12" column="6">
+            <widget class="ClickableLabel" name="l_noVow">
              <property name="text">
-              <string>-s 16 1</string>
+              <string>Generate random passwords that do not contain vowels or numbers that might be mistaken for vowels. It provides less secure passwords to allow system administrators to not have to worry with random passwords accidentally contain offensive substrings</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="pb_pwgenpath">
+           <item row="8" column="6">
+            <widget class="ClickableLabel" name="l_1cap">
              <property name="text">
-              <string>Browse</string>
+              <string>Include at least one capital letter in the password</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QCheckBox" name="cbx_pwgenCustom">
+           <item row="7" column="6">
+            <widget class="ClickableLabel" name="l_1num">
              <property name="text">
-              <string>Use custom options</string>
+              <string>Include at least one number in the password.</string>
              </property>
             </widget>
            </item>
@@ -164,7 +253,7 @@
             <x>0</x>
             <y>0</y>
             <width>508</width>
-            <height>189</height>
+            <height>333</height>
            </rect>
           </property>
           <attribute name="label">
@@ -194,6 +283,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>clickablelabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

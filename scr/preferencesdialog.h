@@ -1,11 +1,6 @@
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
 
-#define PWGEN 0
-#define PWQGEN 1
-#define CUSTOM 2
-#define NONE 3
-
 #include <QDialog>
 
 namespace Ui {
@@ -22,6 +17,14 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
+    void l_1cap_clicked();
+    void l_1num_clicked();
+    void l_1spec_clicked();
+    void l_noAmb_clicked();
+    void l_noCap_clicked();
+    void l_noNum_clicked();
+    void l_noVow_clicked();
+    void l_random_clicked();
 
 private:
     Ui::PreferencesDialog *ui;

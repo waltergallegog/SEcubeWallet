@@ -3,6 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     scr \
     SEfile \
-    securesqlite3
-
-
+    securesqlite3 \
+    pwgen \

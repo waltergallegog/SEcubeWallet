@@ -6,9 +6,18 @@
 #include <QDebug>
 #include <QProcess>
 #include <QSettings>
-
 #include <QAbstractButton>
+
+#include "preferencesdialog.h"
 #include "zxcvbn.h"
+
+extern "C"
+{
+#include "pwgen.h"
+}
+
+
+
 //TODO: put zxcvbn in a subdir
 
 #define OK_BUTTON 0
@@ -138,9 +147,9 @@ void AddEntry::on_InPass_textChanged(const QString &text){
 // Each time the user modifies one of the text fields, we check if all of them have data, so we can enable Ok button
 void AddEntry::EnableOkButton(){
     bool ok = !ui->InUser->text().isEmpty()
-           && !ui->InDomain->text().isEmpty()
-           && !ui->InPass->text().isEmpty()
-           && !ui->InPass2->text().isEmpty();
+            && !ui->InDomain->text().isEmpty()
+            && !ui->InPass->text().isEmpty()
+            && !ui->InPass2->text().isEmpty();
 
     ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(ok);
 }
@@ -167,7 +176,7 @@ void AddEntry::on_sh_pass_toggled(bool checked){
 }
 
 
-void AddEntry::on_buttonBox_clicked(QAbstractButton* button){
+void AddEntry::on_buttonBox_clicked(QAbstractButton* button){//TODO: fix by changing to buttonbox_accepted
     if (EqPass)
         this->accept(); //Only emith accept() when passwords are equal
     UNUSED(button);
@@ -178,20 +187,78 @@ void AddEntry::on_buttonBox_clicked(QAbstractButton* button){
 void AddEntry::on_gen_pass_clicked(){
 
     QSettings settings;
-    if (!settings.contains("passGen/current")){// no passgen has been configured and enabled
-        return;
+
+    //PWGEN vars
+
+    QString options = ""; //-a options does not do anything, just to have always 4 arguments
+    QString length = "16";
+
+    char* buf;
+    QString genPass;
+
+
+    switch (settings.value("passGens/gen").toInt()){
+
+    case PWGEN:
+
+        //look for user settings to determine which options
+        if (settings.value("passGens/pwgen/1cap").toBool())
+            options.append("c");
+        if (settings.value("passGens/pwgen/1num").toBool())
+            options.append("n");
+        if (settings.value("passGens/pwgen/1spec").toBool())
+            options.append("y");
+        if (settings.value("passGens/pwgen/noAmb").toBool())
+            options.append("B");
+        if (settings.value("passGens/pwgen/noCap").toBool())
+            options.append("A");
+        if (settings.value("passGens/pwgen/noNum").toBool())
+            options.append("0");
+        if (settings.value("passGens/pwgen/noVow").toBool())
+            options.append("v");
+        if (settings.value("passGens/pwgen/random").toBool())
+            options.append("s");
+
+
+        //check if user entered an integer, if not, default is 16
+        if(settings.value("passGens/pwgen/len").toInt())
+            length = settings.value("passGens/pwgen/len").toString();
+
+
+        buf = (char*)malloc(length.toInt()+1);
+
+        if(!buf){
+            qDebug() << "Memory Allocation Failed";
+            return;
+        }
+
+        //actual call to password generator
+        main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
+        genPass = QString::fromLatin1(buf,length.toInt());
+
+        ui->InPass->setText(genPass);
+        ui->InPass2->setText(genPass);
+
+        free(buf);
+        break;
+
+    case PWQGEN:
+        break;
+
+    case CUSTOM:
+        break;
+
+    case NONE:
+        break;
+
+    default:
+        break;
     }
+}
 
-    QProcess process;
-    process.start(settings.value("passGen/current").toString());
-    process.waitForFinished();
-    QString output(process.readAllStandardOutput());
 
-    //TODO: parse output correctly
-    output.remove(QRegExp("[\\n\\t\\r]"));
-    qDebug()<<output;
-
-    ui->InPass->setText(output);
-    ui->InPass2->setText(output);
+void AddEntry::on_pb_confgen_clicked(){
+    PreferencesDialog *pref = new PreferencesDialog(this);
+    pref->exec();
 
 }

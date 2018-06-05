@@ -6,6 +6,11 @@
 #include <QAbstractButton>
 #include <QDialogButtonBox>
 
+#define PWGEN 0
+#define PWQGEN 1
+#define CUSTOM 2
+#define NONE 3
+
 namespace Ui {
 class AddEntry;
 }
@@ -39,6 +44,8 @@ private slots:
     void on_sh_pass_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_gen_pass_clicked();
+
+    void on_pb_confgen_clicked();
 
 private:
     Ui::AddEntry *ui;
