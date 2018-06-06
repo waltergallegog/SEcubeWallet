@@ -5,6 +5,7 @@
 #include <QString>
 #include <QAbstractButton>
 #include <QDialogButtonBox>
+#include <QStandardItemModel>
 
 #include "zxcvbn.h"
 
@@ -48,20 +49,22 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_gen_pass_clicked();
     void on_pb_confgen_clicked();
-
     void on_pb_secInfo_clicked();
+    void build_info_model(const char *Pwd);
 
 private:
     Ui::AddEntry *ui;
 
     void EnableOkButton();
     void PasswordWarning();
-    void build_info_string(const char *Pwd);
 
     bool EqPass;
 
+    double e, elog;
     ZxcMatch_t *Info, *p;
-    QString infoString;
+    QStandardItemModel *model=0;
+    QList<QStandardItem *> items;
+    QString currentPass;
 
 };
 

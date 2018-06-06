@@ -89,6 +89,10 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
 }
 
 AddEntry::~AddEntry(){
+    if(model){
+        model->clear();// as we are going to build a new model, delete the old
+        delete(model);
+    }
     delete ui;
 }
 
@@ -135,7 +139,6 @@ void AddEntry::on_InPass_textChanged(const QString &text){
     PasswordWarning();
 
     int Level=-1;
-    double e, elog;
 
     QString messages[5] = {MESS0, MESS1, MESS2, MESS3, MESS4};
 
@@ -146,7 +149,6 @@ void AddEntry::on_InPass_textChanged(const QString &text){
         e = ZxcvbnMatch(text.toLatin1().constData(), NULL, &Info); //entropy bits in base 2
         elog = e*LOG102;
         qDebug() << e << elog;
-        build_info_string(text.toLatin1().constData());
 
         if (elog < 3) //very weak password
             Level = 0;
@@ -296,53 +298,118 @@ void AddEntry::on_pb_confgen_clicked(){
 
 }
 
-void AddEntry::build_info_string(const char *Pwd){
+void AddEntry::on_pb_secInfo_clicked(){
+
+
+    if(!(!currentPass.compare(ui->InPass->text()))){ //if password changed from the last info click
+        currentPass = ui->InPass->text();
+        QByteArray tempB = currentPass.toLatin1();
+        const char* Pwd = tempB.constData();
+        if(model){
+            model->clear();// as we are going to build a new model, delete the old
+            delete(model);
+        }
+        build_info_model(Pwd);//only called once per different password
+    }
+
+    zxcInfo *info = new zxcInfo(this, model);
+    info->exec();
+}
+
+void AddEntry::build_info_model(const char* Pwd){
+
+    QString temp, temp2;
+    QStringList headers;
+    int n;
+    double m;
+
     p = Info;
-    infoString.clear();
-    QString temp;
+    model = new QStandardItemModel();
+
+    headers << "subPass" << "Type" << "Length" <<  "Entropy bits" <<  "Log entropy";
+
+    model->setHorizontalHeaderLabels(headers);
+
     while(p)
     {
-        int n;
-        switch((int)p->Type)
-        {
-        case BRUTE_MATCH:                     infoString.append("  Type: Bruteforce     ");   break;
-        case DICTIONARY_MATCH:                infoString.append("  Type: Dictionary     ");   break;
-        case DICT_LEET_MATCH:                 infoString.append("  Type: Dict+Leet      ");   break;
-        case USER_MATCH:                      infoString.append("  Type: User Words     ");   break;
-        case USER_LEET_MATCH:                 infoString.append("  Type: User+Leet      ");   break;
-        case REPEATS_MATCH:                   infoString.append("  Type: Repeated       ");   break;
-        case SEQUENCE_MATCH:                  infoString.append("  Type: Sequence       ");   break;
-        case SPATIAL_MATCH:                   infoString.append("  Type: Spatial        ");   break;
-        case DATE_MATCH:                      infoString.append("  Type: Date           ");   break;
-        case BRUTE_MATCH+MULTIPLE_MATCH:      infoString.append("  Type: Bruteforce(Rep)");   break;
-        case DICTIONARY_MATCH+MULTIPLE_MATCH: infoString.append("  Type: Dictionary(Rep)");   break;
-        case DICT_LEET_MATCH+MULTIPLE_MATCH:  infoString.append("  Type: Dict+Leet(Rep) ");   break;
-        case USER_MATCH+MULTIPLE_MATCH:       infoString.append("  Type: User Words(Rep)");   break;
-        case USER_LEET_MATCH+MULTIPLE_MATCH:  infoString.append("  Type: User+Leet(Rep) ");   break;
-        case REPEATS_MATCH+MULTIPLE_MATCH:    infoString.append("  Type: Repeated(Rep)  ");   break;
-        case SEQUENCE_MATCH+MULTIPLE_MATCH:   infoString.append("  Type: Sequence(Rep)  ");   break;
-        case SPATIAL_MATCH+MULTIPLE_MATCH:    infoString.append("  Type: Spatial(Rep)   ");   break;
-        case DATE_MATCH+MULTIPLE_MATCH:       infoString.append("  Type: Date(Rep)      ");   break;
+        items.clear();
 
-        default:
-            temp.sprintf("  Type: Unknown %d ", p->Type);
-            infoString.append(temp);
-            break;
-        }
-        temp.sprintf("Length %d  Entropy %6.3f (%.2f) ", p->Length, p->Entrpy, p->Entrpy * 0.301029996);
-        infoString.append(temp);
         for(n = 0; n < p->Length; ++n, ++Pwd){
             temp.sprintf("%c", *Pwd);
-            infoString.append(temp);
+            temp2.append(temp);
         }
-        infoString.append("\n");
+        items.append(new QStandardItem(temp2));
+        temp2.clear();
+
+        switch((int)p->Type)
+        {
+        case BRUTE_MATCH:                     items.append(new QStandardItem("Bruteforce"));       break;
+        case DICTIONARY_MATCH:                items.append(new QStandardItem("Dictionary"));        break;
+        case DICT_LEET_MATCH:                 items.append(new QStandardItem("Dict+Leet"));         break;
+        case USER_MATCH:                      items.append(new QStandardItem("User Words"));        break;
+        case USER_LEET_MATCH:                 items.append(new QStandardItem("User+Leet"));         break;
+        case REPEATS_MATCH:                   items.append(new QStandardItem("Repeated"));          break;
+        case SEQUENCE_MATCH:                  items.append(new QStandardItem("Sequence"));          break;
+        case SPATIAL_MATCH:                   items.append(new QStandardItem("Spatial"));           break;
+        case DATE_MATCH:                      items.append(new QStandardItem("Date"));              break;
+        case BRUTE_MATCH+MULTIPLE_MATCH:      items.append(new QStandardItem("Bruteforce(Rep)"));   break;
+        case DICTIONARY_MATCH+MULTIPLE_MATCH: items.append(new QStandardItem("Dictionary(Rep)"));   break;
+        case DICT_LEET_MATCH+MULTIPLE_MATCH:  items.append(new QStandardItem("Dict+Leet(Rep)"));    break;
+        case USER_MATCH+MULTIPLE_MATCH:       items.append(new QStandardItem("User Words(Rep)"));   break;
+        case USER_LEET_MATCH+MULTIPLE_MATCH:  items.append(new QStandardItem("User+Leet(Rep)"));    break;
+        case REPEATS_MATCH+MULTIPLE_MATCH:    items.append(new QStandardItem("Repeated(Rep)"));     break;
+        case SEQUENCE_MATCH+MULTIPLE_MATCH:   items.append(new QStandardItem("Sequence(Rep)"));     break;
+        case SPATIAL_MATCH+MULTIPLE_MATCH:    items.append(new QStandardItem("Spatial(Rep)"));      break;
+        case DATE_MATCH+MULTIPLE_MATCH:       items.append(new QStandardItem("Date(Rep)"));         break;
+
+        default:
+            temp.sprintf("Unknown %d ", p->Type);
+            items.append(new QStandardItem(temp));
+            break;
+        }
+        temp.sprintf("%d", p->Length);
+        items.append(new QStandardItem(temp));
+
+        temp.sprintf("%6.3f", p->Entrpy);
+        items.append(new QStandardItem(temp));
+
+        temp.sprintf("%.2f", p->Entrpy * LOG102);
+        items.append(new QStandardItem(temp));
+
+        model->appendRow(items);
+        m += p->Entrpy;
+
         p = p->Next;
     }
+
+    items.clear();
+    items.append(new QStandardItem(ui->InPass->text()));
+    items.append(new QStandardItem("-"));
+
+    temp.sprintf("%d", ui->InPass->text().length());
+    items.append(new QStandardItem(temp));
+
+    temp.sprintf("%6.3f", e);
+    items.append(new QStandardItem(temp));
+
+    temp.sprintf("%.2f", elog);
+    items.append(new QStandardItem(temp));
+
+    model->insertRow(0,items);
+
+    items.clear();
+    items.append(new QStandardItem("Multi-word extra bits"));
+    items.append(new QStandardItem("-"));
+    items.append(new QStandardItem("-"));
+    temp.sprintf("%6.3f", e-m);
+    items.append(new QStandardItem(temp));
+
+    temp.sprintf("%.2f", (e-m)*LOG102);
+    items.append(new QStandardItem(temp));
+
+    model->appendRow(items);
+
     ZxcvbnFreeInfo(Info);
 }
 
-void AddEntry::on_pb_secInfo_clicked(){
-    zxcInfo *info = new zxcInfo(this, infoString);
-    info->exec();
 
-}
