@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     zxcvbn.cpp \
     myapplication.cpp \
     preferencesdialog.cpp \
-    clickablelabel.cpp
+    clickablelabel.cpp \
+    zxcinfo.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS  += mainwindow.h \
     overwritedialog.h \
     myapplication.h \
     preferencesdialog.h \
-    clickablelabel.h
+    clickablelabel.h \
+    zxcinfo.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
@@ -72,7 +74,8 @@ FORMS    += mainwindow.ui \
     newtable.ui \
     saveconfirmation.ui \
     overwritedialog.ui \
-    preferencesdialog.ui
+    preferencesdialog.ui \
+    zxcinfo.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

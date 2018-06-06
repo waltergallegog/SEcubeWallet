@@ -9,13 +9,19 @@
 #include <QAbstractButton>
 
 #include "preferencesdialog.h"
-#include "zxcvbn.h"
+#include "zxcinfo.h"
 
 extern "C"
 {
 #include "pwgen.h"
 }
 
+#define LOG102 0.301029996 //log in base 10 of 2
+#define MESS0 "Too guessable: Risky password"
+#define MESS1 "Very guessable: Protection from slow online attacks"
+#define MESS2 "Somewhat guessable: Protection from fast online attacks"
+#define MESS3 "Safely unguessable: moderate protection from offline slow-hash attacks"
+#define MESS4 "Very unguessable: Strong protection from offline slow-hash scenario"
 
 
 //TODO: put zxcvbn in a subdir
@@ -128,17 +134,43 @@ void AddEntry::on_InPass_textChanged(const QString &text){
     EnableOkButton();
     PasswordWarning();
 
+    int Level=-1;
+    double e, elog;
+
+    QString messages[5] = {MESS0, MESS1, MESS2, MESS3, MESS4};
+
     if(!text.isEmpty()){
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
 
-        double e = ZxcvbnMatch(text.toLatin1().constData(), NULL, 0);
-        ui->score->setValue(e);
+        e = ZxcvbnMatch(text.toLatin1().constData(), NULL, &Info); //entropy bits in base 2
+        elog = e*LOG102;
+        qDebug() << e << elog;
+        build_info_string(text.toLatin1().constData());
+
+        if (elog < 3) //very weak password
+            Level = 0;
+        else if (elog<6)
+            Level =1;
+        else if (elog<8)
+            Level =2;
+        else if (elog<10)
+            Level =3;
+        else
+            Level =4;
+
+        if (Level>-1){
+            ui->score->setTextVisible(true);
+            ui->score->setValue(Level);
+            ui->lb_secLevel->setText(messages[Level]);
+        }
 
     }else{
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
         ui->score->setValue(0);
+        ui->score->setTextVisible(false);
+        ui->lb_secLevel->clear();
     }
 }
 
@@ -233,6 +265,7 @@ void AddEntry::on_gen_pass_clicked(){
         }
 
         //actual call to password generator
+        qDebug() << options;
         main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
         genPass = QString::fromLatin1(buf,length.toInt());
 
@@ -260,5 +293,56 @@ void AddEntry::on_gen_pass_clicked(){
 void AddEntry::on_pb_confgen_clicked(){
     PreferencesDialog *pref = new PreferencesDialog(this);
     pref->exec();
+
+}
+
+void AddEntry::build_info_string(const char *Pwd){
+    p = Info;
+    infoString.clear();
+    QString temp;
+    while(p)
+    {
+        int n;
+        switch((int)p->Type)
+        {
+        case BRUTE_MATCH:                     infoString.append("  Type: Bruteforce     ");   break;
+        case DICTIONARY_MATCH:                infoString.append("  Type: Dictionary     ");   break;
+        case DICT_LEET_MATCH:                 infoString.append("  Type: Dict+Leet      ");   break;
+        case USER_MATCH:                      infoString.append("  Type: User Words     ");   break;
+        case USER_LEET_MATCH:                 infoString.append("  Type: User+Leet      ");   break;
+        case REPEATS_MATCH:                   infoString.append("  Type: Repeated       ");   break;
+        case SEQUENCE_MATCH:                  infoString.append("  Type: Sequence       ");   break;
+        case SPATIAL_MATCH:                   infoString.append("  Type: Spatial        ");   break;
+        case DATE_MATCH:                      infoString.append("  Type: Date           ");   break;
+        case BRUTE_MATCH+MULTIPLE_MATCH:      infoString.append("  Type: Bruteforce(Rep)");   break;
+        case DICTIONARY_MATCH+MULTIPLE_MATCH: infoString.append("  Type: Dictionary(Rep)");   break;
+        case DICT_LEET_MATCH+MULTIPLE_MATCH:  infoString.append("  Type: Dict+Leet(Rep) ");   break;
+        case USER_MATCH+MULTIPLE_MATCH:       infoString.append("  Type: User Words(Rep)");   break;
+        case USER_LEET_MATCH+MULTIPLE_MATCH:  infoString.append("  Type: User+Leet(Rep) ");   break;
+        case REPEATS_MATCH+MULTIPLE_MATCH:    infoString.append("  Type: Repeated(Rep)  ");   break;
+        case SEQUENCE_MATCH+MULTIPLE_MATCH:   infoString.append("  Type: Sequence(Rep)  ");   break;
+        case SPATIAL_MATCH+MULTIPLE_MATCH:    infoString.append("  Type: Spatial(Rep)   ");   break;
+        case DATE_MATCH+MULTIPLE_MATCH:       infoString.append("  Type: Date(Rep)      ");   break;
+
+        default:
+            temp.sprintf("  Type: Unknown %d ", p->Type);
+            infoString.append(temp);
+            break;
+        }
+        temp.sprintf("Length %d  Entropy %6.3f (%.2f) ", p->Length, p->Entrpy, p->Entrpy * 0.301029996);
+        infoString.append(temp);
+        for(n = 0; n < p->Length; ++n, ++Pwd){
+            temp.sprintf("%c", *Pwd);
+            infoString.append(temp);
+        }
+        infoString.append("\n");
+        p = p->Next;
+    }
+    ZxcvbnFreeInfo(Info);
+}
+
+void AddEntry::on_pb_secInfo_clicked(){
+    zxcInfo *info = new zxcInfo(this, infoString);
+    info->exec();
 
 }

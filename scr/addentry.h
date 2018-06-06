@@ -6,6 +6,9 @@
 #include <QAbstractButton>
 #include <QDialogButtonBox>
 
+#include "zxcvbn.h"
+
+//password generators
 #define PWGEN 0
 #define PWQGEN 1
 #define CUSTOM 2
@@ -44,19 +47,22 @@ private slots:
     void on_sh_pass_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_gen_pass_clicked();
-
     void on_pb_confgen_clicked();
+
+    void on_pb_secInfo_clicked();
 
 private:
     Ui::AddEntry *ui;
 
     void EnableOkButton();
     void PasswordWarning();
+    void build_info_string(const char *Pwd);
 
     bool EqPass;
 
-    //const char*  Line;
-    //QString textCopy;
+    ZxcMatch_t *Info, *p;
+    QString infoString;
+
 };
 
 #endif // ADDENTRY_H
