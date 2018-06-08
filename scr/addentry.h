@@ -62,10 +62,27 @@ private:
 
     double e, elog;
     ZxcMatch_t *Info, *p;
-    QStandardItemModel *model=0;
+    QStandardItemModel *model=0;      //model for the subpass
+    QStandardItemModel *model_whole=0;//model for first pass only
+    QStandardItemModel *model_multi=0;//model for multi bits
+    QStandardItemModel *model_times=0;//model for crack times
     QList<QStandardItem *> items;
     QString currentPass;
+
+    const QStringList attacksType = QStringList() << "Throttled online attack"
+                                                  << "Unthrottled online attack"
+                                                  << "Offline attack, slow hash, many cores"
+                                                  << "Offline attack, fast hash, many cores";
+
+    const QStringList attacksTime_s = QStringList() << "100 / hour"
+                                                    << "10  / sec"
+                                                    << "10K / sec"
+                                                    << "10B / sec";
+
+
+    const double attacksTime[4] = {-1.55623,1,4,10};
 
 };
 
 #endif // ADDENTRY_H
+

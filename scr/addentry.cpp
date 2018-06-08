@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QSettings>
 #include <QAbstractButton>
+#include <QtMath>
 
 #include "preferencesdialog.h"
 #include "zxcinfo.h"
@@ -92,6 +93,12 @@ AddEntry::~AddEntry(){
     if(model){
         model->clear();// as we are going to build a new model, delete the old
         delete(model);
+
+        model_whole->clear();
+        delete(model_whole);
+
+        model_multi->clear();
+        delete(model_multi);
     }
     delete ui;
 }
@@ -308,11 +315,17 @@ void AddEntry::on_pb_secInfo_clicked(){
         if(model){
             model->clear();// as we are going to build a new model, delete the old
             delete(model);
+
+            model_whole->clear();
+            delete(model_whole);
+
+            model_multi->clear();
+            delete(model_multi);
         }
         build_info_model(Pwd);//only called once per different password
     }
 
-    zxcInfo *info = new zxcInfo(this, model);
+    zxcInfo *info = new zxcInfo(this, model, model_whole, model_multi, model_times);
     info->exec();
 }
 
@@ -325,10 +338,91 @@ void AddEntry::build_info_model(const char* Pwd){
 
     p = Info;
     model = new QStandardItemModel();
+    model_whole = new QStandardItemModel();
+    model_multi = new QStandardItemModel();
+    model_times = new QStandardItemModel();
 
-    headers << "subPass" << "Type" << "Length" <<  "Entropy bits" <<  "Log entropy";
+    //// ********** model for crack times table ********
 
+    headers << "Type of Attack" << "Guesses per time" << "Time for cracking";
+    model_times->setHorizontalHeaderLabels(headers);
+    double to_crack;
+
+    for (int i=0; i<4;i++){
+        items.clear();
+        items.append(new QStandardItem(attacksType.at(i)));
+        items.append(new QStandardItem(attacksTime_s.at(i)));
+        items.last()->setTextAlignment(Qt::AlignCenter);
+
+        to_crack = pow10(elog - attacksTime[i]); // seconds to crack passw
+        qDebug() <<to_crack;
+        if (to_crack<1)
+            items.append(new QStandardItem("less than a second"));
+        else if (to_crack <60){
+            temp.sprintf("%.0f seconds", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        else if ((to_crack/=60) <60){//now in minutes, less than an hour
+            temp.sprintf("%.0f minutes", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        else if ((to_crack/=60) < 24){//now in hours, less than a day
+            temp.sprintf("%.0f hours", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        else if ((to_crack/=24) < 30){//now in days, less than a month
+            temp.sprintf("%.0f days", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        else if ((to_crack/=30) < 12){//now in months, less than a year
+            temp.sprintf("%.0f months", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        else{
+            to_crack/=12;
+            temp.sprintf("%.0f years", to_crack);
+            items.append(new QStandardItem(temp));
+        }
+        items.last()->setTextAlignment(Qt::AlignRight);
+
+        model_times->appendRow(items);
+    }
+
+
+
+    //// ********* models for Breeak down table ************
+
+    headers.clear();
+    headers << "Password" << "Type" << "Length" <<  "Entropy bits" <<  "Log entropy";
+    model_whole->setHorizontalHeaderLabels(headers);
     model->setHorizontalHeaderLabels(headers);
+
+    items.clear();
+    items.append(new QStandardItem(ui->InPass->text()));
+    items.append(new QStandardItem("-"));
+    items.last()->setTextAlignment(Qt::AlignCenter);
+
+    temp.sprintf("%d", ui->InPass->text().length());
+    items.append(new QStandardItem(temp));
+    items.last()->setTextAlignment(Qt::AlignRight);
+
+    temp.sprintf("%6.3f", e);
+    items.append(new QStandardItem(temp));
+    items.last()->setTextAlignment(Qt::AlignRight);
+
+    temp.sprintf("%.2f", elog);
+    items.append(new QStandardItem(temp));
+    items.last()->setTextAlignment(Qt::AlignRight);
+
+    model_whole->insertRow(0,items);
+
+    headers.clear();
+    headers << " ";
+    model_whole->setVerticalHeaderLabels(headers);
+
+
+
+
 
     while(p)
     {
@@ -367,14 +461,20 @@ void AddEntry::build_info_model(const char* Pwd){
             items.append(new QStandardItem(temp));
             break;
         }
+
         temp.sprintf("%d", p->Length);
         items.append(new QStandardItem(temp));
+        items.last()->setTextAlignment(Qt::AlignRight);
 
         temp.sprintf("%6.3f", p->Entrpy);
         items.append(new QStandardItem(temp));
+        items.last()->setTextAlignment(Qt::AlignRight);
 
         temp.sprintf("%.2f", p->Entrpy * LOG102);
         items.append(new QStandardItem(temp));
+        items.last()->setTextAlignment(Qt::AlignRight);
+
+
 
         model->appendRow(items);
         m += p->Entrpy;
@@ -382,32 +482,26 @@ void AddEntry::build_info_model(const char* Pwd){
         p = p->Next;
     }
 
-    items.clear();
-    items.append(new QStandardItem(ui->InPass->text()));
-    items.append(new QStandardItem("-"));
-
-    temp.sprintf("%d", ui->InPass->text().length());
-    items.append(new QStandardItem(temp));
-
-    temp.sprintf("%6.3f", e);
-    items.append(new QStandardItem(temp));
-
-    temp.sprintf("%.2f", elog);
-    items.append(new QStandardItem(temp));
-
-    model->insertRow(0,items);
 
     items.clear();
-    items.append(new QStandardItem("Multi-word extra bits"));
+    items.append(new QStandardItem("Multi-word"));
     items.append(new QStandardItem("-"));
+    items.last()->setTextAlignment(Qt::AlignCenter);
     items.append(new QStandardItem("-"));
+    items.last()->setTextAlignment(Qt::AlignCenter);
+
     temp.sprintf("%6.3f", e-m);
     items.append(new QStandardItem(temp));
+    items.last()->setTextAlignment(Qt::AlignRight);
 
     temp.sprintf("%.2f", (e-m)*LOG102);
     items.append(new QStandardItem(temp));
+    items.last()->setTextAlignment(Qt::AlignRight);
 
-    model->appendRow(items);
+    model_multi->appendRow(items);
+    headers.clear();
+    headers << " ";
+    model_multi->setVerticalHeaderLabels(headers);
 
     ZxcvbnFreeInfo(Info);
 }
