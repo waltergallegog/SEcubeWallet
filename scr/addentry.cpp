@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QAbstractButton>
 #include <QtMath>
+#include <QLibrary>
 
 #include "preferencesdialog.h"
 #include "passwordInfo.h"

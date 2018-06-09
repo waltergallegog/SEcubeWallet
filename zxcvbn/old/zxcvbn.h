@@ -34,19 +34,9 @@
 /* streams are always used). */
 /*#define USE_FILE_IO */
 
-#ifndef __cplusplus
-/* C build. Use the standard malloc/free for heap memory */
-#include <stdlib.h>
-#define MallocFn(T,N) ((T *)malloc((N) * sizeof(T)))
-#define FreeFn(P)      free(P)
-
-#else
-
 /* C++ build. Use the new/delete operators for heap memory */
 #define MallocFn(T,N)   (new T[N])
 #define FreeFn(P)       (delete [] P)
-
-#endif
 
 /* Enum for the types of match returned in the Info arg to ZxcvbnMatch */
 typedef enum

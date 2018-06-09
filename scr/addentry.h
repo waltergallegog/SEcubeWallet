@@ -7,7 +7,8 @@
 #include <QDialogButtonBox>
 #include <QStandardItemModel>
 
-#include "zxcvbn.h"
+
+//#include "zxcvbn.h"
 
 //password generators
 #define PWGEN 0
