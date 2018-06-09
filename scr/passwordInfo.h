@@ -1,5 +1,5 @@
-#ifndef ZXCINFO_H
-#define ZXCINFO_H
+#ifndef PASSWORDINFO_H
+#define PASSWORDINFO_H
 
 #include <QDialog>
 #include <QStandardItemModel>
@@ -9,14 +9,14 @@ namespace Ui {
 class zxcInfo;
 }
 
-class zxcInfo : public QDialog
+class passwordInfo : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit zxcInfo(QWidget *parent = 0);
-    explicit zxcInfo(QWidget *parent = 0, QStandardItemModel* model=NULL, QStandardItemModel* model_whole=NULL, QStandardItemModel* model_multi=NULL, QStandardItemModel* model_times=NULL);
-    ~zxcInfo();
+    explicit passwordInfo(QWidget *parent = 0);
+    explicit passwordInfo(QWidget *parent = 0, QStandardItemModel* model=NULL, QStandardItemModel* model_whole=NULL, QStandardItemModel* model_multi=NULL, QStandardItemModel* model_times=NULL);
+    ~passwordInfo();
 
 private:
     Ui::zxcInfo *ui;
@@ -34,4 +34,4 @@ protected:
 };
 
 
-#endif // ZXCINFO_H
+#endif // PASSWORDINFO_H

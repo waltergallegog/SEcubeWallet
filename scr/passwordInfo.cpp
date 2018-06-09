@@ -1,5 +1,5 @@
-#include "zxcinfo.h"
-#include "ui_zxcinfo.h"
+#include "passwordInfo.h"
+#include "ui_passwordInfo.h"
 
 #include <QFont>
 #include <QTableView>
@@ -8,21 +8,21 @@
 #include <QTimer>
 #include <QSignalMapper>
 
-zxcInfo::zxcInfo(QWidget *parent) :
+passwordInfo::passwordInfo(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::zxcInfo)
 {
     ui->setupUi(this);
 }
 
-zxcInfo::zxcInfo(QWidget *parent, QStandardItemModel* model, QStandardItemModel *model_whole, QStandardItemModel* model_multi, QStandardItemModel *model_times) :
+passwordInfo::passwordInfo(QWidget *parent, QStandardItemModel* model, QStandardItemModel *model_whole, QStandardItemModel* model_multi, QStandardItemModel *model_times) :
     QDialog(parent),
     ui(new Ui::zxcInfo)
 {
     ui->setupUi(this);
     setModal(true);
 
-    //ui->lb_info->setText(info);
+    setWindowTitle( tr("Security Level information") );
 
     ui->tv_pass->setModel(model_whole);
     QFont font (ui->tv_pass->font());
@@ -50,12 +50,12 @@ zxcInfo::zxcInfo(QWidget *parent, QStandardItemModel* model, QStandardItemModel 
 
 }
 
-zxcInfo::~zxcInfo()
+passwordInfo::~passwordInfo()
 {
     delete ui;
 }
 
-void zxcInfo::verticalResizeTableViewToContents(QTableView *tableView)
+void passwordInfo::verticalResizeTableViewToContents(QTableView *tableView)
 {
     int rowTotalHeight=0;
 
@@ -81,7 +81,7 @@ void zxcInfo::verticalResizeTableViewToContents(QTableView *tableView)
 
 }
 
-void zxcInfo::resizeOnce_caller(){
+void passwordInfo::resizeOnce_caller(){
     resizeHoriz(ui->tv_pass);
     resizeHoriz(ui->tv_multi);
 
@@ -89,7 +89,7 @@ void zxcInfo::resizeOnce_caller(){
     //        verticalResizeTableViewToContents(ui->tv_info);
 }
 
-void zxcInfo::resizeHoriz(QTableView *tableView){
+void passwordInfo::resizeHoriz(QTableView *tableView){
 
     //    tableView->horizontalScrollBar()->setVisible(false);
 
@@ -105,7 +105,7 @@ void zxcInfo::resizeHoriz(QTableView *tableView){
 
 }
 
-void zxcInfo::resizeEvent(QResizeEvent* event){
+void passwordInfo::resizeEvent(QResizeEvent* event){
 
     //    static bool scrollState = false;
 
@@ -130,7 +130,7 @@ void zxcInfo::resizeEvent(QResizeEvent* event){
 }
 
 
-void zxcInfo::on_tabWidget_currentChanged(int index){
+void passwordInfo::on_tabWidget_currentChanged(int index){
     if (!index){
         resizeHoriz(ui->tv_pass);
         resizeHoriz(ui->tv_multi);

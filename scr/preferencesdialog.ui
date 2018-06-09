@@ -13,11 +13,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="PassGens">
       <attribute name="title">
@@ -252,8 +252,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>508</width>
-            <height>333</height>
+            <width>100</width>
+            <height>30</height>
            </rect>
           </property>
           <attribute name="label">
@@ -264,14 +264,208 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="zxcvbn">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>zxcvbn</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Here you can choose what &lt;span style=&quot; font-weight:600;&quot;&gt;dictionaries&lt;/span&gt; you want zxcvbn to use. Dictionaries are a crucial part of the algorithm, because they are used estimate the security level of a password according to how common the used words (if any) are. A password containing words present in any of the dictionaries will be easier to crack as hackers will probably try out those specific words.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolBox" name="dicts">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="General">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>508</width>
+            <height>281</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>General dictionaries</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Browse&lt;/span&gt; button to choose the dictionaries to use. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Generate&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size). Click &lt;span style=&quot; font-weight:600;&quot;&gt;Current&lt;/span&gt; to see dictionaries in use.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QPushButton" name="pb_genBrowse">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_genGen">
+                <property name="text">
+                 <string>Generate</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_genCurrent">
+                <property name="text">
+                 <string>Current</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QScrollArea" name="scrollArea">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>474</width>
+                <height>318</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;General dictionaries&lt;/span&gt; contain a large number of words that are useful for all users. Examples of these type of dictionaries are: &lt;/p&gt;&lt;p&gt;List of most common words in a given language&lt;/p&gt;&lt;p&gt;List of common names and lastnames&lt;/p&gt;&lt;p&gt;List of popular words because of tv or films&lt;/p&gt;&lt;p&gt;List of popular (and unsafe) passwords&lt;/p&gt;&lt;p&gt;As the dictionary files (.txt) are pretty large, the algorithm does not read from them directly. Instead, a &lt;span style=&quot; font-weight:600;&quot;&gt;DicNodes &lt;/span&gt;array is generated, using the tool dict-generate.&lt;br/&gt;To add your own dictionaries, please make sure they are saved as plain-text, (.txt UTF-8), and store them into the DICTS directory. The file must have one word per line, with the first word being the most common one. So for instance, in the English dictionary the first word is &amp;quot;the&amp;quot; and the last one is &amp;quot;surma&amp;quot;. This is important as it is used to calculate the security of your password. A password containing the word surma is far more secure that one containing the word &amp;quot;the&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+              <zorder>label_2</zorder>
+              <zorder>pb_genGen</zorder>
+              <zorder>pb_genBrowse</zorder>
+              <zorder>pb_genGen</zorder>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="User">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>508</width>
+            <height>281</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>User dictionaries</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click &lt;span style=&quot; font-weight:600;&quot;&gt;Browse&lt;/span&gt; and choose the file you want to load words from. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Add&lt;/span&gt; if you want to add words manually. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Current&lt;/span&gt; to see and edit the list of the words currently in the dictionary.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QPushButton" name="pb_userBrowse">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_userMan">
+                <property name="text">
+                 <string>Add Manually</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_userCurrent">
+                <property name="text">
+                 <string>Current</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QScrollArea" name="scrollArea_2">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_2">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>488</width>
+                <height>163</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;User dictionary &lt;/span&gt;contain words that are relevant only to a specific user. Add words you think the user will probably choose as their passwords. For example, if you intend to use this application increase the security in your company, adding the company's name to this list is a good idea, and if for example your company works in the automotive business, add &lt;span style=&quot; font-weight:600;&quot;&gt;related words&lt;/span&gt; as motor, aerodynamic, wheels etc. Remember: the key to a good password is in its randomness. When a hacker is trying to crack one, they will for sure try words relevant to the target.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

@@ -26,6 +26,8 @@ private slots:
     void l_noVow_clicked();
     void l_random_clicked();
 
+    void on_pb_genGen_clicked();
+
 private:
     Ui::PreferencesDialog *ui;
 };

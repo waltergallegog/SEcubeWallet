@@ -5,3 +5,4 @@ SUBDIRS += \
     SEfile \
     securesqlite3 \
     pwgen \
+    zxcvbn

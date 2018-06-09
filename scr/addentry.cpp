@@ -10,7 +10,7 @@
 #include <QtMath>
 
 #include "preferencesdialog.h"
-#include "zxcinfo.h"
+#include "passwordInfo.h"
 
 extern "C"
 {
@@ -153,6 +153,8 @@ void AddEntry::on_InPass_textChanged(const QString &text){
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
 
+        ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
+
         e = ZxcvbnMatch(text.toLatin1().constData(), NULL, &Info); //entropy bits in base 2
         elog = e*LOG102;
         qDebug() << e << elog;
@@ -180,6 +182,7 @@ void AddEntry::on_InPass_textChanged(const QString &text){
         ui->score->setValue(0);
         ui->score->setTextVisible(false);
         ui->lb_secLevel->clear();
+        ui->lb_length->setText("");
     }
 }
 
@@ -325,7 +328,7 @@ void AddEntry::on_pb_secInfo_clicked(){
         build_info_model(Pwd);//only called once per different password
     }
 
-    zxcInfo *info = new zxcInfo(this, model, model_whole, model_multi, model_times);
+    passwordInfo *info = new passwordInfo(this, model, model_whole, model_multi, model_times);
     info->exec();
 }
 

@@ -39,11 +39,10 @@ SOURCES += main.cpp\
     filtersaligned.cpp \
     saveconfirmation.cpp \
     overwritedialog.cpp \
-    zxcvbn.cpp \
     myapplication.cpp \
     preferencesdialog.cpp \
     clickablelabel.cpp \
-    zxcinfo.cpp
+    passwordInfo.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -52,8 +51,6 @@ HEADERS  += mainwindow.h \
     securefiledialog.h \
     addentry.h \
     deleteconfirmation.h \
-    dict-src.h \
-    zxcvbn.h \
     mysortfilterproxymodel.h \
     helpwindow.h \
     newtable.h \
@@ -65,7 +62,7 @@ HEADERS  += mainwindow.h \
     myapplication.h \
     preferencesdialog.h \
     clickablelabel.h \
-    zxcinfo.h
+    passwordInfo.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
@@ -75,7 +72,7 @@ FORMS    += mainwindow.ui \
     saveconfirmation.ui \
     overwritedialog.ui \
     preferencesdialog.ui \
-    zxcinfo.ui
+    passwordInfo.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile
@@ -152,3 +149,16 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../pwgen/libpwgen.a
 
 DISTFILES +=
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../zxcvbn/release/ -lzxcvbn
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../zxcvbn/debug/ -lzxcvbn
+else:unix: LIBS += -L$$OUT_PWD/../zxcvbn/ -lzxcvbn
+
+INCLUDEPATH += $$PWD/../zxcvbn
+DEPENDPATH += $$PWD/../zxcvbn
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../zxcvbn/release/libzxcvbn.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../zxcvbn/debug/libzxcvbn.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../zxcvbn/release/zxcvbn.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../zxcvbn/debug/zxcvbn.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../zxcvbn/libzxcvbn.a

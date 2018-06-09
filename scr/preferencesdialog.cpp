@@ -3,6 +3,7 @@
 
 #include <QSettings>
 #include <QDebug>
+#include <QProcess>
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
@@ -67,6 +68,9 @@ void PreferencesDialog::on_buttonBox_accepted(){
 
 }
 
+
+// As qcheckbox text cannot be wrapped, a textless checkbox plus a label was used. When the label is clicked the
+// correspondent checkbox is togled
 void PreferencesDialog::l_1cap_clicked(){
     ui->cb_1cap->toggle();
 }
@@ -98,4 +102,16 @@ void PreferencesDialog::l_noVow_clicked(){
 
 void PreferencesDialog::l_random_clicked(){
     ui->cb_random->toggle();
+}
+// end of lable_clicked => checkbox togled
+
+
+/// **** zxcvbn preferences buttons *****
+
+void PreferencesDialog::on_pb_genGen_clicked(){
+
+    QProcess process;
+
+    process.start("../zxcvbn/make WORDS='./DICTS/words-eng_wiki.txt ./DICTS/words-female.txt'");
+    process.waitForFinished();
 }
