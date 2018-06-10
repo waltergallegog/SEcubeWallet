@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     myapplication.cpp \
     preferencesdialog.cpp \
     clickablelabel.cpp \
-    passwordInfo.cpp
+    passwordInfo.cpp \
+    dictlist.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     myapplication.h \
     preferencesdialog.h \
     clickablelabel.h \
-    passwordInfo.h
+    passwordInfo.h \
+    dictlist.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
@@ -72,7 +74,8 @@ FORMS    += mainwindow.ui \
     saveconfirmation.ui \
     overwritedialog.ui \
     preferencesdialog.ui \
-    passwordInfo.ui
+    passwordInfo.ui \
+    dictlist.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

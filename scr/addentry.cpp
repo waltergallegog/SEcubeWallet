@@ -49,13 +49,20 @@ AddEntry::AddEntry(QWidget *parent) :
     setWindowTitle( tr("Fillout the new entry") );
     setModal(true); //Modal, so user cannot access main window without first closing this one
 
-    //open dictionry. Only once
+    QString zxcvbn_lib_path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/libzxcvbn");
 
-    if (!ZxcvbnInit()){
-        qDebug() << "Failed Open Dictionary File";
-    }else{
-        qDebug() << "Dictionary File Opened Correctly";
-    }
+    zxcvbnLib = new QLibrary(zxcvbn_lib_path);
+    qDebug()<< "Load " << zxcvbnLib->load();
+    ZxcvbnMatch = (ZxcvbnMatch_type) zxcvbnLib->resolve("ZxcvbnMatch");
+    qDebug()<< "match " << ZxcvbnMatch;
+    ZxcvbnFreeInfo =(ZxcvbnFreeInfo_type) zxcvbnLib->resolve("ZxcvbnFreeInfo");
+    qDebug()<< "free " <<  ZxcvbnFreeInfo;
+
+//    if (!ZxcvbnInit()){
+//        qDebug() << "Failed Open Dictionary File";
+//    }else{
+//        qDebug() << "Dictionary File Opened Correctly";
+//    }
 }
 
 // Second constructor, called from eddit entry
@@ -72,11 +79,11 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InDesc->setText(EditDescIn);
 
 
-    if (!ZxcvbnInit()){
-        qDebug() << "Failed Open Dictionary File";
-    }else{
-        qDebug() << "Dictionary File Opened Correctly";
-    }
+//    if (!ZxcvbnInit()){
+//        qDebug() << "Failed Open Dictionary File";
+//    }else{
+//        qDebug() << "Dictionary File Opened Correctly";
+//    }
 
     ui->InPass2->setEnabled(true);
     ui->sh_pass->setEnabled(true);
@@ -91,6 +98,10 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
 }
 
 AddEntry::~AddEntry(){
+    delete ui;
+}
+
+void AddEntry::clean(){
     if(model){
         model->clear();// as we are going to build a new model, delete the old
         delete(model);
@@ -101,7 +112,8 @@ AddEntry::~AddEntry(){
         model_multi->clear();
         delete(model_multi);
     }
-    delete ui;
+
+    qDebug() << "unload "<<zxcvbnLib->unload();
 }
 
 QString AddEntry::getUser(){

@@ -17,6 +17,7 @@ public:
 
 private slots:
     void on_buttonBox_accepted();
+
     void l_1cap_clicked();
     void l_1num_clicked();
     void l_1spec_clicked();
@@ -27,9 +28,15 @@ private slots:
     void l_random_clicked();
 
     void on_pb_genGen_clicked();
+    void on_pb_genChoose_clicked();
 
 private:
     Ui::PreferencesDialog *ui;
+    QStringList genDict;
+
+    void setAllEnabled(bool enabled);
+
+
 };
 
 #endif // PREFERENCESDIALOG_H

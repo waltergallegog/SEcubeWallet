@@ -6,6 +6,7 @@
 #include <QAbstractButton>
 #include <QDialogButtonBox>
 #include <QStandardItemModel>
+#include <QLibrary>
 
 
 //#include "zxcvbn.h"
@@ -15,6 +16,36 @@
 #define PWQGEN 1
 #define CUSTOM 2
 #define NONE 3
+
+/* Enum for the types of match returned in the Info arg to ZxcvbnMatch */
+typedef enum
+{
+    NON_MATCH,          /* 0 */
+    BRUTE_MATCH,        /* 1 */
+    DICTIONARY_MATCH,   /* 2 */
+    DICT_LEET_MATCH,    /* 3 */
+    USER_MATCH,         /* 4 */
+    USER_LEET_MATCH,    /* 5 */
+    REPEATS_MATCH,      /* 6 */
+    SEQUENCE_MATCH,     /* 7 */
+    SPATIAL_MATCH,      /* 8 */
+    DATE_MATCH,         /* 9 */
+    YEAR_MATCH,         /* 10 */
+    MULTIPLE_MATCH = 32 /* Added to above to indicate matching part has been repeated */
+} ZxcTypeMatch_t;
+
+/* Linked list of information returned in the Info arg to ZxcvbnMatch */
+struct ZxcMatch
+{
+    int             Begin;   /* Char position of begining of match */
+    int             Length;  /* Number of chars in the match */
+    double          Entrpy;  /* The entropy of the match */
+    double          MltEnpy; /* Entropy with additional allowance for multipart password */
+    ZxcTypeMatch_t  Type;    /* Type of match (Spatial/Dictionary/Order/Repeat) */
+    struct ZxcMatch *Next;
+};
+typedef struct ZxcMatch ZxcMatch_t;
+
 
 namespace Ui {
 class AddEntry;
@@ -32,6 +63,9 @@ public:
     explicit AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn, QString EditDescIn);
 
     ~AddEntry();//Destructor
+
+    //to clean model and shared memory
+    void clean();
 
     //Methods to access data from main.
     QString getUser();
@@ -82,6 +116,14 @@ private:
 
 
     const double attacksTime[4] = {-1.55623,1,4,10};
+
+    QLibrary * zxcvbnLib;
+    typedef double (*ZxcvbnMatch_type)(const char *Passwd, const char *UserDict[], ZxcMatch_t **Info);
+    ZxcvbnMatch_type ZxcvbnMatch;
+
+    typedef void (*ZxcvbnFreeInfo_type)(ZxcMatch_t *Info);
+    ZxcvbnFreeInfo_type ZxcvbnFreeInfo;
+
 
 };
 

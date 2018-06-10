@@ -1,5 +1,7 @@
 #include "preferencesdialog.h"
 #include "ui_preferencesdialog.h"
+#include "dictlist.h"
+
 
 #include <QSettings>
 #include <QDebug>
@@ -110,8 +112,43 @@ void PreferencesDialog::l_random_clicked(){
 
 void PreferencesDialog::on_pb_genGen_clicked(){
 
-    QProcess process;
+    QProcess sh;
+    QString zxcvbn_make_path = QCoreApplication::applicationDirPath().
+            append("/../../SEcubeWallet/zxcvbn/");
+    QString cd = "cd "+zxcvbn_make_path;
+    QString make_command = QString(" make")
+            .append(" WORDS='");
 
-    process.start("../zxcvbn/make WORDS='./DICTS/words-eng_wiki.txt ./DICTS/words-female.txt'");
-    process.waitForFinished();
+    foreach (const QString dict, genDict) {
+        make_command.append(dict).append(" ");
+    }
+    make_command.append("'");
+
+    QString cdandmake = cd+" && make clean && "+make_command;
+    qDebug() << cdandmake;
+
+    setAllEnabled(false);//generate process takes a while, so disable all buttons.
+    qApp->processEvents(); // otherwise the repaint take place after this function finishes
+    sh.start("sh", QStringList() << "-c" << cdandmake);    
+    sh.waitForFinished();
+    setAllEnabled(true);
+
+    QString output(sh.readAllStandardOutput());
+    qDebug()<<output;
+    QString err(sh.readAllStandardError());
+    qDebug()<<err;
+}
+
+void PreferencesDialog::on_pb_genChoose_clicked(){
+    dictList *list = new dictList();
+    list->exec();
+    if(list->result()==QDialog::Rejected)
+        return; // If error or cancel, do nothing
+
+   genDict = list->getChecked();
+}
+
+void PreferencesDialog::setAllEnabled(bool enabled){
+    ui->buttonBox->setEnabled(enabled);
+    ui->tabWidget->setEnabled(enabled);
 }

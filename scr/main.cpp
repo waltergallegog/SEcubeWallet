@@ -7,6 +7,7 @@ int main(int argc, char *argv[]){
     QApplication::setDesktopSettingsAware(false);
     QApplication::setStyle("QtCurve");
     QApplication  a(argc, argv);//MyApplication a(argc, argv);
+
     MainWindow w;
     qWarning()<<"start the app";
     w.show();

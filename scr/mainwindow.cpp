@@ -458,6 +458,7 @@ void MainWindow::on_action_Add_Entry_triggered(){
 
     AddEntry *add = new AddEntry(this);
     add->exec();
+    add->clean();
     if(add->result()==QDialog::Rejected){
         return; // Error or cancel, do nothing
     }
@@ -503,7 +504,7 @@ void MainWindow::on_action_Edit_Entry_triggered()
                                      proxyModel->index(row,DOM_COL).data().toString(),
                                      proxyModel->index(row,DESC_COL).data().toString());
         add->exec();
-
+        add->clean();
         if(add->result()==QDialog::Rejected)
             return; // If error or cancel, do nothing
 
