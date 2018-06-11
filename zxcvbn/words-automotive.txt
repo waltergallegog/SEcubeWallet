@@ -1,0 +1,8 @@
+car
+doors
+windows
+automotive
+turbo
+fiat
+mazda
+renault

@@ -2,7 +2,7 @@
 #include "ui_dictlist.h"
 #include <QDir>
 
-dictList::dictList(QWidget *parent) :
+dictList::dictList(QWidget *parent, QStringList genDict) :
     QDialog(parent),
     ui(new Ui::dictList)
 {
@@ -23,7 +23,10 @@ dictList::dictList(QWidget *parent) :
     for(int i = 0; i < ui->lw_dict->count(); ++i){
         item = ui->lw_dict->item(i);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Unchecked);
+        if (genDict.contains(item->text()))
+            item->setCheckState(Qt::Checked);
+        else
+            item->setCheckState(Qt::Unchecked);
     }
 }
 
@@ -44,3 +47,4 @@ QStringList dictList::getChecked(){
 
     return checked;
 }
+

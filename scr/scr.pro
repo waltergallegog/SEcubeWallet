@@ -43,7 +43,9 @@ SOURCES += main.cpp\
     preferencesdialog.cpp \
     clickablelabel.cpp \
     passwordInfo.cpp \
-    dictlist.cpp
+    dictlist.cpp \
+    edituserdict.cpp \
+    userwordslist.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -64,7 +66,9 @@ HEADERS  += mainwindow.h \
     preferencesdialog.h \
     clickablelabel.h \
     passwordInfo.h \
-    dictlist.h
+    dictlist.h \
+    edituserdict.h \
+    userwordslist.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \
@@ -75,7 +79,9 @@ FORMS    += mainwindow.ui \
     overwritedialog.ui \
     preferencesdialog.ui \
     passwordInfo.ui \
-    dictlist.ui
+    dictlist.ui \
+    edituserdict.ui \
+    userwordslist.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../SEfile/release/ -lSEfile
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../SEfile/debug/ -lSEfile

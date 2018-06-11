@@ -12,7 +12,7 @@ class dictList : public QDialog
     Q_OBJECT
 
 public:
-    explicit dictList(QWidget *parent = 0);
+     dictList(QWidget *parent, QStringList genDict);
     ~dictList();
 
     QStringList getChecked();

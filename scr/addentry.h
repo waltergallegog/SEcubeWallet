@@ -104,6 +104,9 @@ private:
     QList<QStandardItem *> items;
     QString currentPass;
 
+    char **userDict;
+//    const char ** userDictConst;
+
     const QStringList attacksType = QStringList() << "Throttled online attack"
                                                   << "Unthrottled online attack"
                                                   << "Offline attack, slow hash, many cores"

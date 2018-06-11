@@ -1,11 +1,14 @@
 #include "preferencesdialog.h"
 #include "ui_preferencesdialog.h"
-#include "dictlist.h"
 
+#include "dictlist.h"
+#include "edituserdict.h"
+#include "userwordslist.h"
 
 #include <QSettings>
 #include <QDebug>
 #include <QProcess>
+#include <QFileDialog>
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
@@ -118,8 +121,9 @@ void PreferencesDialog::on_pb_genGen_clicked(){
     QString cd = "cd "+zxcvbn_make_path;
     QString make_command = QString(" make")
             .append(" WORDS='");
+    QSettings settings;
 
-    foreach (const QString dict, genDict) {
+    foreach (const QString dict, settings.value("genDict").toStringList()) {
         make_command.append(dict).append(" ");
     }
     make_command.append("'");
@@ -140,15 +144,84 @@ void PreferencesDialog::on_pb_genGen_clicked(){
 }
 
 void PreferencesDialog::on_pb_genChoose_clicked(){
-    dictList *list = new dictList();
+    QSettings settings;
+    dictList *list = new dictList(this, settings.value("genDict").toStringList());
     list->exec();
     if(list->result()==QDialog::Rejected)
         return; // If error or cancel, do nothing
 
-   genDict = list->getChecked();
+
+   settings.setValue("genDict", list->getChecked());
 }
 
 void PreferencesDialog::setAllEnabled(bool enabled){
     ui->buttonBox->setEnabled(enabled);
     ui->tabWidget->setEnabled(enabled);
+}
+
+void PreferencesDialog::on_pb_userBrowse_clicked(){
+
+    QSettings settings;
+
+    QString fileName = QFileDialog::getOpenFileName(this, "select filename",
+                                                    QCoreApplication::applicationDirPath()
+                                                    .append("/../../SEcubeWallet/zxcvbn/"),
+                                                    "Plain Text Files(words*.txt)");
+    if (fileName.isEmpty())
+        return;
+
+    editUserDict *edit = new editUserDict (this,fileName);
+    edit->exec();
+    if(edit->result()==QDialog::Rejected)
+        return; // If error or cancel, do nothing
+
+    QStringList current = settings.value("userDict").toStringList();
+    QStringList checked = settings.value("userDictChecked").toStringList();
+     foreach (const QString word, edit->getList()){
+        if(!current.contains(word,Qt::CaseInsensitive)){
+            current.append(word);
+            checked.append(word);//by default checked
+        }
+     }
+
+     settings.setValue("userDict", current);
+     settings.setValue("userDictChecked", checked);
+}
+
+void PreferencesDialog::on_pb_userMan_clicked(){
+
+    QSettings settings;
+
+    editUserDict *edit = new editUserDict (this);
+    edit->exec();
+    if(edit->result()==QDialog::Rejected)
+        return; // If error or cancel, do nothing
+
+    QStringList current = settings.value("userDict").toStringList();
+    QStringList checked = settings.value("userDictChecked").toStringList();
+     foreach (const QString word, edit->getList()){
+        if(!current.contains(word,Qt::CaseInsensitive)){
+            current.append(word);
+            checked.append(word);//by default checked
+        }
+     }
+
+     settings.setValue("userDict", current);
+     settings.setValue("userDictChecked", checked);
+}
+
+void PreferencesDialog::on_pb_userCurrent_clicked(){
+
+    QSettings settings;
+    QStringList current = settings.value("userDict").toStringList();
+    current.sort();
+
+    userWordsList *list = new userWordsList(this);
+    list->exec();
+    if(list->result()==QDialog::Rejected)
+        return; // If error or cancel, do nothing
+
+   settings.setValue("userDict", list->getAll());
+   settings.setValue("userDictChecked", list->getChecked());
+
 }

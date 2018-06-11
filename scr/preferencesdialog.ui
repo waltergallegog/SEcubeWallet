@@ -291,7 +291,7 @@
        <item>
         <widget class="QToolBox" name="dicts">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="General">
           <property name="geometry">
@@ -309,7 +309,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to choose the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Generate&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to choose the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Compile&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -329,7 +329,7 @@
               <item>
                <widget class="QPushButton" name="pb_genGen">
                 <property name="text">
-                 <string>Generate</string>
+                 <string>Compile</string>
                 </property>
                </widget>
               </item>
@@ -354,7 +354,7 @@
                <item>
                 <widget class="QLabel" name="label_2">
                  <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;General dictionaries&lt;/span&gt; contain a large number of words that are useful for all users. Examples of these type of dictionaries are: &lt;/p&gt;&lt;p&gt;List of most common words in a given language&lt;/p&gt;&lt;p&gt;List of common names and lastnames&lt;/p&gt;&lt;p&gt;List of popular words because of tv or films&lt;/p&gt;&lt;p&gt;List of popular (and unsafe) passwords&lt;/p&gt;&lt;p&gt;As the dictionary files (.txt) are pretty large, the algorithm does not read from them directly. Instead, a &lt;span style=&quot; font-weight:600;&quot;&gt;DicNodes &lt;/span&gt;array is generated, using the tool dict-generate.&lt;br/&gt;To add your own dictionaries, please make sure they are saved as plain-text, (.txt UTF-8), and store them into the zxcvbn directory. The file must have one word per line, with the first word being the most common one. So for instance, in the English dictionary the first word is &amp;quot;the&amp;quot; and the last one is &amp;quot;surma&amp;quot;. This is important as it is used to calculate the security of your password. A password containing the word surma is far more secure that one containing the word &amp;quot;the&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;General dictionaries&lt;/span&gt; contain a large number of words that are useful for all users. Examples of these type of dictionaries are: &lt;/p&gt;&lt;p&gt;List of most common words in a given language&lt;/p&gt;&lt;p&gt;List of common names and lastnames&lt;/p&gt;&lt;p&gt;List of popular words because of tv or films&lt;/p&gt;&lt;p&gt;List of popular (and unsafe) passwords&lt;/p&gt;&lt;p&gt;As the dictionary files (.txt) are pretty large, the algorithm does not read from them directly. Instead, a &lt;span style=&quot; font-weight:600;&quot;&gt;DicNodes &lt;/span&gt;array is generated, using the tool dict-generate, and this array is compiled in the source code.&lt;br/&gt;To add your own dictionaries, please make sure they are saved as plain-text, (.txt UTF-8), and store them into the zxcvbn directory. The file must have one word per line, with the first word being the most common one. So for instance, in the English dictionary the first word is &amp;quot;the&amp;quot; and the last one is &amp;quot;surma&amp;quot;. This is important as it is used to calculate the security of your password. A password containing the word surma is far more secure that one containing the word &amp;quot;the&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
@@ -372,8 +372,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>298</width>
-            <height>346</height>
+            <width>494</width>
+            <height>331</height>
            </rect>
           </property>
           <attribute name="label">
@@ -383,7 +383,7 @@
            <item>
             <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click &lt;span style=&quot; font-weight:600;&quot;&gt;Browse&lt;/span&gt; and choose the file you want to load words from. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Add&lt;/span&gt; if you want to add words manually. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Current&lt;/span&gt; to see and edit the list of the words currently in the dictionary.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click &lt;span style=&quot; font-weight:600;&quot;&gt;Browse&lt;/span&gt; and choose the file you want to load words from. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Add&lt;/span&gt; if you want to add words manually. Click &lt;span style=&quot; font-weight:600;&quot;&gt;Current&lt;/span&gt; to see and edit the list of the words currently in the dictionary. Added files should not be very large. If you have a large dictionary, consider adding it as a General Dictionary.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -427,8 +427,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>264</width>
-                <height>243</height>
+                <width>474</width>
+                <height>198</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">

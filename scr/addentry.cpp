@@ -58,11 +58,23 @@ AddEntry::AddEntry(QWidget *parent) :
     ZxcvbnFreeInfo =(ZxcvbnFreeInfo_type) zxcvbnLib->resolve("ZxcvbnFreeInfo");
     qDebug()<< "free " <<  ZxcvbnFreeInfo;
 
-//    if (!ZxcvbnInit()){
-//        qDebug() << "Failed Open Dictionary File";
-//    }else{
-//        qDebug() << "Dictionary File Opened Correctly";
-//    }
+    QSettings settings;
+
+    QStringList userDictList= settings.value("userDictChecked").toStringList();
+    userDict = new char*[userDictList.size()+1];
+    int i=0;
+    foreach(QString s, userDictList){
+        userDict[i] = new char[s.toLatin1().size()+1];
+        strcpy(userDict[i], s.toLatin1().data());
+        i++;
+
+    }
+    userDict[i]=0; // last entry of char**userdict must be zero (like argv), so zxcvbn knows where to stop
+
+    for (i=0;i<userDictList.size()+1;i++)
+        qDebug()<<userDict[i];
+
+
 }
 
 // Second constructor, called from eddit entry
@@ -114,6 +126,7 @@ void AddEntry::clean(){
     }
 
     qDebug() << "unload "<<zxcvbnLib->unload();
+    free(userDict);
 }
 
 QString AddEntry::getUser(){
@@ -168,7 +181,7 @@ void AddEntry::on_InPass_textChanged(const QString &text){
 
         ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
 
-        e = ZxcvbnMatch(text.toLatin1().constData(), NULL, &Info); //entropy bits in base 2
+        e = ZxcvbnMatch(text.toLatin1().constData(), const_cast<const char**>(userDict), &Info); //entropy bits in base 2
         elog = e*LOG102;
         qDebug() << e << elog;
 

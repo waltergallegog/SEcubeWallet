@@ -30,9 +30,14 @@ private slots:
     void on_pb_genGen_clicked();
     void on_pb_genChoose_clicked();
 
+    void on_pb_userBrowse_clicked();
+
+    void on_pb_userMan_clicked();
+
+    void on_pb_userCurrent_clicked();
+
 private:
     Ui::PreferencesDialog *ui;
-    QStringList genDict;
 
     void setAllEnabled(bool enabled);
 
