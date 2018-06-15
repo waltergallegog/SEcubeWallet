@@ -1,6 +1,9 @@
 #include "logindialog.h"
 #include <QDebug>
 
+#include <QMessageBox>
+
+
 
 LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 {
@@ -98,21 +101,41 @@ void LoginDialog::slotAcceptLogin(){
         qDebug()<<"L0_open ok";
     }
 
-    //if ( (ret = L1_login(&s, &dev, (uint8_t *)password.toUtf8().data(), SE3_ACCESS_USER)) != SE3_OK ){
-    if ( (ret = L1_login(&s, &dev, pin, SE3_ACCESS_USER)) != SE3_OK ){
-         if(ret == SE3_ERR_PIN){ //If the password is wrong, a message will appear in the dialog
+    qDebug()<<"logout"<<logout;
+    ret = L1_login(&s, &dev, pin, SE3_ACCESS_USER, logout);
+    logout=false;
+    if ( ret != SE3_OK ){
+        if(ret == SE3_ERR_PIN){ //If the password is wrong, a message will appear in the dialog
             QLabel* labelError = new QLabel ( this );
-            labelError->setText(tr("Invalid Password"));
+            labelError->setText(tr("Invalid Password"));//TODO: fix inv pass label added over and over again
             labelError->setStyleSheet("QLabel { color : red; font-weight : bold; }");
             formGridLayout->addWidget( labelError, 2, 1 );
             formGridLayout->addWidget( buttons, 3, 0, 3, 3 );
             updateGeometry();
-        }else{
-            qDebug() << "error: " << ret;
+        }
+        else if (ret==SE3_ERR_OPENED){// there is already an opened session, ask user if he wants to close it
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this,
+                                          "Close session",
+                                          "There is already an opened session, do you want to close it",
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::Yes) {
+                qDebug() << "Yes was clicked";
+                logout=true; //set, so next time L1_login is called, it will close the existing session if the pin is correct
+                slotAcceptLogin(); //call this slot again
+            }
 
+            else {
+                qDebug() << "Not was clicked";
+            }
+
+        }
+        else{
+            qDebug() << "error: " << ret;
             exit(1);
         }
-    }else{
+    }
+    else{
         qDebug()<<"L1 login ok";
         accept();
     }
@@ -143,5 +166,3 @@ void LoginDialog::refreshDevice(){
 void LoginDialog::slotAbortLogin(){
     reject();
 }
-
-

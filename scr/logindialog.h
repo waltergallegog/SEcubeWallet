@@ -63,6 +63,8 @@ private:
     */
     void setUpGUI();
 
+    bool logout=false;
+
 public:
     explicit LoginDialog(QWidget *parent = 0);
     ~LoginDialog();

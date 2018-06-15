@@ -970,7 +970,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
     //    tablesDBMem.removeAll("NoEmpty"); //not necessary anymore
 
     if (!tablesDBMem.isEmpty()){
-        ui->filtersWidget->setVisible(false);
+        ui->filtersWidget->setVisible(true);
         if (filters==NULL)
             createTableView(tablesDBMem.last());
         tableList->setEnabled(true);

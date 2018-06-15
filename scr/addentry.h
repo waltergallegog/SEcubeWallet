@@ -92,6 +92,7 @@ private:
 
     void EnableOkButton();
     void PasswordWarning();
+    void load_zxcvbn_dicts();
 
     bool EqPass;
 
@@ -120,12 +121,12 @@ private:
 
     const double attacksTime[4] = {-1.55623,1,4,10};
 
-    QLibrary * zxcvbnLib;
+    QLibrary * zxcvbnLib=0;
     typedef double (*ZxcvbnMatch_type)(const char *Passwd, const char *UserDict[], ZxcMatch_t **Info);
-    ZxcvbnMatch_type ZxcvbnMatch;
+    ZxcvbnMatch_type ZxcvbnMatch=0;
 
     typedef void (*ZxcvbnFreeInfo_type)(ZxcMatch_t *Info);
-    ZxcvbnFreeInfo_type ZxcvbnFreeInfo;
+    ZxcvbnFreeInfo_type ZxcvbnFreeInfo=0;
 
 
 };

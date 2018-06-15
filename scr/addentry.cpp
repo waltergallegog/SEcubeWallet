@@ -37,52 +37,29 @@ AddEntry::AddEntry(QWidget *parent) :
     ui(new Ui::AddEntry){
 
     ui->setupUi(this);
-    ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(false); //Ok button initially disabled, as user has not entered any data
-    ui->InPass->setEnabled(true);
-    ui->InPass2->setEnabled(false);
-    ui->InPass->setEchoMode(QLineEdit::Password);
-    ui->InPass2->setEchoMode(QLineEdit::Password);
-    ui->sh_pass->setEnabled(false);
-    ui->match_pass->setVisible(false);
-    ui->score->setValue(0);
-
     setWindowTitle( tr("Fillout the new entry") );
     setModal(true); //Modal, so user cannot access main window without first closing this one
 
-    QString zxcvbn_lib_path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/libzxcvbn");
+    load_zxcvbn_dicts();
 
-    zxcvbnLib = new QLibrary(zxcvbn_lib_path);
-    qDebug()<< "Load " << zxcvbnLib->load();
-    ZxcvbnMatch = (ZxcvbnMatch_type) zxcvbnLib->resolve("ZxcvbnMatch");
-    qDebug()<< "match " << ZxcvbnMatch;
-    ZxcvbnFreeInfo =(ZxcvbnFreeInfo_type) zxcvbnLib->resolve("ZxcvbnFreeInfo");
-    qDebug()<< "free " <<  ZxcvbnFreeInfo;
-
-    QSettings settings;
-
-    QStringList userDictList= settings.value("userDictChecked").toStringList();
-    userDict = new char*[userDictList.size()+1];
-    int i=0;
-    foreach(QString s, userDictList){
-        userDict[i] = new char[s.toLatin1().size()+1];
-        strcpy(userDict[i], s.toLatin1().data());
-        i++;
-
-    }
-    userDict[i]=0; // last entry of char**userdict must be zero (like argv), so zxcvbn knows where to stop
-
-    for (i=0;i<userDictList.size()+1;i++)
-        qDebug()<<userDict[i];
-
-
+    ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(false); //Ok button initially disabled, as user has not entered any data
+    ui->InPass->setEnabled(true);
+    ui->InPass2->setEnabled(false);
+    ui->sh_pass->setEnabled(false);
+    ui->match_pass->setVisible(false);
+    ui->score->setValue(0);
 }
 
 // Second constructor, called from eddit entry
 AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QString EditDomIn, QString EditDescIn) :
     QDialog(parent),
-    ui(new Ui::AddEntry)
-{
+    ui(new Ui::AddEntry){
+
     ui->setupUi(this);
+    setWindowTitle( tr("Edit the entry") );
+    setModal(true);
+
+    load_zxcvbn_dicts();
     //Initialize fields with the data to edit
     ui->InUser->setText(EditUserIn);
     ui->InDomain->setText(EditDomIn);
@@ -90,27 +67,51 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InPass2->setText(EditPassIn);
     ui->InDesc->setText(EditDescIn);
 
-
-//    if (!ZxcvbnInit()){
-//        qDebug() << "Failed Open Dictionary File";
-//    }else{
-//        qDebug() << "Dictionary File Opened Correctly";
-//    }
-
-    ui->InPass2->setEnabled(true);
-    ui->sh_pass->setEnabled(true);
-
-    double e = ZxcvbnMatch(EditPassIn.toLatin1().constData(), NULL, 0);
-
-    ui->score->setValue(e);
-
-    ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(true);
-    setWindowTitle( tr("Edit the entry") );
-    setModal(true);
 }
 
 AddEntry::~AddEntry(){
     delete ui;
+}
+
+void AddEntry::load_zxcvbn_dicts(){
+
+    // Load zxcvbn library and resolve functions. General dictionaries are included in the sources
+    QString zxcvbn_lib_path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/libzxcvbn");
+    if (zxcvbnLib)
+        zxcvbnLib->unload();//TODO: also free(zxcvbLib)?
+    zxcvbnLib = new QLibrary(zxcvbn_lib_path);
+
+    if(zxcvbnLib->load()){
+        qDebug()<<"ok load";
+        ZxcvbnMatch = (ZxcvbnMatch_type) zxcvbnLib->resolve("ZxcvbnMatch");
+        qDebug()<< "match " << ZxcvbnMatch;
+        ZxcvbnFreeInfo =(ZxcvbnFreeInfo_type) zxcvbnLib->resolve("ZxcvbnFreeInfo");
+        qDebug()<< "free " <<  ZxcvbnFreeInfo;
+    }
+
+    if (!ZxcvbnMatch || !ZxcvbnFreeInfo ){//if any of the two functions did not resolved correctly
+        ui->InPass2->setEnabled(false);
+        ui->sh_pass->setEnabled(false);
+        ui->pb_secInfo->setEnabled(false);//info button not necessary
+        ui->score->setValue(0);
+        ui->score->setTextVisible(false);
+        ui->lb_secLevel->clear();
+        ui->lb_length->setText("");
+    }
+
+    // Load user dictionaries from settings
+    QSettings settings;
+    QStringList userDictList= settings.value("userDictChecked").toStringList();
+    userDict = new char*[userDictList.size()+1];
+    int i=0;
+    foreach(QString s, userDictList){
+        userDict[i] = new char[s.toLatin1().size()+1];
+        strcpy(userDict[i], s.toLatin1().data());
+        i++;
+    }
+    userDict[i]=0; // last entry of char**userdict must be zero (like argv), so zxcvbn knows where to stop
+    for (i=0;i<userDictList.size()+1;i++)
+        qDebug()<<userDict[i];
 }
 
 void AddEntry::clean(){
@@ -175,11 +176,11 @@ void AddEntry::on_InPass_textChanged(const QString &text){
 
     QString messages[5] = {MESS0, MESS1, MESS2, MESS3, MESS4};
 
-    if(!text.isEmpty()){
+    if(!text.isEmpty() && ZxcvbnMatch){//check text and the function was loaded correctly
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
-
         ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
+        ui->pb_secInfo->setEnabled(true);
 
         e = ZxcvbnMatch(text.toLatin1().constData(), const_cast<const char**>(userDict), &Info); //entropy bits in base 2
         elog = e*LOG102;
@@ -201,10 +202,16 @@ void AddEntry::on_InPass_textChanged(const QString &text){
             ui->score->setValue(Level);
             ui->lb_secLevel->setText(messages[Level]);
         }
-
-    }else{
+    }
+    else if(!text.isEmpty()){
+        ui->InPass2->setEnabled(true);
+        ui->sh_pass->setEnabled(true);
+        ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
+    }
+    else{
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
+        ui->pb_secInfo->setEnabled(false);
         ui->score->setValue(0);
         ui->score->setTextVisible(false);
         ui->lb_secLevel->clear();
@@ -331,6 +338,8 @@ void AddEntry::on_gen_pass_clicked(){
 void AddEntry::on_pb_confgen_clicked(){
     PreferencesDialog *pref = new PreferencesDialog(this);
     pref->exec();
+    load_zxcvbn_dicts();//load again
+    on_InPass_textChanged(ui->InPass->text());//update zxcvbn display
 
 }
 
@@ -419,7 +428,7 @@ void AddEntry::build_info_model(const char* Pwd){
 
 
 
-    //// ********* models for Breeak down table ************
+    //// ********* models for Break down table ************
 
     headers.clear();
     headers << "Password" << "Type" << "Length" <<  "Entropy bits" <<  "Log entropy";
@@ -532,7 +541,8 @@ void AddEntry::build_info_model(const char* Pwd){
     headers << " ";
     model_multi->setVerticalHeaderLabels(headers);
 
-    ZxcvbnFreeInfo(Info);
+    if(ZxcvbnFreeInfo)
+        ZxcvbnFreeInfo(Info);
 }
 
 

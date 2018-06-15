@@ -422,6 +422,7 @@ static bool ReadInputFile(const string & FileName, FileInfo &Info, int MaxRank)
         cerr << "Error opening " << FileName << endl;
         return false;
     }
+    cout << "Adding: " << FileName << endl;
     Info.Name = FileName;
 
     // Rank is the position of the work in the dictionary file. Rank==1 is lowest for a word (and
@@ -473,7 +474,7 @@ static bool ReadInputFile(const string & FileName, FileInfo &Info, int MaxRank)
 
         Info.Pwds.push_back(Line);
         ++Rank;
-        cout << Line << "\t" << Rank <<"\n";
+        //cout << Line << "\t" << Rank <<"\n";
         
     }
     f.close();

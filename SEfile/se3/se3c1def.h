@@ -9,12 +9,15 @@
 
 /** L1 errors */
 enum {
-    SE3_ERR_ACCESS = 100,  ///< insufficient privileges
-    SE3_ERR_PIN = 101,  ///< pin rejected
-    SE3_ERR_RESOURCE = 200,  ///< resource not found
+    SE3_ERR_ACCESS = 100,   ///< insufficient privileges
+    SE3_ERR_PIN = 101,      ///< pin rejected
+    SE3_ERR_RESOURCE = 200, ///< resource not found
     SE3_ERR_EXPIRED = 201,  ///< resource expired
-    SE3_ERR_MEMORY = 400,  ///< no more space to allocate resource
-	SE3_ERR_AUTH =	401	   ///< SHA256HMAC Authentication failed
+    SE3_ERR_MEMORY = 400,   ///< no more space to allocate resource
+    SE3_ERR_AUTH =	401,	///< SHA256HMAC Authentication failed
+
+    SE3_ERR_OPENED = 300,   /// < There is a session already opened and host is trying to open a new one
+
 };
 /**
  *   @defgroup AccessLogin
@@ -92,8 +95,9 @@ enum {
 	SE3_CMD1_CRYPTO_INIT = 7,
 	SE3_CMD1_CRYPTO_UPDATE = 8,
     SE3_CMD1_CRYPTO_LIST = 9,
-    SE3_CMD1_CRYPTO_SET_TIME = 10
+    SE3_CMD1_CRYPTO_SET_TIME = 10,
 
+    SE3_CMD1_LOGOUT_FORCED = 11
 };
 
 /** L1_config operations */

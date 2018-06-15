@@ -75,6 +75,9 @@ typedef struct se3_algo_ {
 *  \param [in] dev Device you want to login to
 *  \param [in] pin Password to login
 *  \param [in] access see \ref AccessLogin
+*  \param [in] logout If true, logout is forced in device (no token checked) before loging in. Useful to login
+*         after a crash. Should be used only if a prevoius call to L1_login (with logout=false) failed with return
+*         code = SE3_ERR_OPENED.
 *  \return It returns SE3_OK on success, otherwise see \ref se3c1def.h
 *
 *  \details Before issueing any command to the device, you need to login.
@@ -83,7 +86,7 @@ typedef struct se3_algo_ {
 *  		 a sequence of 32 0s, please use \ref L1_set_admin_PIN or
 *  		 \ref L1_set_user_PIN to change them.
 */
-uint16_t L1_login(se3_session* s, se3_device* dev, const uint8_t* pin, uint16_t access);
+uint16_t L1_login(se3_session* s, se3_device* dev, const uint8_t* pin, uint16_t access, bool logout);
 /**
 *  \brief This function is used to change the current admin pin
 *
