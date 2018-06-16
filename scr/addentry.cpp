@@ -77,8 +77,12 @@ void AddEntry::load_zxcvbn_dicts(){
 
     // Load zxcvbn library and resolve functions. General dictionaries are included in the sources
     QString zxcvbn_lib_path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/libzxcvbn");
-    if (zxcvbnLib)
+    if (zxcvbnLib){
         zxcvbnLib->unload();//TODO: also free(zxcvbLib)?
+        ZxcvbnMatch = 0;
+        ZxcvbnFreeInfo = 0;
+        free(zxcvbnLib);
+    }
     zxcvbnLib = new QLibrary(zxcvbn_lib_path);
 
     if(zxcvbnLib->load()){
@@ -90,14 +94,21 @@ void AddEntry::load_zxcvbn_dicts(){
     }
 
     if (!ZxcvbnMatch || !ZxcvbnFreeInfo ){//if any of the two functions did not resolved correctly
-        ui->InPass2->setEnabled(false);
-        ui->sh_pass->setEnabled(false);
         ui->pb_secInfo->setEnabled(false);//info button not necessary
-        ui->score->setValue(0);
-        ui->score->setTextVisible(false);
+        ui->score->setTextVisible(true);
+        ui->score->setFormat("No zxcvbn Library");
+        ui->score->setEnabled(false);
         ui->lb_secLevel->clear();
-        ui->lb_length->setText("");
+        ui->label_level->setEnabled(false);
     }
+    else{
+        ui->pb_secInfo->setEnabled(true);//info button not necessary
+        ui->score->setTextVisible(true);
+        ui->score->setFormat("%v");
+        ui->score->setEnabled(true);
+        ui->label_level->setEnabled(true);
+    }
+
 
     // Load user dictionaries from settings
     QSettings settings;
@@ -176,46 +187,43 @@ void AddEntry::on_InPass_textChanged(const QString &text){
 
     QString messages[5] = {MESS0, MESS1, MESS2, MESS3, MESS4};
 
-    if(!text.isEmpty() && ZxcvbnMatch){//check text and the function was loaded correctly
+    if(!text.isEmpty()){//check text and the function was loaded correctly
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
         ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
-        ui->pb_secInfo->setEnabled(true);
+        if (ZxcvbnMatch){
+            e = ZxcvbnMatch(text.toLatin1().constData(), const_cast<const char**>(userDict), &Info); //entropy bits in base 2
+            elog = e*LOG102;
+            qDebug() << e << elog;
 
-        e = ZxcvbnMatch(text.toLatin1().constData(), const_cast<const char**>(userDict), &Info); //entropy bits in base 2
-        elog = e*LOG102;
-        qDebug() << e << elog;
+            if (elog < 3) //very weak password
+                Level = 0;
+            else if (elog<6)
+                Level = 1;
+            else if (elog<8)
+                Level = 2;
+            else if (elog<10)
+                Level = 3;
+            else
+                Level = 4;
 
-        if (elog < 3) //very weak password
-            Level = 0;
-        else if (elog<6)
-            Level =1;
-        else if (elog<8)
-            Level =2;
-        else if (elog<10)
-            Level =3;
-        else
-            Level =4;
-
-        if (Level>-1){
-            ui->score->setTextVisible(true);
-            ui->score->setValue(Level);
-            ui->lb_secLevel->setText(messages[Level]);
+            if (Level>-1){
+                ui->score->setTextVisible(true);
+                ui->score->setValue(Level);
+                ui->lb_secLevel->setText(messages[Level]);
+            }
         }
     }
-    else if(!text.isEmpty()){
-        ui->InPass2->setEnabled(true);
-        ui->sh_pass->setEnabled(true);
-        ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
-    }
-    else{
+    else{//Text but no library
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
-        ui->pb_secInfo->setEnabled(false);
-        ui->score->setValue(0);
-        ui->score->setTextVisible(false);
-        ui->lb_secLevel->clear();
-        ui->lb_length->setText("");
+        ui->lb_length->clear();
+        if (ZxcvbnMatch){
+            ui->score->setValue(0);
+            ui->score->setTextVisible(false);
+            ui->lb_secLevel->clear();
+        }
+
     }
 }
 

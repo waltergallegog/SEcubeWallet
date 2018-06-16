@@ -13,6 +13,7 @@ FiltersAligned::FiltersAligned()
 
     dateWidget = new QWidget;
     dateLayout = new QHBoxLayout;
+
     dateFilter = new QLineEdit();
     dateUnit = new QComboBox();
     dateUnit->addItem("-");
@@ -21,11 +22,17 @@ FiltersAligned::FiltersAligned()
     dateUnit->addItem("Months");
     dateUnit->addItem("Years");
 
+    dateChoose = new QDateEdit;
+    dateChoose->setDisplayFormat("yyyy-MM-dd");
+
     dateWidget->setLayout(dateLayout);
     dateLayout->addWidget(dateFilter);
     dateLayout->addWidget(dateUnit);
-    dateLayout->setMargin(2);
+    dateLayout->addWidget(dateChoose);
+    dateLayout->setMargin(0);
     dateLayout->setSpacing(0);
+    dateFilter->setVisible(false);
+    dateUnit->setVisible(false);
 
     userFilter->setClearButtonEnabled(true);
     domFilter->setClearButtonEnabled(true);

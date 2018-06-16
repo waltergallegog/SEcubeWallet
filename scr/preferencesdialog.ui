@@ -278,7 +278,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Here you can choose what &lt;span style=&quot; font-weight:600;&quot;&gt;dictionaries&lt;/span&gt; you want zxcvbn to use. Dictionaries are a crucial part of the algorithm, because they are used estimate the security level of a password according to how common the used words (if any) are. A password containing words present in any of the dictionaries will be easier to crack as hackers will probably try out those specific words.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Here you &lt;span style=&quot; font-weight:600;&quot;&gt;compile&lt;/span&gt; the &lt;span style=&quot; font-weight:600;&quot;&gt;zxcvbn&lt;/span&gt; library and choose what &lt;span style=&quot; font-weight:600;&quot;&gt;dictionaries&lt;/span&gt; you want to use. Dictionaries are a crucial part of the algorithm, because they are used estimate the security level of a password according to how common the used words (if any) are. A password containing words present in any of the dictionaries will be easier to crack as hackers will probably try out those specific words.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -291,15 +291,15 @@
        <item>
         <widget class="QToolBox" name="dicts">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="General">
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-140</y>
+            <y>0</y>
             <width>494</width>
-            <height>421</height>
+            <height>436</height>
            </rect>
           </property>
           <attribute name="label">
@@ -309,7 +309,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to choose the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Compile&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to choose the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Compile&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size). Clean deletes the compiled library and the generated dictionary structures.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -333,6 +333,13 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="pb_genClean">
+                <property name="text">
+                 <string>Clean</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -345,7 +352,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-15</y>
+                <y>0</y>
                 <width>460</width>
                 <height>318</height>
                </rect>

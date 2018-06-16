@@ -119,8 +119,7 @@ void PreferencesDialog::on_pb_genGen_clicked(){
     QString zxcvbn_make_path = QCoreApplication::applicationDirPath().
             append("/../../SEcubeWallet/zxcvbn/");
     QString cd = "cd "+zxcvbn_make_path;
-    QString make_command = QString(" make")
-            .append(" WORDS='");
+    QString make_command = QString(" make WORDS='");
     QSettings settings;
 
     foreach (const QString dict, settings.value("genDict").toStringList()) {
@@ -152,6 +151,29 @@ void PreferencesDialog::on_pb_genChoose_clicked(){
 
 
    settings.setValue("genDict", list->getChecked());
+}
+
+void PreferencesDialog::on_pb_genClean_clicked(){
+    QProcess sh;
+    QString zxcvbn_make_path = QCoreApplication::applicationDirPath().
+            append("/../../SEcubeWallet/zxcvbn/");
+    QString cd = "cd "+zxcvbn_make_path;
+    QString make_command = QString(" make clean");
+
+    QString cdandmake = cd+" && "+make_command;
+    qDebug() << cdandmake;
+
+    setAllEnabled(false); //clean process takes a while, so disable all buttons.
+    qApp->processEvents(); // otherwise the repaint take place after this function finishes
+    sh.start("sh", QStringList() << "-c" << cdandmake);
+    sh.waitForFinished();
+    setAllEnabled(true);
+
+    QString output(sh.readAllStandardOutput());
+    qDebug().noquote() <<output;
+    QString err(sh.readAllStandardError());
+    qDebug().noquote() <<err;
+
 }
 
 void PreferencesDialog::setAllEnabled(bool enabled){
@@ -225,3 +247,5 @@ void PreferencesDialog::on_pb_userCurrent_clicked(){
    settings.setValue("userDictChecked", list->getChecked());
 
 }
+
+

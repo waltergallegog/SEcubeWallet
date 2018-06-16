@@ -121,12 +121,12 @@ private:
 
     const double attacksTime[4] = {-1.55623,1,4,10};
 
-    QLibrary * zxcvbnLib=0;
+    QLibrary * zxcvbnLib = 0;
     typedef double (*ZxcvbnMatch_type)(const char *Passwd, const char *UserDict[], ZxcMatch_t **Info);
-    ZxcvbnMatch_type ZxcvbnMatch=0;
+    ZxcvbnMatch_type ZxcvbnMatch = 0;
 
     typedef void (*ZxcvbnFreeInfo_type)(ZxcMatch_t *Info);
-    ZxcvbnFreeInfo_type ZxcvbnFreeInfo=0;
+    ZxcvbnFreeInfo_type ZxcvbnFreeInfo = 0;
 
 
 };

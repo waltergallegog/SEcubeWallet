@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QDateEdit>
 
 class QHeaderView;
 
@@ -25,6 +26,7 @@ public:
     QLineEdit *dateFilter;
     QComboBox *dateUnit;
     QLineEdit *descFilter;
+    QDateEdit *dateChoose;
 
 
 private:

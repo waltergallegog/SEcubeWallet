@@ -33,7 +33,7 @@
     <property name="verticalSpacing">
      <number>0</number>
     </property>
-    <item row="1" column="0">
+    <item row="1" column="1">
      <widget class="QWidget" name="filtersWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -43,7 +43,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="1">
      <widget class="MyQTableView" name="tableView">
       <property name="sortingEnabled">
        <bool>true</bool>
@@ -52,6 +52,9 @@
        <bool>false</bool>
       </attribute>
      </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QDateEdit" name="dateEdit"/>
     </item>
    </layout>
   </widget>
@@ -116,6 +119,7 @@
     </property>
     <addaction name="action_Fit_Table"/>
     <addaction name="action_Show_Passwords"/>
+    <addaction name="action_Older_Than_Filter"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
@@ -181,6 +185,7 @@
    <addaction name="separator"/>
    <addaction name="action_Show_Passwords"/>
    <addaction name="action_Fit_Table"/>
+   <addaction name="action_Older_Than_Filter"/>
    <addaction name="separator"/>
    <addaction name="action_Launch_Domain"/>
   </widget>
@@ -296,6 +301,17 @@
   <action name="action_Preferences">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="action_Older_Than_Filter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Older Than Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Date &quot;Older Than&quot; Filter</string>
    </property>
   </action>
  </widget>

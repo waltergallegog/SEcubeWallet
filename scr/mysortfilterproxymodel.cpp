@@ -42,36 +42,54 @@ void MySortFilterProxyModel::setFilterDesc(const QString &regExp){
     invalidateFilter();
 }
 
-void MySortFilterProxyModel::setFilterOlder(int index, const QString &QuantityS){
+void MySortFilterProxyModel::setFilterOlder(int index, const QString &QuantityS, QDate date){
 
     int Quantity = 0;
-    if (!QuantityS.isEmpty())
-        Quantity = QuantityS.toInt()*(-1);// change to negative to substract using add
-    else
-        index=0;//if empty then no filter
+
+    if(index!=-1){
+        if (!QuantityS.isEmpty())
+            Quantity = QuantityS.toInt()*(-1);// change to negative to substract using add
+        else
+            index=0;//if empty then no filter
+    }
 
     switch (index) {
     case 0: // no filter
-        filterDate=QDate::fromString("-1");
+        filterDate_older=QDate::fromString("-1");
+        filterDate_exact=QDate::fromString("-1");
         break;
+    //older than filter
     case 1:
-        filterDate=QDate::currentDate().addDays(Quantity);
+        filterDate_older=QDate::currentDate().addDays(Quantity);
+        filterDate_exact=QDate::fromString("-1");
         break;
     case 2:
-        filterDate=QDate::currentDate().addDays(7*Quantity); //weeks
+        filterDate_older=QDate::currentDate().addDays(7*Quantity); //weeks
+        filterDate_exact=QDate::fromString("-1");
         break;
     case 3:
-        filterDate=QDate::currentDate().addMonths(Quantity);
+        filterDate_older=QDate::currentDate().addMonths(Quantity);
+        filterDate_exact=QDate::fromString("-1");
         break;
     case 4:
-        filterDate=QDate::currentDate().addYears(Quantity);
+        filterDate_older=QDate::currentDate().addYears(Quantity);
+        filterDate_exact=QDate::fromString("-1");
         break;
+
+    //Exact date filter
+    case -1:
+        filterDate_exact=date;
+        filterDate_older=QDate::fromString("-1");
+        break;
+
     default:
-        filterDate=QDate::fromString("-1");
+        filterDate_exact=QDate::fromString("-1");
+        filterDate_older=QDate::fromString("-1");
         break;
     }
 
-    qDebug()<<filterDate.toString();
+    qDebug()<<filterDate_older.toString();
+    qDebug()<<filterDate_exact.toString();
     invalidateFilter();
 }
 
@@ -91,6 +109,8 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
             &&  sourceModel()->data(domainIndex).toString().contains(domainRegExp)
             &&  sourceModel()->data(passIndex).toString().contains(passRegExp)
             &&  sourceModel()->data(descIndex).toString().contains(descRegExp)
-            &&  (thisDate <= filterDate || !filterDate.isValid())
+            &&  (thisDate <= filterDate_older || !filterDate_older.isValid())
+            &&  (thisDate == filterDate_exact || !filterDate_exact.isValid())
             );
 }
+

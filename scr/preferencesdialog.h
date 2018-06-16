@@ -36,6 +36,8 @@ private slots:
 
     void on_pb_userCurrent_clicked();
 
+    void on_pb_genClean_clicked();
+
 private:
     Ui::PreferencesDialog *ui;
 

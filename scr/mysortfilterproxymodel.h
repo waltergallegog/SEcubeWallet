@@ -15,14 +15,15 @@ public:
     void setFilterDomain(const QString &regExp);
     void setFilterPass(const QString &regExp);
     void setFilterDesc(const QString &regExp);
-    void setFilterOlder(int index, const QString &QuantityS);
+    void setFilterOlder(int index, const QString &QuantityS, QDate date);
 
 private:
     QRegExp userRegExp;
     QRegExp domainRegExp;
     QRegExp passRegExp;
     QRegExp descRegExp;
-    QDate   filterDate;
+    QDate   filterDate_older;
+    QDate   filterDate_exact;
     QString format;
 
 protected:

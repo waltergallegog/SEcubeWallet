@@ -122,6 +122,7 @@ void MainWindow::init(){
     ui->action_Edit_Entry->setEnabled(false);
     ui->action_Delete_Entry->setEnabled(false);
     ui->action_Show_Passwords->setEnabled(false);
+    ui->action_Older_Than_Filter->setEnabled(false);
     ui->action_Launch_Domain->setEnabled(false);
     ui->action_Fit_Table->setEnabled(false);
     ui->filtersWidget->setVisible(false);
@@ -239,6 +240,7 @@ void MainWindow::on_action_New_Wallet_triggered(){
     ui->action_Edit_Entry->setEnabled(false);
     ui->action_Delete_Entry->setEnabled(false);
     ui->action_Show_Passwords->setEnabled(false);
+    ui->action_Older_Than_Filter->setEnabled(false);
     ui->action_Launch_Domain->setEnabled(false);
     ui->action_Fit_Table->setEnabled(false);
     ui->filtersWidget->setVisible(false);
@@ -305,6 +307,8 @@ void MainWindow::on_action_Add_Table_triggered(){
     ui->action_Launch_Domain->setEnabled(true);
     ui->action_Show_Passwords->setEnabled(true);
     ui->action_Show_Passwords->setChecked(false);
+    ui->action_Older_Than_Filter->setEnabled(true);
+    ui->action_Older_Than_Filter->setChecked(false);
     ui->action_Fit_Table->setEnabled(true);
 
     ui->action_Save_Wallet->setEnabled(true);
@@ -353,12 +357,13 @@ void MainWindow::createTableView(const QString &tableName ){
     // Aligned Layout
     filters = new FiltersAligned();
 
-    connect(filters->userFilter, SIGNAL(textChanged(QString)), SLOT(UserFilter_textChanged(QString)));
-    connect(filters->domFilter,  SIGNAL(textChanged(QString)), SLOT(DomainFilter_textChanged(QString)));
-    connect(filters->passFilter, SIGNAL(textChanged(QString)), SLOT(PassFilter_textChanged(QString)));
-    connect(filters->descFilter, SIGNAL(textChanged(QString)), SLOT(DescFilter_textChanged(QString)));
+    connect(filters->userFilter, SIGNAL(textChanged(QString)), SLOT(userFilter_textChanged(QString)));
+    connect(filters->domFilter,  SIGNAL(textChanged(QString)), SLOT(domainFilter_textChanged(QString)));
+    connect(filters->passFilter, SIGNAL(textChanged(QString)), SLOT(passFilter_textChanged(QString)));
+    connect(filters->descFilter, SIGNAL(textChanged(QString)), SLOT(descFilter_textChanged(QString)));
     connect(filters->dateFilter, SIGNAL(textChanged(QString)), SLOT(dateFilter_textChanged(QString)));
     connect(filters->dateUnit,   SIGNAL(currentIndexChanged(int)), SLOT(dateUnit_currentIndexChanged(int)));
+    connect(filters->dateChoose, SIGNAL(dateChanged(QDate)), SLOT(dateChoose_dateChanged(QDate)));
 
     ui->filtersWidget->setLayout(filters);
     filters->setTableColumnsToTrack(ui->tableView->horizontalHeader());
@@ -446,6 +451,7 @@ void MainWindow::on_action_Delete_Table_triggered(){
             ui->action_Delete_Entry->setEnabled(false);
             ui->action_Launch_Domain->setEnabled(false);
             ui->action_Show_Passwords->setEnabled(false);
+            ui->action_Older_Than_Filter->setEnabled(false);
             ui->action_Fit_Table->setEnabled(false);
         }
 
@@ -578,16 +584,25 @@ void MainWindow::on_action_Launch_Domain_triggered(){
 ////Make passwords Not/visible by setting or not a column delegator
 void MainWindow::on_action_Show_Passwords_toggled(bool show){
 
-    //TODO: confirmation dialog, maybe with password? configurable from settings.
+    //TODO: confirmation dialog, maybe ask again for password? configurable from settings. How to ask SECUbE to check a password again?
     if (!show){
         ui->tableView->setItemDelegateForColumn(PASS_COL, passDelegate);
         filters->passFilter->clear();
         filters->passFilter->setEnabled(false);
+        filters->dateChoose->setVisible(false);
+        filters->dateFilter->setVisible(true);
+        filters->dateUnit->setVisible(true);
+        filters->dateLayout->setContentsMargins(0,0,0,1);
+
     }
     else{
         ui->tableView->setItemDelegateForColumn(PASS_COL, 0);
         filters->passFilter->clear();
         filters->passFilter->setEnabled(true);
+        filters->dateChoose->setVisible(true);
+        filters->dateFilter->setVisible(false);
+        filters->dateUnit->setVisible(false);
+        filters->dateLayout->setContentsMargins(0,0,0,0);
     }
 
 }
@@ -982,6 +997,8 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         ui->action_Launch_Domain->setEnabled(true);
         ui->action_Show_Passwords->setEnabled(true);
         ui->action_Show_Passwords->setChecked(false);
+        ui->action_Older_Than_Filter->setEnabled(true);
+        ui->action_Older_Than_Filter->setChecked(false);
         ui->action_Fit_Table->setEnabled(true);
     }
 }
@@ -1061,6 +1078,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
     //State of some actions as not clickable because there is no wallet to edit yet
     ui->action_Save_Wallet->setEnabled(false);
     ui->action_Save_Wallet_As->setEnabled(false);
+    ui->action_Close_Wallet->setEnabled(false);
     ui->filtersWidget->setVisible(false);
 
     ui->action_Add_Table->setEnabled(false);
@@ -1070,6 +1088,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
     ui->action_Edit_Entry->setEnabled(false);
     ui->action_Delete_Entry->setEnabled(false);
     ui->action_Show_Passwords->setEnabled(false);
+    ui->action_Older_Than_Filter->setEnabled(false);
     ui->action_Launch_Domain->setEnabled(false);
     ui->action_Fit_Table->setEnabled(false);
 
@@ -1147,6 +1166,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
     ui->action_Edit_Entry->setEnabled(false);
     ui->action_Delete_Entry->setEnabled(false);
     ui->action_Show_Passwords->setEnabled(false);
+    ui->action_Older_Than_Filter->setEnabled(false);
     ui->action_Launch_Domain->setEnabled(false);
     ui->action_Fit_Table->setEnabled(false);
     tableList->clear();
@@ -1155,28 +1175,50 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
 
 //// ****** Search/Filters  *****
 
-void MainWindow::UserFilter_textChanged(const QString &arg1){ //Update User filter
+void MainWindow::userFilter_textChanged(const QString &arg1){ //Update User filter
     proxyModel->setFilterUser(arg1);
 }
 
-void MainWindow::DomainFilter_textChanged(const QString &arg1){ //update Domain filter
+void MainWindow::domainFilter_textChanged(const QString &arg1){ //update Domain filter
     proxyModel->setFilterDomain(arg1);
 }
 
-void MainWindow::PassFilter_textChanged(const QString &arg1){ //update Domain filter
+void MainWindow::passFilter_textChanged(const QString &arg1){ //update Domain filter
     proxyModel->setFilterPass(arg1);
 }
 
-void MainWindow::DescFilter_textChanged(const QString &arg1){
+void MainWindow::descFilter_textChanged(const QString &arg1){
     proxyModel->setFilterDesc(arg1);
 }
 
 void MainWindow::dateUnit_currentIndexChanged(int index){
-    proxyModel->setFilterOlder(index, filters->dateFilter->text());
+    proxyModel->setFilterOlder(index, filters->dateFilter->text(), QDate::fromString("-1"));
 }
 
 void MainWindow::dateFilter_textChanged(const QString &arg1){
-    proxyModel->setFilterOlder(filters->dateUnit->currentIndex(), arg1);
+    proxyModel->setFilterOlder(filters->dateUnit->currentIndex(), arg1, QDate::fromString("-1"));
+}
+
+
+void MainWindow::dateChoose_dateChanged(QDate date){
+    proxyModel->setFilterOlder(-1, "", date);
+
+}
+
+void MainWindow::on_action_Older_Than_Filter_toggled(bool older){
+    if (older){
+        filters->dateChoose->setVisible(false);
+        filters->dateFilter->setVisible(true);
+        filters->dateUnit->setVisible(true);
+        filters->dateLayout->setContentsMargins(0,0,0,1);
+    }
+
+    else{
+        filters->dateChoose->setVisible(true);
+        filters->dateFilter->setVisible(false);
+        filters->dateUnit->setVisible(false);
+        filters->dateLayout->setContentsMargins(0,0,0,0);
+    }
 }
 
 //// ***** Help Menu *******
@@ -1201,6 +1243,7 @@ void MainWindow::setAllEnabled(bool enabled){
     ui->tableTB->setEnabled(enabled);
     ui->entriesTB->setEnabled(enabled);
 }
+
 
 
 

@@ -35,6 +35,10 @@ void LoginDialog::setUpGUI(){
     labelPassword->setText( tr( "Password" ) );
     labelPassword->setBuddy( editPassword );
 
+    labelError = new QLabel ( this );
+    labelError->setText(tr("Wrong Password"));
+    labelError->setStyleSheet("QLabel { color: rgba(0, 0, 0, 0); font-weight : bold; } ");//invisible color
+
     // initialize buttons
     buttons = new QDialogButtonBox( this );
     buttons->addButton( QDialogButtonBox::Ok );
@@ -71,9 +75,9 @@ void LoginDialog::setUpGUI(){
     formGridLayout->addWidget( chooseDevice, 0, 1 );
     formGridLayout->addWidget( labelPassword, 1, 0 );
     formGridLayout->addWidget( editPassword, 1, 1 );
-    formGridLayout->addWidget( buttons, 2, 0, 2, 3 );
+    formGridLayout->addWidget( labelError, 2, 1 );
+    formGridLayout->addWidget( buttons, 3, 0, 3, 3 );
     setLayout( formGridLayout );
-
 }
 
 
@@ -106,12 +110,7 @@ void LoginDialog::slotAcceptLogin(){
     logout=false;
     if ( ret != SE3_OK ){
         if(ret == SE3_ERR_PIN){ //If the password is wrong, a message will appear in the dialog
-            QLabel* labelError = new QLabel ( this );
-            labelError->setText(tr("Invalid Password"));//TODO: fix inv pass label added over and over again
             labelError->setStyleSheet("QLabel { color : red; font-weight : bold; }");
-            formGridLayout->addWidget( labelError, 2, 1 );
-            formGridLayout->addWidget( buttons, 3, 0, 3, 3 );
-            updateGeometry();
         }
         else if (ret==SE3_ERR_OPENED){// there is already an opened session, ask user if he wants to close it
             QMessageBox::StandardButton reply;

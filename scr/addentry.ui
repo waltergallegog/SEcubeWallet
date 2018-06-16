@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
+    <width>371</width>
     <height>365</height>
    </rect>
   </property>
@@ -59,19 +59,17 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="pb_confgen">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/icons/config.png</normalon>
-         </iconset>
-        </property>
-       </widget>
-      </item>
      </layout>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QLabel" name="lb_secLevel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="4" column="1">
@@ -87,31 +85,8 @@
      </property>
     </widget>
    </item>
-   <item row="20" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="1">
-    <widget class="QLabel" name="lb_secLevel">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="11" column="0">
-    <widget class="QLabel" name="label_entr">
+    <widget class="QLabel" name="label_level">
      <property name="text">
       <string>Sec. Level</string>
      </property>
@@ -177,7 +152,7 @@
       <item>
        <widget class="QToolButton" name="pb_secInfo">
         <property name="text">
-         <string/>
+         <string>Details</string>
         </property>
        </widget>
       </item>
@@ -246,7 +221,7 @@
      </property>
     </widget>
    </item>
-   <item row="18" column="0" colspan="2">
+   <item row="19" column="0" colspan="2">
     <widget class="QLabel" name="match_pass">
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#550000;&quot;&gt;Passwords Do Not Match&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -283,6 +258,37 @@
      </property>
     </widget>
    </item>
+   <item row="20" column="1" alignment="Qt::AlignRight">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="0">
+    <widget class="QPushButton" name="pb_confgen">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Settings</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normalon>:/icons/config.png</normalon>
+      </iconset>
+     </property>
+    </widget>
+   </item>
   </layout>
   <zorder>InPass2</zorder>
   <zorder>label_dom</zorder>
@@ -294,14 +300,15 @@
   <zorder>InDesc</zorder>
   <zorder>label_user</zorder>
   <zorder>lb_length</zorder>
-  <zorder>buttonBox</zorder>
   <zorder>match_pass</zorder>
   <zorder>verticalSpacer</zorder>
   <zorder>verticalSpacer_2</zorder>
   <zorder>widget</zorder>
   <zorder>widget_2</zorder>
-  <zorder>label_entr</zorder>
+  <zorder>label_level</zorder>
   <zorder>lb_secLevel</zorder>
+  <zorder>buttonBox</zorder>
+  <zorder>pb_confgen</zorder>
  </widget>
  <tabstops>
   <tabstop>InUser</tabstop>

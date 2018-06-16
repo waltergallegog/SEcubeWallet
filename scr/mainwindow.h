@@ -88,15 +88,18 @@ private slots:
     void on_action_Set_Environment_triggered();
     void on_action_About_triggered();
 
-    void DomainFilter_textChanged(const QString &arg1);
-    void UserFilter_textChanged(const QString &arg1);
-    void PassFilter_textChanged(const QString &arg1);
-    void DescFilter_textChanged(const QString &arg1);
+    void domainFilter_textChanged(const QString &arg1);
+    void userFilter_textChanged(const QString &arg1);
+    void passFilter_textChanged(const QString &arg1);
+    void descFilter_textChanged(const QString &arg1);
     void dateUnit_currentIndexChanged(int index);
     void dateFilter_textChanged(const QString &arg1);
+    void dateChoose_dateChanged(QDate date);
 
     void invalidateAlignedLayout();
     void tableList_currentIndexChanged(const QString &arg1);
+
+    void on_action_Older_Than_Filter_toggled(bool arg1);
 
 private:
     Ui::MainWindow *ui;

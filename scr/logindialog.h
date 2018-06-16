@@ -42,6 +42,12 @@ private:
     QLabel* labelPassword;
 
     /*!
+    * A label for wrong pin message.
+    */
+    QLabel* labelError;
+
+
+    /*!
     * An editable combo box for allowing the user
     * to enter his username or select it from a list.
     */
