@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The current Wallet has &lt;span style=&quot; font-weight:600;&quot;&gt;unsaved&lt;/span&gt; changes. &lt;/p&gt;&lt;p&gt;Would you like to &lt;span style=&quot; font-weight:600;&quot;&gt;save&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;discard&lt;/span&gt; them before creating/opening a new Wallet?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The current Wallet has &lt;span style=&quot; font-weight:600;&quot;&gt;unsaved&lt;/span&gt; changes. &lt;/p&gt;&lt;p&gt;Would you like to &lt;span style=&quot; font-weight:600;&quot;&gt;save&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;discard&lt;/span&gt; them before continuing?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

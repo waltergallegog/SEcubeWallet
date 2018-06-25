@@ -26,8 +26,6 @@ extern "C"
 #define MESS4 "Very unguessable: Strong protection from offline slow-hash scenario"
 
 
-//TODO: put zxcvbn in a subdir
-
 #define OK_BUTTON 0
 #define UNUSED(expr) (void)(expr)
 
@@ -78,7 +76,7 @@ void AddEntry::load_zxcvbn_dicts(){
     // Load zxcvbn library and resolve functions. General dictionaries are included in the sources
     QString zxcvbn_lib_path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/libzxcvbn");
     if (zxcvbnLib){
-        zxcvbnLib->unload();//TODO: also free(zxcvbLib)?
+        zxcvbnLib->unload();
         ZxcvbnMatch = 0;
         ZxcvbnFreeInfo = 0;
         free(zxcvbnLib);
@@ -261,12 +259,10 @@ void AddEntry::on_sh_pass_toggled(bool checked){
 }
 
 
-void AddEntry::on_buttonBox_clicked(QAbstractButton* button){//TODO: fix by changing to buttonbox_accepted
+void AddEntry::on_buttonBox_accepted(){
     if (EqPass)
         this->accept(); //Only emith accept() when passwords are equal
-    UNUSED(button);
 }
-
 
 // if user wants to generate a password using one of the installed password generators.
 void AddEntry::on_gen_pass_clicked(){
@@ -552,5 +548,7 @@ void AddEntry::build_info_model(const char* Pwd){
     if(ZxcvbnFreeInfo)
         ZxcvbnFreeInfo(Info);
 }
+
+
 
 

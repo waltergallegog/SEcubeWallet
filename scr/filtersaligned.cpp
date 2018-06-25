@@ -1,5 +1,6 @@
 #include "filtersaligned.h"
 #include <QHeaderView>
+#include <QCheckBox>
 
 FiltersAligned::FiltersAligned()
     : QHBoxLayout()
@@ -24,12 +25,17 @@ FiltersAligned::FiltersAligned()
 
     dateChoose = new QDateEdit;
     dateChoose->setDisplayFormat("yyyy-MM-dd");
+    dateChoose->setEnabled(false);
+    dateCheck = new QCheckBox;
+    dateCheck->setFixedWidth(dateCheck->width());
 
     dateWidget->setLayout(dateLayout);
     dateLayout->addWidget(dateFilter);
     dateLayout->addWidget(dateUnit);
+    dateLayout->addWidget(dateCheck);
     dateLayout->addWidget(dateChoose);
-    dateLayout->setMargin(0);
+    dateCheck->setFixedWidth(15);
+    dateLayout->setContentsMargins(1,0,0,0);
     dateLayout->setSpacing(0);
     dateFilter->setVisible(false);
     dateUnit->setVisible(false);
@@ -40,7 +46,6 @@ FiltersAligned::FiltersAligned()
     dateFilter->setClearButtonEnabled(true);
     descFilter->setClearButtonEnabled(true);
 
-    //TODO: placeholder text not visible when qlineedit is small. Problematic for date.
     userFilter->setPlaceholderText("Filter");
     domFilter->setPlaceholderText ("Filter");
     passFilter->setPlaceholderText("Filter");

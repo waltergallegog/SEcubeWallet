@@ -88,8 +88,8 @@ void MySortFilterProxyModel::setFilterOlder(int index, const QString &QuantityS,
         break;
     }
 
-    qDebug()<<filterDate_older.toString();
-    qDebug()<<filterDate_exact.toString();
+    qDebug()<<"older: " <<filterDate_older.toString();
+    qDebug()<<"exact: " <<filterDate_exact.toString();
     invalidateFilter();
 }
 

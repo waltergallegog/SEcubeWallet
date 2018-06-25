@@ -80,12 +80,12 @@ private slots:
     void on_InDomain_textChanged(const QString &arg1);
     void on_InPass_textChanged(const QString &text);
     void on_InPass2_textChanged(const QString &text);
-    void on_sh_pass_toggled(bool checked);
-    void on_buttonBox_clicked(QAbstractButton *button);
+    void on_sh_pass_toggled(bool checked);    
     void on_gen_pass_clicked();
     void on_pb_confgen_clicked();
     void on_pb_secInfo_clicked();
     void build_info_model(const char *Pwd);
+    void on_buttonBox_accepted();
 
 private:
     Ui::AddEntry *ui;

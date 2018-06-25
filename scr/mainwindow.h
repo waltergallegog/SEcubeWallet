@@ -16,12 +16,9 @@
 #include "securefiledialog.h"
 #include "addentry.h"
 #include "environmentdialog.h"
-#include "deleteconfirmation.h"
 #include "helpwindow.h"
 #include "preferencesdialog.h"
-#include "newtable.h"
 #include "saveconfirmation.h"
-#include "overwritedialog.h"
 
 
 //SEcure related
@@ -88,6 +85,7 @@ private slots:
     void on_action_Set_Environment_triggered();
     void on_action_About_triggered();
 
+    void on_action_Older_Than_Filter_toggled(bool arg1);
     void domainFilter_textChanged(const QString &arg1);
     void userFilter_textChanged(const QString &arg1);
     void passFilter_textChanged(const QString &arg1);
@@ -95,11 +93,13 @@ private slots:
     void dateUnit_currentIndexChanged(int index);
     void dateFilter_textChanged(const QString &arg1);
     void dateChoose_dateChanged(QDate date);
+    void dateCheck_toggled(bool checked);
 
     void invalidateAlignedLayout();
-    void tableList_currentIndexChanged(const QString &arg1);
+    void tableList_currentIndexChanged(const QString &arg1);    
 
-    void on_action_Older_Than_Filter_toggled(bool arg1);
+
+    void on_action_Rename_Table_triggered();
 
 private:
     Ui::MainWindow *ui;

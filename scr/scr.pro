@@ -30,15 +30,12 @@ SOURCES += main.cpp\
     logindialog.cpp \
     securefiledialog.cpp \
     addentry.cpp \
-    deleteconfirmation.cpp \
     mysortfilterproxymodel.cpp \
     helpwindow.cpp \
-    newtable.cpp \
     myqtableview.cpp \
     passworditemdelegate.cpp \
     filtersaligned.cpp \
     saveconfirmation.cpp \
-    overwritedialog.cpp \
     myapplication.cpp \
     preferencesdialog.cpp \
     clickablelabel.cpp \
@@ -53,15 +50,12 @@ HEADERS  += mainwindow.h \
     logindialog.h \
     securefiledialog.h \
     addentry.h \
-    deleteconfirmation.h \
     mysortfilterproxymodel.h \
     helpwindow.h \
-    newtable.h \
     myqtableview.h \
     passworditemdelegate.h \
     filtersaligned.h \
     saveconfirmation.h \
-    overwritedialog.h \
     myapplication.h \
     preferencesdialog.h \
     clickablelabel.h \
@@ -72,11 +66,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     addentry.ui \
-    deleteconfirmation.ui \
     helpwindow.ui \
-    newtable.ui \
     saveconfirmation.ui \
-    overwritedialog.ui \
     preferencesdialog.ui \
     passwordInfo.ui \
     dictlist.ui \

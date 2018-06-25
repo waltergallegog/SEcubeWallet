@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="PassGens">
       <attribute name="title">
@@ -27,15 +27,15 @@
        <item row="0" column="1">
         <widget class="QToolBox" name="toolBox">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>312</width>
-            <height>70</height>
+            <width>508</width>
+            <height>333</height>
            </rect>
           </property>
           <attribute name="label">
@@ -252,8 +252,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>508</width>
+            <height>333</height>
            </rect>
           </property>
           <attribute name="label">
@@ -379,8 +379,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>494</width>
-            <height>331</height>
+            <width>298</width>
+            <height>376</height>
            </rect>
           </property>
           <attribute name="label">
@@ -434,8 +434,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>474</width>
-                <height>198</height>
+                <width>101</width>
+                <height>813</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
