@@ -2,7 +2,7 @@
 #include "ui_dictlist.h"
 #include <QDir>
 
-dictList::dictList(QWidget *parent, QStringList genDict) :
+dictList::dictList(QWidget *parent, QStringList genDict, QString path) :
     QDialog(parent),
     ui(new Ui::dictList)
 {
@@ -10,9 +10,10 @@ dictList::dictList(QWidget *parent, QStringList genDict) :
     setWindowTitle("Choose which dictionaries you want to use");
     setModal(true);
 
-    QString zxcvbn_path = QCoreApplication::applicationDirPath().
-            append("/../../SEcubeWallet/zxcvbn/");
-    QDir myDir(zxcvbn_path);
+    if(path.isEmpty()) //if no entered path => zxcvbn path
+        path = QCoreApplication::applicationDirPath().append("/../../SEcubeWallet/zxcvbn/");
+
+    QDir myDir(path);
     QStringList filters;
     filters<<"words*.txt";
     QStringList strList = myDir.entryList(filters);
@@ -47,4 +48,3 @@ QStringList dictList::getChecked(){
 
     return checked;
 }
-

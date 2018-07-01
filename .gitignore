@@ -1,2 +1,8 @@
 .directory 
 SEcubeWallet.pro.user
+zxcvbn/dict-src.h
+zxcvbn/dictgen
+zxcvbn/libzxcvbn.so
+zxcvbn/libzxcvbn.so.0
+zxcvbn/libzxcvbn.so.0.0.0
+zxcvbn/zxcvbn-inline-pic.o

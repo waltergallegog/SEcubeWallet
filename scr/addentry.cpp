@@ -9,6 +9,8 @@
 #include <QAbstractButton>
 #include <QtMath>
 #include <QLibrary>
+#include <QMessageBox>
+//#include <QRandomGenerator>
 
 #include "preferencesdialog.h"
 #include "passwordInfo.h"
@@ -29,6 +31,8 @@ extern "C"
 #define OK_BUTTON 0
 #define UNUSED(expr) (void)(expr)
 
+//TODO: crash when no password has been entered and details is clicked
+
 //Default constructor, called from add entry
 AddEntry::AddEntry(QWidget *parent) :
     QDialog(parent),
@@ -41,11 +45,16 @@ AddEntry::AddEntry(QWidget *parent) :
     load_zxcvbn_dicts();
 
     ui->buttonBox->buttons()[OK_BUTTON]->setEnabled(false); //Ok button initially disabled, as user has not entered any data
-    ui->InPass->setEnabled(true);
+    ui->pb_secInfo->setEnabled(false);
     ui->InPass2->setEnabled(false);
     ui->sh_pass->setEnabled(false);
     ui->match_pass->setVisible(false);
     ui->score->setValue(0);
+
+    QSettings settings;
+    if(settings.value("passGen/gen").toInt()==NONE)
+        ui->gen_pass->setEnabled(false);
+
 }
 
 // Second constructor, called from eddit entry
@@ -64,6 +73,10 @@ AddEntry::AddEntry(QWidget *parent, QString EditUserIn, QString EditPassIn, QStr
     ui->InPass->setText(EditPassIn);
     ui->InPass2->setText(EditPassIn);
     ui->InDesc->setText(EditDescIn);
+
+    QSettings settings;
+    if(settings.value("passGen/gen").toInt()==NONE)
+        ui->gen_pass->setEnabled(false);
 
 }
 
@@ -185,7 +198,7 @@ void AddEntry::on_InPass_textChanged(const QString &text){
 
     QString messages[5] = {MESS0, MESS1, MESS2, MESS3, MESS4};
 
-    if(!text.isEmpty()){//check text and the function was loaded correctly
+    if(!text.isEmpty()){
         ui->InPass2->setEnabled(true);
         ui->sh_pass->setEnabled(true);
         ui->lb_length->setText(QStringLiteral("(%1)").arg(text.length()));
@@ -209,13 +222,15 @@ void AddEntry::on_InPass_textChanged(const QString &text){
                 ui->score->setTextVisible(true);
                 ui->score->setValue(Level);
                 ui->lb_secLevel->setText(messages[Level]);
+                ui->pb_secInfo->setEnabled(true);
             }
         }
     }
-    else{//Text but no library
+    else{
         ui->InPass2->setEnabled(false);
         ui->sh_pass->setEnabled(false);
         ui->lb_length->clear();
+        ui->pb_secInfo->setEnabled(false);
         if (ZxcvbnMatch){
             ui->score->setValue(0);
             ui->score->setTextVisible(false);
@@ -324,13 +339,84 @@ void AddEntry::on_gen_pass_clicked(){
         free(buf);
         break;
 
-    case PWQGEN:
-        break;
+    case PASSPHRASE:
 
-    case CUSTOM:
+        QString path = settings.value("passGen/ppgen/path").toString();
+        if (path.isEmpty()){
+            QMessageBox::information(
+                this,
+                "SEcubeWallet",
+                "Passphrase generator is not configured correctly");
+            break;
+        }
+
+        QStringList dicts = settings.value("passGens/ppgen/dicts").toStringList();
+        if(dicts.isEmpty()){
+            QMessageBox::information(
+                this,
+                "SEcubeWallet",
+                "Passphrase generator has no dictionaries, please add some");
+            break;
+        }
+
+        QStringList dictsLen = settings.value("passGens/ppgen/ditcLen").toStringList();
+        if(dicts.length()!=dictsLen.length()){
+            QMessageBox::information(
+                this,
+                "SEcubeWallet",
+                "Passphrase generator: There is an error with the dictionaries, plese try selecting them again");
+            break;
+        }
+
+        int totalLen = settings.value("passGens/ppgen/dictsLenTotal");
+        if (!totalLen>0){
+            QMessageBox::information(
+                this,
+                "SEcubeWallet",
+                "Passphrase generator: Dictionaries seem to be empty, plese try selecting them again");
+            break;
+        }
+
+        int numWords = settings.value("passGens/ppgen/numWords").toInt();
+        if (!numWords>0)//default to 4
+            numWords=4;
+
+        QList <int> randomLines;
+        // generate numWords random numbers
+        for(int i=0; i<numWords; i++){
+//            randomLines<<QRandomGenerator::global()->bounded(totalLen);
+            randomLines = (totalLen/numWords)*i;
+        }
+        qDebug() << totalLen;
+        qDebug() << randomLines;
+
+//        randomLines.sor
+
+        for(int i=0; i<dicts.length(); i++){
+            QFile inputFile(path+"/"+dicts.at(i));
+            if (inputFile.open(QIODevice::ReadOnly| QIODevice::Text)){
+                lines=0;
+                QTextStream in(&inputFile);
+                while (!in.atEnd()){
+                    in.readLine();
+                    lines++;
+                }
+                inputFile.close();
+                numWordsList << QString::number(lines);
+            }
+        }
+
+
+
+
+
         break;
 
     case NONE:
+        QMessageBox::information(
+            this,
+            "SEcubeWallet",
+            "Please select a Password Generator in settings");
         break;
 
     default:
@@ -345,6 +431,11 @@ void AddEntry::on_pb_confgen_clicked(){
     load_zxcvbn_dicts();//load again
     on_InPass_textChanged(ui->InPass->text());//update zxcvbn display
 
+    QSettings settings;
+    if(settings.value("passGen/gen").toInt()==NONE)
+        ui->gen_pass->setEnabled(false);
+    else
+        ui->gen_pass->setEnabled(true);
 }
 
 void AddEntry::on_pb_secInfo_clicked(){

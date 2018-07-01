@@ -12,10 +12,10 @@
 //#include "zxcvbn.h"
 
 //password generators
+//TODO: clean generators
 #define PWGEN 0
-#define PWQGEN 1
-#define CUSTOM 2
-#define NONE 3
+#define PASSPHRASE 1
+#define NONE 2
 
 /* Enum for the types of match returned in the Info arg to ZxcvbnMatch */
 typedef enum

@@ -38,6 +38,12 @@ private slots:
 
     void on_pb_genClean_clicked();
 
+    void on_pb_chDicPhra_clicked();
+
+    void on_pb_chDirPhra_clicked();
+
+    void on_cb_gens_currentIndexChanged(int index);
+
 private:
     Ui::PreferencesDialog *ui;
 
