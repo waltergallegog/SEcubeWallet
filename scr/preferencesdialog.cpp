@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QFileDialog>
+#include <QMessageBox>
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
@@ -40,11 +41,14 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     ui->sb_minLen->setValue(settings.value("passGens/ppgen/minLen").toInt());
     ui->cb_lower->setChecked(settings.value("passGens/ppgen/lowerEnab").toBool());
     ui->sb_lower->setValue(settings.value("passGens/ppgen/lower").toInt());
+    ui->cb_cap->setChecked(settings.value("passGens/ppgen/cap").toBool());
 
     if(settings.value("passGens/ppgen/path").toString().isEmpty())
         ui->pb_chDicPhra->setEnabled(false);
 
-
+    ppgenPath = settings.value("passGens/ppgen/path").toString();
+    ppgenDicts = settings.value("passGens/ppgen/dicts").toStringList();
+    ppgenDictsLen = settings.value("passGens/ppgen/dictsLen").toStringList();
 
     connect(ui->l_1cap  , SIGNAL(clicked()), this, SLOT(l_1cap_clicked()));
     connect(ui->l_1num  , SIGNAL(clicked()), this, SLOT(l_1num_clicked()));
@@ -81,13 +85,9 @@ void PreferencesDialog::on_buttonBox_accepted(){
     settings.setValue("passGens/pwgen/noVow", ui->cb_noVow->isChecked());
     settings.setValue("passGens/pwgen/random", ui->cb_random->isChecked());
 
-    //passphrase gen settings
-    settings.setValue("passGens/ppgen/numWords", ui->sb_words->value());
-    settings.setValue("passGens/ppgen/minLenEnab", ui->cb_minLen->isChecked());
-    settings.setValue("passGens/ppgen/minLen", ui->sb_minLen->value());
-    settings.setValue("passGens/ppgen/lowerEnab", ui->cb_lower->isChecked());
-    settings.setValue("passGens/ppgen/lower", ui->sb_lower->value());
 
+
+    settings.sync();
     this->accept();//
 
 }
@@ -136,63 +136,97 @@ void PreferencesDialog::l_random_clicked(){
 // end of lable_clicked => checkbox togled
 
 
-//// ****** Passphrase Generator preferences **** ////
+// ****** Passphrase Generator preferences **** //
 
+//change the working directory
 void PreferencesDialog::on_pb_chDirPhra_clicked(){
-    QSettings settings;
+
     QString zxcvbn_path = QCoreApplication::applicationDirPath().
-            append("/../../SEcubeWallet/zxcvbn/");
+            append("/../../SEcubeWallet/zxcvbn/");//just a recomended directory
 
-    QString path = QFileDialog::getExistingDirectory(this, "select directory", zxcvbn_path, 0);
-    settings.setValue("passGens/ppgen/path",path);
+    ppgenPath = QFileDialog::getExistingDirectory(this, "select directory", zxcvbn_path, 0);//ask user for directory
 
-    if(path.isEmpty())
+    if(ppgenPath.isEmpty())
         ui->pb_chDicPhra->setEnabled(false);
     else
         ui->pb_chDicPhra->setEnabled(true);
 }
 
-
+//Select the dictionaries
 void PreferencesDialog::on_pb_chDicPhra_clicked(){
-    QSettings settings;
-    QString path = settings.value("passGens/ppgen/path").toString();
-    if(path.isEmpty())
+
+    if(ppgenPath.isEmpty())
         return;
 
-    dictList *list = new dictList(this, settings.value("passGens/ppgen/dicts").toStringList(), path);
+    dictList *list = new dictList(this, ppgenDicts, ppgenPath);//dialog with a checkable list of dicts present in path
     list->exec();
     if(list->result()==QDialog::Rejected)
         return; // If error or cancel, do nothing
 
-    QStringList dicts = list->getChecked();
-    settings.setValue("passGens/ppgen/dicts", dicts);
+    ppgenDicts = list->getChecked();//Get dictionaries the user checked and save it in list
+}
 
-    QStringList dictsLen;//list containig the total number of words for each dictionary, in string so we can save it to settings easily
-    int lines=0;
-    int totalLen=0;
-    foreach (const QString dict, dicts) {
-        QFile inputFile(path+"/"+dict);
-        if (inputFile.open(QIODevice::ReadOnly| QIODevice::Text)){
-            lines=0;
-            QTextStream in(&inputFile);
-            while (!in.atEnd()){
-                in.readLine();
-                lines++;
+// Count the number of words in each dictionary, and save preferences
+void PreferencesDialog::on_pb_applyPhra_clicked()
+{
+    if(ppgenDicts.isEmpty() || ppgenPath.isEmpty())
+        return;
+
+    ppgenMinLenEnab = ui->cb_minLen->isChecked();//Minimum Len option enabled
+    ppgenMinLen     =  ui->sb_minLen->value();   //Value of min Len
+    ppgenLowerEnab  = ui->cb_lower->isChecked(); //Lower pecent of dict option enabled
+    ppgenLower      = ui->sb_lower->value();     //value of lower perc of dir
+
+    QSettings settings;
+    int lines = 0;  //counter
+    QString line;   //temp to save current line
+
+    ppgenDictsLen.clear(); //List containing length of each dictionary. we will use << later, so clean it before
+
+    foreach (const QString dict, ppgenDicts) { // loop the dictionaries list
+        QFile inputFile(ppgenPath+"/"+dict);
+        if (inputFile.open(QIODevice::ReadOnly| QIODevice::Text)){//open file
+            QTextStream in(&inputFile); //To read line by line easier
+            while (!in.atEnd()){ //until we reach the end
+                line = in.readLine().split(QRegExp("\\s+"), QString::SkipEmptyParts).at(0); //read line and only take the first word. Dictionaries usually have info about freq of the word in the same line
+                if(!ppgenMinLenEnab)//if no minumum len consideration, all lines are counted
+                    lines++;
+                else if (line.length()>=ppgenMinLen)//if min len, then check len is enough to be counted
+                    lines++;
             }
             inputFile.close();
-            dictsLen << QString::number(lines);
-            totalLen+=lines;
+            ppgenDictsLen << QString::number(lines);//save the length (as string so we can use qsettings)
         }
     }
-    qDebug() << dictsLen;
-    settings.setValue("passGens/ppgen/dictsLen", dictsLen);
-    settings.setValue("passGens/ppgen/dictsLenTotal", totalLen);
+    qDebug() << ppgenDictsLen;
+
+    //print info in the GUI about the total length of the dictionaries. Total length is in the last item of list, as the list is commulative
+    if (ppgenLowerEnab)//if lower perc is enabled, multiply length by percentage/100
+        ui->lb_ppgenWords->setText("Total length of dictionary: "+
+                                   QString::number(qRound(0.01*ppgenLower*ppgenDictsLen.last().toInt())));
+    else
+        ui->lb_ppgenWords->setText("Total length of dictionary: "+ppgenDictsLen.last());
+
+    //Save passphrase generator settings
+    settings.setValue("passGens/ppgen/numWords", ui->sb_words->value());
+    settings.setValue("passGens/ppgen/cap", ui->cb_cap->isChecked());
+
+    settings.setValue("passGens/ppgen/minLenEnab", ppgenMinLenEnab);
+    settings.setValue("passGens/ppgen/minLen", ppgenMinLen);
+    settings.setValue("passGens/ppgen/lowerEnab", ppgenLowerEnab);
+    settings.setValue("passGens/ppgen/lower", ppgenLower);
+
+    settings.setValue("passGens/ppgen/path", ppgenPath);
+    settings.setValue("passGens/ppgen/dicts", ppgenDicts);
+    settings.setValue("passGens/ppgen/dictsLen", ppgenDictsLen);
+
 }
 
 
 
 /// **** zxcvbn preferences buttons *****
-//TODO: change settings names to format /esti/zxcvbn/
+//TODO: change settings names to format ppgen/  pwgen/  /zxcvbn
+
 void PreferencesDialog::on_pb_genGen_clicked(){
 
     QProcess sh;
@@ -213,7 +247,17 @@ void PreferencesDialog::on_pb_genGen_clicked(){
     setAllEnabled(false);//generate process takes a while, so disable all buttons.
     qApp->processEvents(); // otherwise the repaint take place after this function finishes
     sh.start("sh", QStringList() << "-c" << cdandmake);
-    sh.waitForFinished();
+
+    int msTimeOut = ui->sb_timeout->value();
+    if (msTimeOut>0)//-1 is no timeout
+        msTimeOut = 1000*msTimeOut;//input is in seconds, transform to ms
+
+    if(!sh.waitForFinished(msTimeOut)){
+        QMessageBox::information(
+                    this,
+                    "SEcubeWallet",
+                    "Failed, probably due to a very large dictionary(ies). Please try with a larger timeout or -1 for no timeout");
+    }
     setAllEnabled(true);
 
     QString output(sh.readAllStandardOutput());
@@ -327,6 +371,3 @@ void PreferencesDialog::on_pb_userCurrent_clicked(){
     settings.setValue("userDictChecked", list->getChecked());
 
 }
-
-
-

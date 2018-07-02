@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     passwordInfo.cpp \
     dictlist.cpp \
     edituserdict.cpp \
-    userwordslist.cpp
+    userwordslist.cpp \
+    passphrasegen.cpp
     co
 
 HEADERS  += mainwindow.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     passwordInfo.h \
     dictlist.h \
     edituserdict.h \
-    userwordslist.h
+    userwordslist.h \
+    passphrasegen.h
 
 FORMS    += mainwindow.ui \
     addentry.ui \

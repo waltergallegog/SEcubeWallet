@@ -64,7 +64,7 @@ MainWindow::~MainWindow(){
         if (model!=NULL){
             model->clear();
             model=NULL;
-            proxyModel->clear();
+            proxyModel->invalidate();
         }
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
@@ -217,7 +217,7 @@ void MainWindow::on_action_New_Wallet_triggered(){
         if (model!=NULL){
             model->clear();
             model=NULL;
-            proxyModel->clear();
+            proxyModel->invalidate();
         }
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
@@ -968,7 +968,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         if (model!=NULL){
             model->clear();
             model=NULL;
-            proxyModel->clear();
+            proxyModel->invalidate();
         }
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
@@ -1123,7 +1123,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
         if (model!=NULL){
             model->clear();
             model=NULL;
-            proxyModel->clear();
+            proxyModel->invalidate();
         }
         dbMem.close();
         QSqlDatabase::removeDatabase(DRIVER);
@@ -1175,7 +1175,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
             if (model!=NULL){
                 model->clear();
                 model=NULL;
-                proxyModel->clear();
+                proxyModel->invalidate();
             }
             dbMem.close();
             QSqlDatabase::removeDatabase(DRIVER);

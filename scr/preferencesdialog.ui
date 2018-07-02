@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>565</width>
-    <height>535</height>
+    <width>591</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="PassGens">
       <attribute name="title">
@@ -69,15 +69,15 @@
        <item row="4" column="0">
         <widget class="QToolBox" name="tb_passgens">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="pwgen">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>525</width>
-            <height>336</height>
+            <width>551</width>
+            <height>413</height>
            </rect>
           </property>
           <attribute name="label">
@@ -244,32 +244,16 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-7</y>
-            <width>511</width>
-            <height>354</height>
+            <y>0</y>
+            <width>551</width>
+            <height>413</height>
            </rect>
           </property>
           <attribute name="label">
            <string>PassPhraseGen: Generate Passphrases from dictionaries</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="11" column="0">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>10</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="15" column="0">
+           <item row="22" column="0">
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -277,22 +261,15 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>1</height>
               </size>
              </property>
             </spacer>
            </item>
-           <item row="8" column="0">
+           <item row="10" column="0">
             <widget class="QCheckBox" name="cb_minLen">
              <property name="text">
               <string>Minmum Length of words</string>
-             </property>
-            </widget>
-           </item>
-           <item row="13" column="3">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>percent of the dictionary.</string>
              </property>
             </widget>
            </item>
@@ -306,7 +283,7 @@
              </property>
             </widget>
            </item>
-           <item row="13" column="0">
+           <item row="16" column="0">
             <widget class="QCheckBox" name="cb_lower">
              <property name="text">
               <string>Consider only the lower </string>
@@ -329,7 +306,7 @@
              </property>
             </spacer>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <spacer name="verticalSpacer_3">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -361,18 +338,28 @@
              </property>
             </spacer>
            </item>
-           <item row="8" column="1">
+           <item row="10" column="1">
             <widget class="QSpinBox" name="sb_minLen"/>
            </item>
-           <item row="13" column="1">
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="sb_words">
+             <property name="value">
+              <number>4</number>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="1">
             <widget class="QSpinBox" name="sb_lower">
              <property name="maximum">
               <number>100</number>
              </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>100</number>
+             </property>
             </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="sb_words"/>
            </item>
            <item row="5" column="0">
             <spacer name="verticalSpacer_5">
@@ -386,51 +373,6 @@
               <size>
                <width>20</width>
                <height>10</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="8" column="3">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="6" column="2" colspan="2">
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="4" column="3">
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
               </size>
              </property>
             </spacer>
@@ -451,33 +393,10 @@
              </property>
             </spacer>
            </item>
-           <item row="3" column="2" colspan="2">
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="0" colspan="5">
+           <item row="0" column="0" colspan="4">
             <widget class="QLabel" name="label_11">
              <property name="text">
               <string>This Generator produces passphrases by randomly picking out a few words from the chosen dictionaries. Make sure to configure it to use at least four words to get an useful passphrase. </string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="14" column="0" colspan="5">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>Words in dictionary files are usually ordered by frequency, so the lower part contains more unusual words, which are more suitable for passphrases.abel</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -501,6 +420,144 @@
              </property>
              <property name="text">
               <string>Choose Directory</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" colspan="2">
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="16" column="2" colspan="2">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>percent of the dictionary.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="6" column="2" colspan="2">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="21" column="0">
+            <widget class="QPushButton" name="pb_applyPhra">
+             <property name="text">
+              <string>Apply</string>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="0" colspan="4">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Words in dictionary files are usually ordered by frequency, so the lower part contains more unusual words, which are more suitable for passphrases.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="20" column="0">
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>15</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="18" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="19" column="0" colspan="4">
+            <widget class="QCheckBox" name="cb_cap">
+             <property name="text">
+              <string>Capitalize first letter of each word</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="10" column="2">
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="21" column="1" colspan="2">
+            <widget class="QLabel" name="lb_ppgenWords">
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
@@ -544,8 +601,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>511</width>
-            <height>436</height>
+            <width>537</width>
+            <height>452</height>
            </rect>
           </property>
           <attribute name="label">
@@ -555,7 +612,7 @@
            <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to choose the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Compile&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size). Clean deletes the compiled library and the generated dictionary structures.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the &lt;span style=&quot; font-weight:600;&quot;&gt;Choose&lt;/span&gt; button to select the dictionaries to use. Only .txt files in the zxcvbn folder can be added. Then click &lt;span style=&quot; font-weight:600;&quot;&gt;Compile&lt;/span&gt; to build the required structures. (It may take a while, depending on the dictionaries size). If the dictionaries are to large, modify the &lt;span style=&quot; font-weight:600;&quot;&gt;timeout &lt;/span&gt;next to the button (in seconds, -1 for no timeout). &lt;span style=&quot; font-weight:600;&quot;&gt;Clean&lt;/span&gt; deletes the compiled library and the generated dictionary structures.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -580,6 +637,25 @@
                </widget>
               </item>
               <item>
+               <widget class="QSpinBox" name="sb_timeout">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>-1</number>
+                </property>
+                <property name="maximum">
+                 <number>300</number>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="pb_genClean">
                 <property name="text">
                  <string>Clean</string>
@@ -599,7 +675,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>477</width>
+                <width>503</width>
                 <height>318</height>
                </rect>
               </property>
@@ -625,8 +701,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>511</width>
-            <height>331</height>
+            <width>298</width>
+            <height>376</height>
            </rect>
           </property>
           <attribute name="label">
@@ -680,8 +756,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>491</width>
-                <height>198</height>
+                <width>264</width>
+                <height>243</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">

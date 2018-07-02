@@ -10,10 +10,13 @@
 #include <QtMath>
 #include <QLibrary>
 #include <QMessageBox>
-//#include <QRandomGenerator>
+#include <QRandomGenerator>
+#include <QFile>
+//#include <QtAlgorithms>
 
 #include "preferencesdialog.h"
 #include "passwordInfo.h"
+#include "passphrasegen.h"
 
 extern "C"
 {
@@ -284,14 +287,24 @@ void AddEntry::on_gen_pass_clicked(){
 
     QSettings settings;
 
-    //PWGEN vars
+    QString genPass =""; //generated password
 
+    //PWGEN vars
     QString options = ""; //-a options does not do anything, just to have always 4 arguments
     QString length = "16";
-
     char* buf;
-    QString genPass;
 
+    //PASSPHRASE vars
+    QString path;
+    QStringList dicts;
+    QStringList dictsLen;
+    int totalLen;
+    int numWords;
+    bool ppgenMinLenEnab;
+    int ppgenMinLen;
+    bool capFirst;
+    bool ppgenLowerEnab;
+    int ppgenLower;
 
     switch (settings.value("passGens/gen").toInt()){
 
@@ -332,106 +345,105 @@ void AddEntry::on_gen_pass_clicked(){
         qDebug() << options;
         main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
         genPass = QString::fromLatin1(buf,length.toInt());
-
-        ui->InPass->setText(genPass);
-        ui->InPass2->setText(genPass);
-
         free(buf);
+
+        //if succesfully finishes, change passwords
+        if(!genPass.isEmpty()){
+            ui->InPass->setText(genPass);
+            ui->InPass2->setText(genPass);
+        }
+
         break;
+
 
     case PASSPHRASE:
 
-        QString path = settings.value("passGen/ppgen/path").toString();
-        if (path.isEmpty()){
+        //read values configured in preference dialog
+        path            = settings.value("passGens/ppgen/path").toString();
+        dicts           = settings.value("passGens/ppgen/dicts").toStringList();
+        dictsLen        = settings.value("passGens/ppgen/dictsLen").toStringList();
+        numWords        = settings.value("passGens/ppgen/numWords").toInt();
+        ppgenMinLenEnab = settings.value("passGens/ppgen/minLenEnab").toBool();
+        ppgenMinLen     = settings.value("passGens/ppgen/minLen").toInt();
+        capFirst        = settings.value("passGens/ppgen/cap").toBool();
+        ppgenLowerEnab  = settings.value("passGens/ppgen/lowerEnab").toBool();
+        ppgenLower      = settings.value("passGens/ppgen/lower").toInt();
+
+        if (path.isEmpty()){//check path is not empty
             QMessageBox::information(
-                this,
-                "SEcubeWallet",
-                "Passphrase generator is not configured correctly");
+                        this,
+                        "SEcubeWallet",
+                        "Passphrase generator is not configured correctly");
             break;
         }
 
-        QStringList dicts = settings.value("passGens/ppgen/dicts").toStringList();
-        if(dicts.isEmpty()){
+        if(dicts.isEmpty()){//check there are selected dicts
             QMessageBox::information(
-                this,
-                "SEcubeWallet",
-                "Passphrase generator has no dictionaries, please add some");
+                        this,
+                        "SEcubeWallet",
+                        "Passphrase generator has no dictionaries, please add some");
             break;
         }
 
-        QStringList dictsLen = settings.value("passGens/ppgen/ditcLen").toStringList();
-        if(dicts.length()!=dictsLen.length()){
+        if(dicts.length()!=dictsLen.length()){//check both list are the same length
             QMessageBox::information(
-                this,
-                "SEcubeWallet",
-                "Passphrase generator: There is an error with the dictionaries, plese try selecting them again");
+                        this,
+                        "SEcubeWallet",
+                        "Passphrase generator: There is an error with the dictionaries, plese try selecting them again");
             break;
         }
 
-        int totalLen = settings.value("passGens/ppgen/dictsLenTotal");
-        if (!totalLen>0){
-            QMessageBox::information(
-                this,
-                "SEcubeWallet",
-                "Passphrase generator: Dictionaries seem to be empty, plese try selecting them again");
-            break;
-        }
-
-        int numWords = settings.value("passGens/ppgen/numWords").toInt();
-        if (!numWords>0)//default to 4
+        if (!numWords>0)//if user did not choose at least 1 word, then default to 4
             numWords=4;
 
-        QList <int> randomLines;
-        // generate numWords random numbers
-        for(int i=0; i<numWords; i++){
-//            randomLines<<QRandomGenerator::global()->bounded(totalLen);
-            randomLines = (totalLen/numWords)*i;
-        }
-        qDebug() << totalLen;
-        qDebug() << randomLines;
+        totalLen = dictsLen.last().toInt();//last dictsLen is total
+        if (ppgenLowerEnab)//only use ppgenLower part of the dictionaries
+            totalLen = qRound(0.01*ppgenLower*totalLen);
 
-//        randomLines.sor
-
-        for(int i=0; i<dicts.length(); i++){
-            QFile inputFile(path+"/"+dicts.at(i));
-            if (inputFile.open(QIODevice::ReadOnly| QIODevice::Text)){
-                lines=0;
-                QTextStream in(&inputFile);
-                while (!in.atEnd()){
-                    in.readLine();
-                    lines++;
-                }
-                inputFile.close();
-                numWordsList << QString::number(lines);
-            }
+        if (totalLen<numWords){//if not enough words in the dictionary
+            QMessageBox::information(
+                        this,
+                        "SEcubeWallet",
+                        "Passphrase generator: Dictionaries seem to be empty, or too small for the numbWords");
+            break;
         }
 
+        //if all the test passed, call the function (in other file) that reads the dicts and extracts the words
+        genPass = PassPhraseGen(path, dicts, dictsLen, totalLen, numWords,
+                    ppgenMinLenEnab, ppgenMinLen, capFirst, ppgenLowerEnab, ppgenLower);
 
-
-
+        //if succesfully finishes, change passwords
+        if (!genPass.isEmpty()){
+            ui->InPass->setText(genPass);
+            ui->InPass2->setText(genPass);
+        }
 
         break;
 
     case NONE:
         QMessageBox::information(
-            this,
-            "SEcubeWallet",
-            "Please select a Password Generator in settings");
+                    this,
+                    "SEcubeWallet",
+                    "Please select a Password Generator in settings");
         break;
 
     default:
         break;
     }
+
 }
 
 
 void AddEntry::on_pb_confgen_clicked(){
     PreferencesDialog *pref = new PreferencesDialog(this);
     pref->exec();
+    QSettings settings;
+    settings.sync();
+
     load_zxcvbn_dicts();//load again
     on_InPass_textChanged(ui->InPass->text());//update zxcvbn display
 
-    QSettings settings;
+
     if(settings.value("passGen/gen").toInt()==NONE)
         ui->gen_pass->setEnabled(false);
     else
