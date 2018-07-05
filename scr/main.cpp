@@ -4,8 +4,8 @@
 #include "myapplication.h"
 
 int main(int argc, char *argv[]){
-//    QApplication::setDesktopSettingsAware(false);
-//    QApplication::setStyle("QtCurve");
+    QApplication::setDesktopSettingsAware(false);
+    QApplication::setStyle("Fusion");
     QApplication  a(argc, argv);//MyApplication a(argc, argv);
 
     MainWindow w;

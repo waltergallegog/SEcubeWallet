@@ -202,10 +202,11 @@ void PreferencesDialog::on_pb_applyPhra_clicked()
 
     //print info in the GUI about the total length of the dictionaries. Total length is in the last item of list, as the list is commulative
     if (ppgenLowerEnab)//if lower perc is enabled, multiply length by percentage/100
-        ui->lb_ppgenWords->setText("Total length of dictionary: "+
-                                   QString::number(qRound(0.01*ppgenLower*ppgenDictsLen.last().toInt())));
+        ui->lb_ppgenWords->setText("Total length of dictionaries: "+
+                                   QString::number(qRound(0.01*ppgenLower*ppgenDictsLen.last().toInt()))
+                                   +" words.");
     else
-        ui->lb_ppgenWords->setText("Total length of dictionary: "+ppgenDictsLen.last());
+        ui->lb_ppgenWords->setText("Total length of dictionaries: "+ppgenDictsLen.last()+" words");
 
     //Save passphrase generator settings
     settings.setValue("passGens/ppgen/numWords", ui->sb_words->value());
@@ -226,7 +227,7 @@ void PreferencesDialog::on_pb_applyPhra_clicked()
 
 /// **** zxcvbn preferences buttons *****
 //TODO: change settings names to format ppgen/  pwgen/  /zxcvbn
-
+//TODO: in release, where to put zxcvbn? put a dict choose to let the user search for the zxcvbn folder?
 void PreferencesDialog::on_pb_genGen_clicked(){
 
     QProcess sh;

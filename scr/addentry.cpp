@@ -653,5 +653,47 @@ void AddEntry::build_info_model(const char* Pwd){
 }
 
 
+void AddEntry::on_pb_l33t_clicked(){
+
+    QString tmp = ui->InPass->text();
+
+    tmp.replace(QString("o"), QString("0"), Qt::CaseInsensitive);
+    tmp.replace(QString("i"), QString("1"), Qt::CaseInsensitive);
+    tmp.replace(QString("z"), QString("2"), Qt::CaseInsensitive);
+    tmp.replace(QString("E"), QString("3"));
+    tmp.replace(QString("A"), QString("4"));
+    tmp.replace(QString("s"), QString("5"), Qt::CaseInsensitive);
+    tmp.replace(QString("b"), QString("6"));
+    tmp.replace(QString("T"), QString("7"));
+    tmp.replace(QString("B"), QString("8"));
+    tmp.replace(QString("P"), QString("9"));
+
+    tmp.replace(QString("l"), QString("|"));
+
+    if(EqPass)
+        ui->InPass2->setText(tmp);
+    ui->InPass->setText(tmp);
+}
+
+void AddEntry::on_pb_unl33t_clicked(){
+    QString tmp = ui->InPass->text();
+
+    tmp.replace(QString("0"), QString("o"));
+    tmp.replace(QString("1"), QString("i"));
+    tmp.replace(QString("2"), QString("z"));
+    tmp.replace(QString("3"), QString("E"));
+    tmp.replace(QString("4"), QString("A"));
+    tmp.replace(QString("5"), QString("s"));
+    tmp.replace(QString("6"), QString("b"));
+    tmp.replace(QString("7"), QString("T"));
+    tmp.replace(QString("8"), QString("B"));
+    tmp.replace(QString("9"), QString("P"));
+
+    tmp.replace(QString("|"), QString("l"));
 
 
+    if(EqPass)
+        ui->InPass2->setText(tmp);
+    ui->InPass->setText(tmp);
+
+}

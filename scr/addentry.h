@@ -87,6 +87,9 @@ private slots:
     void build_info_model(const char *Pwd);
     void on_buttonBox_accepted();
 
+    void on_pb_l33t_clicked();
+    void on_pb_unl33t_clicked();
+
 private:
     Ui::AddEntry *ui;
 
@@ -95,6 +98,7 @@ private:
     void load_zxcvbn_dicts();
 
     bool EqPass;
+    QString unl33t;
 
     double e, elog;
     ZxcMatch_t *Info, *p;
