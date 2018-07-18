@@ -116,7 +116,7 @@ void LoginDialog::slotAcceptLogin(){
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this,
                                           "Close session",
-                                          "There is already an opened session, do you want to close it",
+                                          "There is already an opened session, \ndo you want to close it",
                                           QMessageBox::Yes|QMessageBox::No);
             if (reply == QMessageBox::Yes) {
                 qDebug() << "Yes was clicked";

@@ -94,7 +94,6 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_Website"/>
     <addaction name="action_About"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
@@ -185,12 +184,9 @@
    <addaction name="action_Older_Than_Filter"/>
    <addaction name="separator"/>
    <addaction name="action_Launch_Domain"/>
+   <addaction name="separator"/>
   </widget>
   <action name="action_New_Wallet">
-   <property name="icon">
-    <iconset resource="../icons/icons.qrc">
-     <normaloff>:/icons/NewWallet.svg</normaloff>:/icons/NewWallet.svg</iconset>
-   </property>
    <property name="text">
     <string>&amp;New Wallet</string>
    </property>
@@ -238,7 +234,10 @@
   </action>
   <action name="action_About">
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Useful Tips and about info</string>
    </property>
   </action>
   <action name="action_Set_Environment">
@@ -320,8 +319,6 @@
    <header location="global">myqtableview.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../icons/icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

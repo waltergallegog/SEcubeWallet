@@ -44,6 +44,7 @@ static int just_print(void *null, int argc, char **argv, char **azColName){ //cr
     return 0;
 }
 
+//// Constructor: sets GUI and calls init.
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow ){
@@ -60,7 +61,7 @@ MainWindow::~MainWindow(){
         L1_logout(&s);
 #endif
 
-    if(dbMem.open()){ // close any existent connections and in memory database
+    if(dbMem.isOpen()){ // close any existent connections and in memory database
         if (model!=NULL){
             model->clear();
             model=NULL;
@@ -108,7 +109,7 @@ void MainWindow::init(){
     // add table List to ToolBar before delete
     tableList = new QComboBox(this);
     //    ui->tableTB->insertWidget(ui->action_Delete_Table, tableList);
-    ui->entriesTB->insertWidget(ui->action_Add_Entry, tableList);
+    ui->entriesTB->addWidget(tableList);
     connect(tableList, SIGNAL(currentIndexChanged(QString)), SLOT(tableList_currentIndexChanged(QString)));
 
     //State of some actions as not clickable because there is no wallet to edit yet
@@ -192,7 +193,7 @@ void MainWindow::on_action_New_Wallet_triggered(){
         else if (conf->result()==QDialog::Accepted){
             if (conf->getResult()==SAVE){
                 QD << "save";
-                if( !on_action_Save_Wallet_triggered())// call save
+                if(!on_action_Save_Wallet_triggered())// call save
                     return; // save gone wrong, dont do anything
             }
             else if(conf->getResult()==DISCARD)//continue without saving
@@ -203,14 +204,14 @@ void MainWindow::on_action_New_Wallet_triggered(){
     if(!(QSqlDatabase::isDriverAvailable(DRIVER))) { //Check if sqlite is installed on OS
         qWarning() << "MainWindow::DatabaseConnect - ERROR: no driver " << DRIVER << " available";
         exit (1); // as the application does not work without Sqlite, exit.
+        //TODO: before exit, let the user know about the error, and logout from secube (call destructor)
     }
 
-    if (dbMem.open()){ //close any prev. opened connections and database
-
+    if (dbMem.isOpen()){ //close any prev. opened connections and database
         int col;
         int aux;
         for (col=USER_COL;col<=DESC_COL; col++){ // save table geometry before closing
-            aux=ui->tableView->horizontalHeader()->sectionSize(col);//for readability
+            aux=ui->tableView->horizontalHeader()->sectionSize(col);//aux var for readability
             widths[col] = (aux>0) ? aux : widths[col];
         }
 
@@ -272,8 +273,8 @@ void MainWindow::on_action_Add_Table_triggered(){
         return;
     //TODO: use global query instead of local?
     QSqlQuery query(dbMem);
-    query.prepare("create table "+tableName+
-                  "(id integer primary key, "
+    query.prepare("create table '"+tableName+
+                  "'(id integer primary key, "
                   "Username TEXT, "
                   "Domain TEXT, "
                   "Password TEXT, "
@@ -441,7 +442,7 @@ void MainWindow::on_action_Delete_Table_triggered(){
 
         QSqlQuery query(dbMem);
 
-        query.prepare("DROP TABLE " + tableName);
+        query.prepare("DROP TABLE '" + tableName+"'");
         if (!query.exec()){
             qWarning() << "Couldn't delete table" << tableName;
             qWarning() << "ERROR: " << query.lastError();
@@ -487,7 +488,7 @@ void MainWindow::on_action_Rename_Table_triggered(){
             return;
 
         QSqlQuery query(dbMem);
-        query.prepare("ALTER TABLE " + currentName + " RENAME TO "+newName);
+        query.prepare("ALTER TABLE '" + currentName + "' RENAME TO '"+newName+"'");
         if (!query.exec()){
             qWarning() << "Couldn't rename table" << currentName;
             qWarning() << "ERROR: " << query.lastError();
@@ -624,7 +625,7 @@ void MainWindow::on_action_Launch_Domain_triggered(){
         if (!domain.startsWith("http://") && !domain.startsWith("https://"))
             domain = "http://" + domain;
 
-        if (domain.contains("www.")){
+        if (domain.contains("www.")){//add .com just if no . are found. (from .it or .net etc)
             if (!domainaux.remove("www.").contains("."))
                 domain = domain+".com";
         }else if (!domain.contains("."))
@@ -737,6 +738,7 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     }//end fileName.isEmpty()
     else{
 #ifdef SECUBE
+        //TODO: check what happens when overwrite, if file is deleted. and if it necessary. it is working, so maybe sqliteopen delets prev.
         //Get name of file in disk (encrypted) and delete.
         char enc_filename[65];
         uint16_t enc_len = 0;
@@ -775,8 +777,8 @@ bool MainWindow::on_action_Save_Wallet_triggered(){
     //BUG: workaround for first table always corrupted problem: have a dummy table, that ensures database is not empty
     tables.prepend("NoEmpty");
     foreach (const QString table, tables) {// loop all the tables
-        QString sql = "create table "+table+
-                "(id integer primary key, "
+        QString sql = "create table '"+table+
+                "'(id integer primary key, "
                 "Username TEXT, "
                 "Domain TEXT, "
                 "Password TEXT, "
@@ -888,7 +890,6 @@ void MainWindow::on_action_Save_Wallet_As_triggered(){
     saveAsAbort = fileName;//In case SaveAs is aborted, we need to recover the fileName
     fileName.clear();//it is enough to set filename to empty, for save_wallet to ask for a new fileName
     on_action_Save_Wallet_triggered();
-
 }
 
 ////Open Cyphered database and display it
@@ -956,7 +957,7 @@ void MainWindow::on_action_Open_Wallet_triggered(){
         exit (1); // as the application does not work without Sqlite, exit.
     }
 
-    if (dbMem.open()){ //close any prev. opened connections and database
+    if (dbMem.isOpen()){ //close any prev. opened connections and database
 
         int col;
         int aux;
@@ -987,8 +988,8 @@ void MainWindow::on_action_Open_Wallet_triggered(){
 
     foreach (const QString table, tables){
 
-        QString sql = "create table "+table+
-                "(id integer primary key, "
+        QString sql = "create table '"+table+
+                "'(id integer primary key, "
                 "Username TEXT, "
                 "Domain TEXT, "
                 "Password TEXT, "
@@ -1066,14 +1067,14 @@ int MainWindow::callback_createTableList(int argc, char **argv, char **azColName
     return 0;
 }
 
-int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){ //Build TableList from ciphered db
+int MainWindow::callback_populateTable(int argc, char **argv, char **azColName){ //fill Table in in-mem with data from ciphered db
 
     if (currentTable=="NoEmpty") // we dont want NoEmpty in the in-mem db
         return 0;
     int i;
     UNUSED(azColName);
 
-    static const QString insert = QStringLiteral("INSERT INTO %1 VALUES (%2);"); //Insert statement
+    static const QString insert = QStringLiteral("INSERT INTO '%1' VALUES (%2);"); //Insert statement
     QStringList values;
     QString aux;
 
@@ -1111,7 +1112,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
         }
     }
 
-    if (dbMem.open()){ //close any prev. opened connections and database
+    if (dbMem.isOpen()){ //close any prev. opened connections and database
 
         int col;
         int aux;
@@ -1155,7 +1156,7 @@ void MainWindow::on_action_Close_Wallet_triggered(){
 
 /// If there is an opened wallet, delete it, if not, then open select wallet dialog.
 void MainWindow::on_action_Delete_Wallet_triggered(){
-    if (ui->action_Add_Table->isEnabled()){ // this means there is a wallet opened, so delete it
+    if (ui->action_Add_Table->isEnabled()){ // this means there is a wallet opened, so delete the in-mem DB
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,
                                       "Delete",
@@ -1164,7 +1165,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
         if (reply == QMessageBox::No)
             return;
 
-        if (dbMem.open()){ //close any prev. opened connections and database
+        if (dbMem.isOpen()){ //close any prev. opened connections and database
             int col;
             int aux;
             for (col=USER_COL;col<=DESC_COL; col++){ // save table geometry before closing
@@ -1196,7 +1197,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
 
     if (fileName.isEmpty() && !ui->action_Add_Table->isEnabled()) // if no in-memory table was deleted and no fileName to delete, nothing more to do
         return;
-    if (!fileName.isEmpty()){
+    if (!fileName.isEmpty()){//delete in-disk DB, either the current wallet, or the on chosad aasadd
         char enc_filename[65];
         uint16_t enc_len = 0;
         memset(enc_filename, 0, 65);
@@ -1207,7 +1208,7 @@ void MainWindow::on_action_Delete_Wallet_triggered(){
         statusBar()->setStyleSheet("font-weight: bold; color: black");
         statusBar()->showMessage(QFileInfo(QFile(fileName)).absoluteFilePath()+" Deleted successfully", 2000);
     }
-    else{
+    else{//unnamed wallet, deleted only in the in-mem DB
         statusBar()->setStyleSheet("font-weight: bold; color: black");
         statusBar()->showMessage("Unnamed wallet Deleted successfully", 2000);
     }

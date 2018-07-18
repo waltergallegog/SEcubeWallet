@@ -2,6 +2,10 @@
 #include <QHeaderView>
 #include <QCheckBox>
 
+
+FiltersAligned::FiltersAligned(QWidget *parent)
+    : QHBoxLayout(parent){}
+
 FiltersAligned::FiltersAligned()
     : QHBoxLayout()
 {
@@ -62,8 +66,6 @@ FiltersAligned::FiltersAligned()
     setContentsMargins(0,0,0,0);
 }
 
-FiltersAligned::FiltersAligned(QWidget *parent)
-    : QHBoxLayout(parent){}
 
 void FiltersAligned::setTableColumnsToTrack(QHeaderView *view) {
     headerView = view;

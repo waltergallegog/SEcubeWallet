@@ -6,7 +6,7 @@ SaveConfirmation::SaveConfirmation(QWidget *parent) :
     ui(new Ui::SaveConfirmation)
 {
     ui->setupUi(this);
-    setWindowTitle( tr("Confirm Save") );
+    setWindowTitle( tr("Save wallet") );
     setModal( true );
 }
 

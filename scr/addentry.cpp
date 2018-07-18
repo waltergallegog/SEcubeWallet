@@ -291,7 +291,7 @@ void AddEntry::on_gen_pass_clicked(){
 
     //PWGEN vars
     QString options = ""; //-a options does not do anything, just to have always 4 arguments
-    QString length = "16";
+    int length = 16;
     char* buf;
 
     //PASSPHRASE vars
@@ -331,10 +331,10 @@ void AddEntry::on_gen_pass_clicked(){
 
         //check if user entered an integer, if not, default is 16
         if(settings.value("passGens/pwgen/len").toInt())
-            length = settings.value("passGens/pwgen/len").toString();
+            length = settings.value("passGens/pwgen/len").toInt();
 
 
-        buf = (char*)malloc(length.toInt()+1);
+        buf = (char*)malloc(length+1);
 
         if(!buf){
             qDebug() << "Memory Allocation Failed";
@@ -343,8 +343,8 @@ void AddEntry::on_gen_pass_clicked(){
 
         //actual call to password generator
         qDebug() << options;
-        main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
-        genPass = QString::fromLatin1(buf,length.toInt());
+        main_pwgen(options.length(), options.toLatin1().constData(), length, buf);
+        genPass = QString::fromLatin1(buf,length);
         free(buf);
 
         //if succesfully finishes, change passwords
