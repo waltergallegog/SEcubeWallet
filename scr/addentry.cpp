@@ -393,7 +393,7 @@ void AddEntry::on_gen_pass_clicked(){
             break;
         }
 
-        if (!numWords>0)//if user did not choose at least 1 word, then default to 4
+        if (!(numWords>0))//if user did not choose at least 1 word, then default to 4
             numWords=4;
 
         totalLen = dictsLen.last().toInt();//last dictsLen is total
@@ -499,7 +499,7 @@ void AddEntry::build_info_model(const char* Pwd){
         items.append(new QStandardItem(attacksTime_s.at(i)));
         items.last()->setTextAlignment(Qt::AlignCenter);
 
-        to_crack = pow10(elog - attacksTime[i]); // seconds to crack passw
+        to_crack = qPow(10, (elog - attacksTime[i])); // seconds to crack passw
         qDebug() <<to_crack;
         if (to_crack<1)
             items.append(new QStandardItem("less than a second"));
