@@ -849,7 +849,7 @@ uint16_t secure_seek(SEFILE_FHANDLE *hFile, int32_t offset, int32_t *position, u
     SEFILE_FHANDLE hTmp=NULL;
 
     //Temporal fix walter
-    int32_t start_zeros=0; //variable to store the negative offset we want to use when writing zeros to the end of the file
+//    int32_t start_zeros=0; //variable to store the negative offset we want to use when writing zeros to the end of the file. Casting is enough, no variable needed
     int error; //just to capture the errno given by lseek
 
     if(check_env() || hFile==NULL){
@@ -975,9 +975,11 @@ uint16_t secure_seek(SEFILE_FHANDLE *hFile, int32_t offset, int32_t *position, u
             * meet in rare ocations, and the way sqlite journaling is one of them.
             *
             */
+            //start_zeros = (file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE; //int32_t              variable storing the negative buffer. A casting is enough, not var needed
 
             errno=0; //clear errno
-            start_zeros = (file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE; //int32_t variable storing the negative buffer
+//            hTmp->log_offset=lseek(hTmp->fd, ((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), SEEK_END);
+
             hTmp->log_offset=lseek(hTmp->fd, (int32_t)((file_length%SEFILE_LOGIC_DATA)-SEFILE_SECTOR_SIZE), SEEK_END);
             error=errno;//capture errno
 

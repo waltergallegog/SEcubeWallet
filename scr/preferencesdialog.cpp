@@ -73,7 +73,7 @@ void PreferencesDialog::on_buttonBox_accepted(){
 
     //// ***** Password generator settings.
     settings.setValue("passGens/gen", ui->cb_gens->currentIndex());
-
+    //TODO: change length input for a spinbox
     //pwgen settings
     settings.setValue("passGens/pwgen/len", ui->le_pwgenLen->text());
     settings.setValue("passGens/pwgen/1cap", ui->cb_1cap->isChecked());
@@ -228,6 +228,7 @@ void PreferencesDialog::on_pb_applyPhra_clicked()
 /// **** zxcvbn preferences buttons *****
 //TODO: change settings names to format ppgen/  pwgen/  /zxcvbn
 //TODO: in release, where to put zxcvbn? put a dict choose to let the user search for the zxcvbn folder?
+//TODO: zxcvbn is shared library with the fpic option, does this compromise security? does the password leave memory space
 void PreferencesDialog::on_pb_genGen_clicked(){
 
     QProcess sh;
