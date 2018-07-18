@@ -1111,24 +1111,24 @@ void MainWindow::on_action_Close_Wallet_triggered(){
         }
     }
 
-    if (dbMem.open()){ //close any prev. opened connections and database
+//    if (dbMem.open()){ //close any prev. opened connections and database
 
-        int col;
-        int aux;
-        for (col=USER_COL;col<=DESC_COL; col++){ // save table geometry before closing
-            aux=ui->tableView->horizontalHeader()->sectionSize(col);//for readability
-            widths[col] = (aux>0) ? aux : widths[col];
-        }
+//        int col;
+//        int aux;
+//        for (col=USER_COL;col<=DESC_COL; col++){ // save table geometry before closing
+//            aux=ui->tableView->horizontalHeader()->sectionSize(col);//for readability
+//            widths[col] = (aux>0) ? aux : widths[col];
+//        }
 
-        if (model!=NULL){
-            model->clear();
-            model=NULL;
-            proxyModel->invalidate();
-        }
-        dbMem.close();
-        QSqlDatabase::removeDatabase(DRIVER);
-        dbMem = QSqlDatabase();
-    }
+//        if (model!=NULL){
+//            model->clear();
+//            model=NULL;
+//            proxyModel->invalidate();
+//        }
+//        dbMem.close();
+//        QSqlDatabase::removeDatabase(DRIVER);
+//        dbMem = QSqlDatabase();
+//    }
 
     //State of some actions as not clickable because there is no wallet to edit yet
     ui->action_Save_Wallet->setEnabled(false);

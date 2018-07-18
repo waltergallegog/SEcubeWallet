@@ -18,10 +18,10 @@
 #include "passwordInfo.h"
 #include "passphrasegen.h"
 
-extern "C"
-{
-#include "pwgen.h"
-}
+//extern "C"
+//{
+//#include "pwgen.h"
+//}
 
 #define LOG102 0.301029996 //log in base 10 of 2
 #define MESS0 "Too guessable: Risky password"
@@ -310,48 +310,48 @@ void AddEntry::on_gen_pass_clicked(){
 
     case PWGEN:
 
-        //look for user settings to determine which options
-        if (settings.value("passGens/pwgen/1cap").toBool())
-            options.append("c");
-        if (settings.value("passGens/pwgen/1num").toBool())
-            options.append("n");
-        if (settings.value("passGens/pwgen/1spec").toBool())
-            options.append("y");
-        if (settings.value("passGens/pwgen/noAmb").toBool())
-            options.append("B");
-        if (settings.value("passGens/pwgen/noCap").toBool())
-            options.append("A");
-        if (settings.value("passGens/pwgen/noNum").toBool())
-            options.append("0");
-        if (settings.value("passGens/pwgen/noVow").toBool())
-            options.append("v");
-        if (settings.value("passGens/pwgen/random").toBool())
-            options.append("s");
+//        //look for user settings to determine which options
+//        if (settings.value("passGens/pwgen/1cap").toBool())
+//            options.append("c");
+//        if (settings.value("passGens/pwgen/1num").toBool())
+//            options.append("n");
+//        if (settings.value("passGens/pwgen/1spec").toBool())
+//            options.append("y");
+//        if (settings.value("passGens/pwgen/noAmb").toBool())
+//            options.append("B");
+//        if (settings.value("passGens/pwgen/noCap").toBool())
+//            options.append("A");
+//        if (settings.value("passGens/pwgen/noNum").toBool())
+//            options.append("0");
+//        if (settings.value("passGens/pwgen/noVow").toBool())
+//            options.append("v");
+//        if (settings.value("passGens/pwgen/random").toBool())
+//            options.append("s");
 
 
-        //check if user entered an integer, if not, default is 16
-        if(settings.value("passGens/pwgen/len").toInt())
-            length = settings.value("passGens/pwgen/len").toString();
+//        //check if user entered an integer, if not, default is 16
+//        if(settings.value("passGens/pwgen/len").toInt())
+//            length = settings.value("passGens/pwgen/len").toString();
 
 
-        buf = (char*)malloc(length.toInt()+1);
+//        buf = (char*)malloc(length.toInt()+1);
 
-        if(!buf){
-            qDebug() << "Memory Allocation Failed";
-            return;
-        }
+//        if(!buf){
+//            qDebug() << "Memory Allocation Failed";
+//            return;
+//        }
 
-        //actual call to password generator
-        qDebug() << options;
-        main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
-        genPass = QString::fromLatin1(buf,length.toInt());
-        free(buf);
+//        //actual call to password generator
+//        qDebug() << options;
+//        main_pwgen(options.length(), options.toLatin1().constData(), length.toInt(), buf);
+//        genPass = QString::fromLatin1(buf,length.toInt());
+//        free(buf);
 
-        //if succesfully finishes, change passwords
-        if(!genPass.isEmpty()){
-            ui->InPass->setText(genPass);
-            ui->InPass2->setText(genPass);
-        }
+//        //if succesfully finishes, change passwords
+//        if(!genPass.isEmpty()){
+//            ui->InPass->setText(genPass);
+//            ui->InPass2->setText(genPass);
+//        }
 
         break;
 
@@ -393,7 +393,7 @@ void AddEntry::on_gen_pass_clicked(){
             break;
         }
 
-        if (!numWords>0)//if user did not choose at least 1 word, then default to 4
+        if (!(numWords>0))//if user did not choose at least 1 word, then default to 4
             numWords=4;
 
         totalLen = dictsLen.last().toInt();//last dictsLen is total
@@ -499,7 +499,7 @@ void AddEntry::build_info_model(const char* Pwd){
         items.append(new QStandardItem(attacksTime_s.at(i)));
         items.last()->setTextAlignment(Qt::AlignCenter);
 
-        to_crack = pow10(elog - attacksTime[i]); // seconds to crack passw
+        to_crack = qPow(10, (elog - attacksTime[i])); // seconds to crack passw
         qDebug() <<to_crack;
         if (to_crack<1)
             items.append(new QStandardItem("less than a second"));

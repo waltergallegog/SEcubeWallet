@@ -137,18 +137,18 @@ CONFIG(NO_SECUBE){ # if no se_cube connected, use non encrypted sqlite3
 RESOURCES += \
     ../icons/icons.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pwgen/release/ -lpwgen
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pwgen/debug/ -lpwgen
-else:unix: LIBS += -L$$OUT_PWD/../pwgen/ -lpwgen
+#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../pwgen/release/ -lpwgen
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../pwgen/debug/ -lpwgen
+#else:unix: LIBS += -L$$OUT_PWD/../pwgen/ -lpwgen
 
-INCLUDEPATH += $$PWD/../pwgen
-DEPENDPATH += $$PWD/../pwgen
+#INCLUDEPATH += $$PWD/../pwgen
+#DEPENDPATH += $$PWD/../pwgen
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/release/libpwgen.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/debug/libpwgen.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/release/pwgen.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/debug/pwgen.lib
-else:unix: PRE_TARGETDEPS += $$OUT_PWD/../pwgen/libpwgen.a
+#win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/release/libpwgen.a
+#else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/debug/libpwgen.a
+#else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/release/pwgen.lib
+#else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../pwgen/debug/pwgen.lib
+#else:unix: PRE_TARGETDEPS += $$OUT_PWD/../pwgen/libpwgen.a
 
 #DISTFILES +=
 
